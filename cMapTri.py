@@ -3,13 +3,14 @@ import nkUtilities.mpl_baseSettings
 import nkUtilities.LoadConfig       as lcf
 import numpy                        as np
 import matplotlib.pyplot            as plt
+import matplotlib.tri               as tri
 import scipy.interpolate            as sit
 
 
 # ========================================================= #
 # ===  2次元 カラーマップ描画用クラス                   === #
 # ========================================================= #
-class cMap2D:
+class cMapTri:
     # ------------------------------------------------- #
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
@@ -107,17 +108,16 @@ class cMap2D:
         # ------------------------------------------------- #
         # --- 軸情報整形 : 1次元軸 を 各点情報へ変換    --- #
         # ------------------------------------------------- #
-        if ( ( xAxis.ndim == 1 ) and ( yAxis.ndim == 1 ) ):
-            xAxis_, yAxis_ = np.meshgrid( xAxis, yAxis, indexing='ij' )
-        else:
-            xAxis_, yAxis_ = xAxis, yAxis
+        xAxis_, yAxis_ = xAxis, yAxis
         # ------------------------------------------------- #
         # --- カラーマップを作図                        --- #
         # ------------------------------------------------- #
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0]
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1]
-        self.cImage = self.ax1.contourf( xAxis_, yAxis_, self.cMap, self.cmpLevels, \
-                                         cmap = self.config["cmp_ColorTable"], zorder=0 )
+        print( xAxis_.shape, yAxis_.shape, self.cMap.shape )
+        triangulated = tri.Triangulation( xAxis_, yAxis_ )
+        self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
+                                            cmap = self.config["cmp_ColorTable"], zorder=0 )
         self.set__axis()
 
         
@@ -440,7 +440,7 @@ class cMap2D:
             self.fig.savefig( self.config["pngFile"], dpi=self.config["densityPNG"], \
                               pad_inches=0 )
         plt.close()
-        print( "[ writeFigure -@cMap2D- ] out :: {0}".format( self.config["pngFile"] ) )
+        print( "[ writeFigure -@cMapTri- ] out :: {0}".format( self.config["pngFile"] ) )
 
 
 # ======================================== #
@@ -448,10 +448,6 @@ class cMap2D:
 # ======================================== #
 if ( __name__=="__main__" ):
     import nkUtilities.load__testprofile as ltp
-    prof = ltp.load__testprofile( mode="2D", returnType="Dictionary" )
-    print( prof.keys() )
-    print( prof["x1Axis"].shape  )
-    print( prof["x2Axis"].shape  )
-    print( prof["x3Axis"]        )
-    print( prof["profile"].shape )
-    cMap2D( xAxis=prof["x1Axis"], yAxis=prof["x2Axis"], cMap=prof["profile"], pngFile="out.png" )
+    prof = ltp.load__testprofile( mode="2D", returnType="point" )
+    print( prof.shape )
+    cMapTri( xAxis=prof[:,0], yAxis=prof[:,1], cMap=prof[:,2], pngFile="tri.png" )
