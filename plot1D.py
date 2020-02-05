@@ -353,5 +353,5 @@ class plot1D:
 # ======================================== #
 if ( __name__=="__main__" ):
     import nkUtilities.load__testprofile as ltp
-    prof = ltp.load__testprofile( mode="1D", returnType="Dictionary" )
+    prof   = ltp.load__testprofile( mode="1D", returnType="Dictionary" )
     plot1D( xAxis=prof["x1Axis"], yAxis=prof["profile"], pngFile="out.png" )

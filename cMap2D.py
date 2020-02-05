@@ -319,8 +319,8 @@ class cMap2D:
         # ------------------------------------------------- #
         # --- 軸タイトル 設定 ( xlabel, ylabel )        --- #
         # ------------------------------------------------- #
-        self.ax1.set_xlabel( self.config["xTitle"] )
-        self.ax1.set_ylabel( self.config["yTitle"] )
+        self.ax1.set_xlabel( self.config["xTitle"], fontsize=self.config["xTitle_FontSize"]  )
+        self.ax1.set_ylabel( self.config["yTitle"], fontsize=self.config["yTitle_FontSize"]  )
         # ------------------------------------------------- #
         # --- 軸タイトル 無し                           --- #
         # ------------------------------------------------- #            
