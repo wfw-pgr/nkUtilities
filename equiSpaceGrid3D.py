@@ -3,10 +3,10 @@ import numpy                     as np
 # ========================================================= #
 # ===  equiSpaceGrid3D                                  === #
 # ========================================================= #
-def equiSpaceGrid3D( LI   =None, LJ=None, LK=None, size=None, x1Range=None, x2Range=None, x3Range=None, \
-                     x1Min=None, x1Max=None, x2Min=None, x2Max=None, x3Min=None, x3Max=None, \
+def equiSpaceGrid3D( LI   =None, LJ   =None, LK   =None, size =None, x1Range=None, x2Range=None, x3Range=None, \
+                     x1Min=None, x1Max=None, x2Min=None, x2Max=None, x3Min  =None, x3Max  =None, \
                      x1MinMaxNum=None, x2MinMaxNum=None, x3MinMaxNum=None, \
-                     returnType="Dictionary" ):
+                     returnType="Dictionary", DataOrder="ijk" ):
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
@@ -35,7 +35,10 @@ def equiSpaceGrid3D( LI   =None, LJ=None, LK=None, size=None, x1Range=None, x2Ra
     x1          = np.linspace( x1MinMaxNum[0], x1MinMaxNum[1], int( x1MinMaxNum[2] ) )
     x2          = np.linspace( x2MinMaxNum[0], x2MinMaxNum[1], int( x2MinMaxNum[2] ) )
     x3          = np.linspace( x3MinMaxNum[0], x3MinMaxNum[1], int( x3MinMaxNum[2] ) )
-    xg1,xg2,xg3 = np.meshgrid( x1, x2, x3, indexing="ij" )
+    if ( DataOrder == "kji" ):
+        xg1,xg2,xg3 = np.meshgrid( x1, x2, x3, indexing="ij" )
+    if ( DataOrder == "ijk" ):
+        xg3,xg2,xg1 = np.meshgrid( x3, x2, x1, indexing="ij" )
     # ------------------------------------------------- #
     # --- [3] Return                                --- #
     # ------------------------------------------------- #

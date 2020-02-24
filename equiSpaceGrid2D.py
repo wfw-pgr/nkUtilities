@@ -5,7 +5,7 @@ import numpy                     as np
 # ========================================================= #
 def equiSpaceGrid2D( LI   =None, LJ=None, size=None, x1Range=None, x2Range=None, \
                      x1Min=None, x1Max=None, x2Min=None, x2Max=None, x1MinMaxNum=None, x2MinMaxNum=None, \
-                     returnType="Dictionary" ):
+                     returnType="Dictionary", DataOrder="ijk" ):
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
@@ -27,7 +27,10 @@ def equiSpaceGrid2D( LI   =None, LJ=None, size=None, x1Range=None, x2Range=None,
     # ------------------------------------------------- #
     x1      = np.linspace( x1MinMaxNum[0], x1MinMaxNum[1], int( x1MinMaxNum[2] ) )
     x2      = np.linspace( x2MinMaxNum[0], x2MinMaxNum[1], int( x2MinMaxNum[2] ) )
-    xg1,xg2 = np.meshgrid( x1, x2, indexing="ij" )
+    if ( DataOrder == "kji" ):
+        xg1,xg2 = np.meshgrid( x1, x2, indexing="ij" )
+    if ( DataOrder == "ijk" ):
+        xg2,xg1 = np.meshgrid( x2, x1, indexing="ij" )
     # ------------------------------------------------- #
     # --- [3] Return                                --- #
     # ------------------------------------------------- #
