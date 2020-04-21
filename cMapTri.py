@@ -53,7 +53,7 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- x軸 - y軸の作成                           --- #
         # ------------------------------------------------- #
-        #  -- もし，引数に x,y 変数が渡されてない場合，インデックスで代用 -- #
+        #  -- もし，引数に x,y 変数が渡されてない場合，インデックスで代用不可 -- #
         if ( ( self.xAxis is None ) and ( self.cMap is not None ) ):
             self.xAxis = np.arange( ( self.cMap.shape[0] ) )
         if ( ( self.yAxis is None ) and ( self.cMap is not None ) ):
@@ -86,7 +86,7 @@ class cMapTri:
                               uvec  = self.xvec,  vvec  = self.yvec,  )
         # -- もし 何かを描いてたら，出力する．          --  #
         if ( instantOut ):
-            self.writeFigure( pngFile=self.config["pngFile"] )
+            self.save__figure( pngFile=self.config["pngFile"] )
 
             
     # ========================================================= #
@@ -114,10 +114,20 @@ class cMapTri:
         # ------------------------------------------------- #
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0]
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1]
-        print( xAxis_.shape, yAxis_.shape, self.cMap.shape )
         triangulated = tri.Triangulation( xAxis_, yAxis_ )
         self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
                                             cmap = self.config["cmp_ColorTable"], zorder=0 )
+        # ------------------------------------------------- #
+        # --- 軸調整 / 最大 / 最小 表示                 --- #
+        # ------------------------------------------------- #
+        print( "[cMapTri] :: size :: x, y, z    =  "\
+               .format( xAxis_.shape, yAxis_.shape, self.cMap.shape ) )
+        print( "[cMapTri] :: ( min(x), max(x) ) = ( {0}, {1} ) "\
+               .format( np.min( self.xAxis ), np.max( self.xAxis ) ) )
+        print( "[cMapTri] :: ( min(y), max(y) ) = ( {0}, {1} ) "\
+               .format( np.min( self.yAxis ), np.max( self.yAxis ) ) )
+        print( "[cMapTri] :: ( min(z), max(z) ) = ( {0}, {1} ) "\
+               .format( np.min( self.cMap  ), np.max( self.cMap  ) ) )
         self.set__axis()
 
         
@@ -280,6 +290,15 @@ class cMapTri:
         self.ax1.set_xlim( self.config["cmp_xRange"][0], self.config["cmp_xRange"][1] )
         self.ax1.set_ylim( self.config["cmp_yRange"][0], self.config["cmp_yRange"][1] )
         # ------------------------------------------------- #
+        # ---  アスペクト比                             --- #
+        # ------------------------------------------------- #
+        if ( self.config["cmp_autoAspect"] ):
+            xleft, xright                  = self.ax1.get_xlim()
+            ybottom, ytop                  = self.ax1.get_ylim()
+            self.config["cmp_aspectRatio"] = abs( (ytop-ybottom) / (xright-xleft) )
+        self.ax1.set_aspect( self.config["cmp_aspectRatio"] )
+
+        # ------------------------------------------------- #
         # --- 軸目盛 設定                               --- #
         # ------------------------------------------------- #
         #  -- 整数  軸目盛り                            --  #
@@ -327,7 +346,7 @@ class cMapTri:
         if ( self.config["xTitle_off"] ): self.ax1.set_xlabel('')
         if ( self.config["yTitle_off"] ): self.ax1.set_ylabel('')
 
-
+        
     # ========================================================= #
     # ===  カラー レベル設定                                === #
     # ========================================================= #
@@ -419,7 +438,7 @@ class cMapTri:
     # ========================================================= #
     # ===  ファイル 保存                                    === #
     # ========================================================= #
-    def writeFigure( self, pngFile=None ):
+    def save__figure( self, pngFile=None ):
         # ------------------------------------------------- #
         # --- 引数設定                                  --- #
         # ------------------------------------------------- #
@@ -440,7 +459,7 @@ class cMapTri:
             self.fig.savefig( self.config["pngFile"], dpi=self.config["densityPNG"], \
                               pad_inches=0 )
         plt.close()
-        print( "[ writeFigure -@cMapTri- ] out :: {0}".format( self.config["pngFile"] ) )
+        print( "[ save__figure -@cMapTri- ] out :: {0}".format( self.config["pngFile"] ) )
 
 
 # ======================================== #

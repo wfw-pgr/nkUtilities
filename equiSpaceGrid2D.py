@@ -43,6 +43,8 @@ def equiSpaceGrid2D( LI   =None, LJ=None, size=None, x1Range=None, x2Range=None,
         ret[:,0] = np.copy( xg1.reshape( -1, ) )
         ret[:,1] = np.copy( xg2.reshape( -1, ) )
         return( ret )
+    elif ( returnType.lower() == "grid"       ):
+        pass
 
 
 # ======================================== #
