@@ -1,8 +1,8 @@
 # ========================================================= #
 # === matplotlib 共通 パラメータ セッティング           === #
 # ========================================================= #
-import matplotlib.pyplot  as plt
-import myStyle.LoadConfig as lcf
+import matplotlib.pyplot      as plt
+import nkUtilities.LoadConfig as lcf
 
 config = lcf.LoadConfig()
 
