@@ -81,11 +81,11 @@ if ( __name__=="__main__" ):
     outFile ="output.dat"
     import nkUtilities.equiSpaceGrid as esg
     LI, LJ, LK  = 11, 21, 31
-    x1MinMaxNum = [0.0,   1.0, LI]
+    x1MinMaxNum = [0.0,   3.0, LI]
     x2MinMaxNum = [0.0,  10.0, LJ]
     x3MinMaxNum = [0.0, 100.0, LK]
 
-    returnType  = "point"
+    returnType  = "structured"
 
     # -- 1D test -- #
     # Data        = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, returnType="structured"  )

@@ -54,7 +54,6 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C" ):
             print( "[save__pointFile] shape :: {0} ".format( shape      ) )
             print( "[save__pointFile] size  :: {0} ".format( Data.shape ) )
             sys.exit()
-
         ret   = np.reshape( Data, shape, order=order )
     elif ( returnType.lower() == "info" ):
         ret = { "names":names, "shape":shape, "size":size }
@@ -72,4 +71,4 @@ if ( __name__=="__main__" ):
     
     Data = load__pointFile( inpFile=inpFile, returnType="structured" )
     print( Data.shape )
-    print( Data[0,:,0,2] )
+    print( Data[0,0,:,0] )
