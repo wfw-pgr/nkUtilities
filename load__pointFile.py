@@ -5,7 +5,7 @@ import numpy as np
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C" ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, order="C"  ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
