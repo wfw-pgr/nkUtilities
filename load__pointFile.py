@@ -10,6 +10,7 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C" ):
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
+    names, size = None, None
     if ( inpFile is None ): sys.exit( "[load__pointFile] inpFile   == ??? " )
 
     # ------------------------------------------------- #
@@ -55,10 +56,11 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C" ):
             sys.exit()
 
         ret   = np.reshape( Data, shape, order=order )
+    elif ( returnType.lower() == "info" ):
+        ret = { "names":names, "shape":shape, "size":size }
     else:
         sys.exit( "[load__pointFile] returnType = ( point, dict )" )
     return( ret )
-    
 
 
 # ======================================== #

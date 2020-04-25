@@ -1,5 +1,6 @@
 import numpy as np
 
+
 # ========================================================= #
 # ===  load test profile for instant checking           === #
 # ========================================================= #
@@ -8,6 +9,7 @@ def load__testprofile( mode="2D", LI=101, LJ=51, LK=11, sigma=1.0, \
                        x1MinMaxNum=None, x2MinMaxNum=None, x3MinMaxNum=None, \
                        x1Axis=None, x2Axis=None, x3Axis=None, profile=None, \
                        returnType="point" ):
+    
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
@@ -15,6 +17,7 @@ def load__testprofile( mode="2D", LI=101, LJ=51, LK=11, sigma=1.0, \
     if ( x2MinMaxNum is None ): x2MinMaxNum = [ x2Min, x2Max, LJ ]
     if ( x3MinMaxNum is None ): x3MinMaxNum = [ x3Min, x3Max, LK ]
     coef = 0.5 / sigma
+    
     # ------------------------------------------------- #
     # --- [2] 1D ver.                               --- #
     # ------------------------------------------------- #
@@ -35,6 +38,7 @@ def load__testprofile( mode="2D", LI=101, LJ=51, LK=11, sigma=1.0, \
         x3Axis       = np.linspace( x3MinMaxNum[0], x3MinMaxNum[1], x3MinMaxNum[2] )
         x1g,x2g,x3g  = np.meshgrid( x1Axis, x2Axis, x3Axis, indexing='ij' )
         profile      = np.exp( -coef * ( x1g**2 + x2g**2 + x3g**2 ) )
+        
     # ------------------------------------------------- #
     # --- [5] Return Results (point)                --- #
     # ------------------------------------------------- #
@@ -54,11 +58,21 @@ def load__testprofile( mode="2D", LI=101, LJ=51, LK=11, sigma=1.0, \
             ret[:,1] =     x2g.reshape( (-1,) )
             ret[:,2] =     x3g.reshape( (-1,) )
             ret[:,3] = profile.reshape( (-1,) )
+
     # ------------------------------------------------- #
     # --- [6] Return Results (dictionary)           --- #
     # ------------------------------------------------- #            
     if ( returnType.lower() == "dictionary" ):
         ret = { "x1Axis":x1Axis, "x2Axis":x2Axis, "x3Axis":x3Axis, "profile":profile }
+
+    # ------------------------------------------------- #
+    # --- [7] Return Results (structured)           --- #
+    # ------------------------------------------------- #
+    if ( returnType.lower() == "structured" ):
+        if ( mode == "1D" ): arrs = np.array( [ x1g,           profile ] )
+        if ( mode == "2D" ): arrs = np.array( [ x1g, x2g,      profile ] )
+        if ( mode == "3D" ): arrs = np.array( [ x1g, x2g, x3g, profile ] )
+        ret  = np.concatenate( [ arr[...,np.newaxis] for arr in arrs ], axis=-1 )
     return( ret )
 
         
