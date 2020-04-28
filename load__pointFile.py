@@ -5,7 +5,7 @@ import numpy as np
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C"  ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -26,16 +26,24 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C"  ):
     # ------------------------------------------------- #
     # --- [3] names & size                          --- #
     # ------------------------------------------------- #
-    if ( ( line1.strip() )[0] == "#" ):
-        ext1  = ( ( ( line1.strip() ).strip( "#" ) ).strip() ).split()
-        names = [ str(s) for s in ext1 ]
-    if ( ( line2.strip() )[0] == "#" ):
-        ext2  = ( ( ( line2.strip() ).strip( "#" ) ).strip() ).split()
-        size  = [ int(i) for i in ext2 ]
-    if ( ( line3.strip() )[0] == "#" ):
-        ext3  = ( ( ( line3.strip() ).strip( "#" ) ).strip() ).split()
-        shape = [ int(i) for i in ext3 ]
-
+    if ( readHeader ):
+        if ( ( line1.strip() )[0] == "#" ):
+            ext1  = ( ( ( line1.strip() ).strip( "#" ) ).strip() ).split()
+            names = [ str(s) for s in ext1 ]
+        if ( ( line2.strip() )[0] == "#" ):
+            ext2  = ( ( ( line2.strip() ).strip( "#" ) ).strip() ).split()
+            size  = [ int(i) for i in ext2 ]
+        if ( ( line3.strip() )[0] == "#" ):
+            ext3  = ( ( ( line3.strip() ).strip( "#" ) ).strip() ).split()
+            shape = [ int(i) for i in ext3 ]
+    else:
+        size        = Data.shape
+        if ( Data.ndim == 1 ):
+            nComponents = 1
+        else:
+            nComponents = Data.shape[1]
+        names = [ "x{0}".format(ik) for ik in range( nComponents ) ]
+            
     # ------------------------------------------------- #
     # --- [4] return                                --- #
     # ------------------------------------------------- #

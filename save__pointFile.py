@@ -5,8 +5,8 @@ import numpy as np
 # ===  save point File with prescribed header           === #
 # ========================================================= #
 
-def save__pointFile( Data =None, names=None, ndim     =None, outFile="out.dat", \
-                     shape=None, size =None, DataOrder="ijk" ):
+def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat", \
+                     shape=None, size =None, DataOrder="ijk", fmt    ="%15.8e"  ):
     # ------------------------------------------------- #
     # --- [1] Arguments Preparation                 --- #
     # ------------------------------------------------- #
@@ -30,11 +30,11 @@ def save__pointFile( Data =None, names=None, ndim     =None, outFile="out.dat", 
     # --- [3] if Data dimension == 2 :: point       --- #
     # ------------------------------------------------- #
     if ( ndim == 2 ):
+        size        = Data_.shape
         if ( shape is None ): # -- assume Data is point -- #
-            size        = Data_.shape
             shape       = Data_.shape
-            if ( names is None ):
-                names       = [ "x{0}".format(i+1) for i in range( size[1] ) ]
+        if ( names is None ):
+            names       = [ "x{0}".format(i+1) for i in range( size[1] ) ]
             
     # ------------------------------------------------- #
     # --- [3] if Data dimension  > 2 :: structured  --- #
@@ -64,7 +64,7 @@ def save__pointFile( Data =None, names=None, ndim     =None, outFile="out.dat", 
         f.write( "# " + " ".join( [ str(i) for i in size ] ) + "\n" )
         if ( shape is not None ):
             f.write( "# " + " ".join( [str(i) for i in shape] ) + "\n" )
-        np.savetxt( f, Data_ )
+        np.savetxt( f, Data_, fmt=fmt )
 
     # ------------------------------------------------- #
     # --- [5] return Nothing                        --- #

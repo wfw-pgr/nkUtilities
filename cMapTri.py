@@ -60,10 +60,10 @@ class cMapTri:
             self.yAxis = np.arange( ( self.cMap.shape[1] ) )
         #  -- AutoRange (x)  --  #
         if ( ( self.config["cmp_xAutoRange"] ) and ( self.xAxis is not None ) ):
-            self.config["cmp_xRange"] = [ self.xAxis[0],self.xAxis[-1] ]
+            self.config["cmp_xRange"] = [ np.min( self.xAxis ), np.max( self.xAxis ) ]
         #  -- AutoRange (y)  --  #
         if ( ( self.config["cmp_yAutoRange"] ) and ( self.yAxis is not None ) ):
-            self.config["cmp_yRange"] = [ self.yAxis[0],self.yAxis[-1] ]
+            self.config["cmp_yRange"] = [ np.min( self.yAxis ), np.max( self.yAxis ) ]
         # ------------------------------------------------- #
         # --- 速攻描画                                  --- #
         # ------------------------------------------------- #
@@ -281,9 +281,9 @@ class cMapTri:
         # --- AutoRange, AutoTicks モード (データ取得)  --- #
         # ------------------------------------------------- #
         if ( ( self.config["cmp_xAutoRange"] ) and ( self.xAxis is not None ) ):
-            self.config["cmp_xRange"] = [ np.min(self.xAxis[0]), np.max(self.xAxis[:]) ]
+            self.config["cmp_xRange"] = [ np.min(self.xAxis ), np.max( self.xAxis ) ]
         if ( ( self.config["cmp_yAutoRange"] ) and ( self.yAxis is not None ) ):
-            self.config["cmp_yRange"] = [ np.min(self.yAxis[0]), np.max(self.yAxis[:]) ]
+            self.config["cmp_yRange"] = [ np.min(self.yAxis ), np.max( self.yAxis ) ]
         # ------------------------------------------------- #
         # --- プロット範囲の指定 ( xlim, ylim 設定 )    --- #
         # ------------------------------------------------- #
