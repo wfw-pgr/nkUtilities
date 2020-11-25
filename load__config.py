@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, re
 
 
 # ========================================================= #
@@ -10,14 +10,8 @@ def load__config( config=None ):
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
     if ( config is None ):
-        if ( "PYCONFIGFILE" in os.environ ):
-            config = os.environ["PYCONFIGFILE"]
-        else:
-            print( "[load__config] No Config File !! " )
-            print( "[load__config]   -- 1. set environmental variable 'PYCONFIGFILE'." )
-            print( "[load__config]   -- 2. specify argument config. load__config( config=xxx )" )
-            print( "[load__config] stop..." )
-            sys.exit()
+        dirname = os.path.dirname( os.path.abspath( __file__ ) )
+        config  = os.path.join( dirname, "default.conf" )
             
     # ------------------------------------------------- #
     # --- [2] Load Config File                      --- #
@@ -30,34 +24,46 @@ def load__config( config=None ):
     # ------------------------------------------------- #
     ret = {}
     for line in lines:
-        if ( len(line) > 0 ):
-            if ( ( line[0] != "#" ) and ( line[0] != "\n" )  ):
-                # -- decomposition  -- #
-                vname = ( line.split() )[0]
-                vtype = ( line.split() )[1]
-                value = ( line.split() )[2]
-                # -- classification -- #
-                if   ( value == 'None'    ):
-                    ret[vname] = None
-                elif ( vtype == 'float'   ):
-                    ret[vname] = float( value )
-                elif ( vtype == 'double'  ):
-                    ret[vname] = float( value )
-                elif ( vtype == 'long'    ):
-                    ret[vname] = int( float(value) )
-                elif ( vtype == 'string'  ):
-                    ret[vname] = value
-                elif ( vtype == 'logical' ):
-                    if ( value == "True" ):
-                        ret[vname] = True
-                    else:
-                        ret[vname] = False
-                elif ( vtype == 'array'  ):
-                    arr        = value.replace("[","").replace("]","").split(",")
-                    lst        = [ float(s) for s in arr ]
-                    ret[vname] = lst
-                else:
-                    print("[ERROR] Unknown Object in load__config :: {0} [ERROR]".format(config) )
+        
+        # -- empty line skip    -- #
+        if   ( len( line.strip() ) == 0 ):
+            continue
+        
+        # -- comment line skip  -- #
+        if ( line.strip()[0] == "#"   ):
+            continue
+        
+        # -- decomposition  -- #
+        vname =   ( line.split() )[0]
+        vtype = ( ( line.split() )[1] ).lower()
+        value =   ( line.split() )[2]
+        
+        # -- classification -- #
+        if   ( value.lower() == "none" ):
+            ret[vname] = None
+        elif ( vtype.lower() in ["float","double", "real"] ):
+            ret[vname] = float( value )
+        elif ( vtype.lower() in ["long","integer"]         ):
+            ret[vname] = int( float(value) )
+        elif ( vtype == "string"  ):
+            ret[vname] = str( value )
+        elif ( vtype == "logical" ):
+            if   ( value.lower() in ["true","t"] ):
+                ret[vname] = True
+            elif ( value.lower() in ["false","f"] ):
+                ret[vname] = False
+        elif ( vtype == "array"  ):
+            value      = "".join( line.split()[2:] )
+            pattern    = r"\[(.+)\]"
+            sarr       = re.search( pattern, value )
+            arrcontent = ( sarr.group(1) ).split(",")
+            lst        = [ float(s) for s in arrcontent ]
+            ret[vname] = lst
+        else:
+            print("[ERROR] Unknown Object in load__config :: {0} [ERROR]".format(config) )
+    # ------------------------------------------------- #
+    # --- [4] return                                --- #
+    # ------------------------------------------------- #
     return( ret )
 
 
@@ -67,3 +73,18 @@ def load__config( config=None ):
 if ( __name__=="__main__" ):
     config = load__config()
     print( config )
+
+
+
+
+
+    
+# if ( config is None ):
+#     if ( "PYCONFIGFILE" in os.environ ):
+#         config = os.environ["PYCONFIGFILE"]
+#     else:
+#         print( "[load__config] No Config File !! " )
+#         print( "[load__config]   -- 1. set environmental variable 'PYCONFIGFILE'." )
+#         print( "[load__config]   -- 2. specify argument config. load__config( config=xxx )" )
+#         print( "[load__config] stop..." )
+#         sys.exit()
