@@ -1,10 +1,10 @@
 # ========================================================= #
 # === matplotlib 共通 パラメータ セッティング           === #
 # ========================================================= #
-import matplotlib.pyplot      as plt
-import nkUtilities.LoadConfig as lcf
+import matplotlib.pyplot        as plt
+import nkUtilities.load__config as lcf
 
-config = lcf.LoadConfig()
+config = lcf.load__config()
 
 # ------------------------------------------------- #
 # --- 全体設定                                  --- #

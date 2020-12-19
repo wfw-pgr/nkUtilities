@@ -1,6 +1,6 @@
 import sys
-import numpy                  as np
-import nkUtilities.LoadConfig as lcf
+import numpy                    as np
+import nkUtilities.load__config as lcf
 
 # ========================================================= #
 # ===  汎用 フィルタ 群                                 === #
@@ -10,7 +10,7 @@ def generalFilter( xAxis=None, yAxis=None, config=None ):
     # --- Arguments                                 --- #
     # ------------------------------------------------- #
     if ( yAxis  is None ): sys.exit( "[generalFilter] None yAxis" )
-    if ( config is None ): config = lcf.LoadConfig()
+    if ( config is None ): config = lcf.load__config()
     if ( xAxis  is None ): xAxis  = np.arange( yAxis.size )    
     # ------------------------------------------------- #
     # --- メジアンフィルタリング                    --- #
@@ -58,7 +58,7 @@ def generalFilter( xAxis=None, yAxis=None, config=None ):
 if ( __name__=="__main__" ):
     xAxis  = np.linspace( 0.0, 2.0*2.0*np.pi, 101 )
     yAxis  = np.sin( xAxis )
-    config = lcf.LoadConfig()
+    config = lcf.load__config()
     # config["flt_median"] = 7
     config["flt_fourier"] = 0.5
     yAxis  = np.random.random( xAxis.shape ) * 0.05 + yAxis

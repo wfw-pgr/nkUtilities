@@ -1,6 +1,6 @@
 import sys
 import nkUtilities.mpl_baseSettings
-import nkUtilities.LoadConfig       as lcf
+import nkUtilities.load__config     as lcf
 import numpy                        as np
 import matplotlib.pyplot            as plt
 import matplotlib.tri               as tri
@@ -32,7 +32,7 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
-        if ( self.config  is     None ): self.config            = lcf.LoadConfig()
+        if ( self.config  is     None ): self.config            = lcf.load__config()
         if ( pngFile      is not None ): self.config["pngFile"] = pngFile
         # ------------------------------------------------- #
         # --- レベルの設定  ( カラー / コンター )       --- #
@@ -72,7 +72,10 @@ class cMapTri:
         if ( self.cMap is not None ):
             self.add__cMap( xAxis   = self.xAxis, yAxis   = self.yAxis,     \
                             cMap    = self.cMap,  levels  = self.cmpLevels  )
-            if ( self.config["clb_sw"] ): self.set__colorBar()
+            if ( self.config["clb_sw"]      ):
+                self.set__colorBar()
+            if ( self.config["cmp_pointSW"] ):
+                self.add__point( xAxis=self.xAxis, yAxis=self.yAxis )
             instantOut = True
         #  -- もし Cntrが渡されていたら，即，描く       --  #
         if ( self.Cntr is not None ):
@@ -200,19 +203,20 @@ class cMapTri:
     # ========================================================= #
     # ===  点 追加                                          === #
     # ========================================================= #
-    def add__point( self, xAxis=None, yAxis=None, color=None, marker=None ):
+    def add__point( self, xAxis=None, yAxis=None, color=None, marker=None, markersize=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( xAxis  is None ): xAxis  = 0
-        if ( yAxis  is None ): yAxis  = 0
-        if ( color  is None ): color  = self.config["cmp_pointColor"]
-        if ( marker is None ): marker = self.config["cmp_pointMaker"]
+        if ( xAxis      is None ): xAxis      = 0
+        if ( yAxis      is None ): yAxis      = 0
+        if ( color      is None ): color      = self.config["cmp_pointColor"]
+        if ( marker     is None ): marker     = self.config["cmp_pointMarker"]
+        if ( markersize is None ): markersize = self.config["cmp_pointSize"]
         # ------------------------------------------------- #
         # --- 点 描画                                   --- #
         # ------------------------------------------------- #
         self.ax1.plot( xAxis, yAxis, marker=marker, color=color, \
-                       markersize=self.config["cmp_pointSize"] )
+                       markersize=markersize, linewidth=0.0 )
 
 
     # ========================================================= #

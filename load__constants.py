@@ -1,4 +1,4 @@
-import sys
+import re, sys
 
 
 # ========================================================= #
@@ -57,12 +57,12 @@ def load__constants( inpFile=None ):
                 vdict[vname] = False
                 
         elif ( vtype.lower() == 'array'  ):
-            value      = "".join( ( line.split() )[2:] )
-            pattern    = r"\[(.+)\]"
-            sarr       = re.search( pattern, value )
-            arrcontent = ( sarr.group(1) ).split(",")
-            lst        = [ float(s) for s in arrcontent ]
-            ret[vname] = lst
+            value        = "".join( ( line.split() )[2:] )
+            pattern      = r"\[(.+)\]"
+            sarr         = re.search( pattern, value )
+            arrcontent   = ( sarr.group(1) ).split(",")
+            lst          = [ float(s) for s in arrcontent ]
+            vdict[vname] = lst
         else:
             print("[ERROR] Unknown Object in load__constants :: {0} [ERROR]".format(inpFile) )
 

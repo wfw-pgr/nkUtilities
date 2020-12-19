@@ -1,4 +1,4 @@
-import myStyle.LoadConfig  as lcf
+import nkUtilities.load__config as lcf
 
 # ========================================================= #
 # ===  コンフィグの設定用 ルーチン                      === #
@@ -8,7 +8,7 @@ def configSettings( configType=None, config=None ):
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
     if ( configType is None ): configType = "cMap2D_def"
-    if ( config     is None ): config     = lcf.LoadConfig()
+    if ( config     is None ): config     = lcf.load__config()
     
     # ------------------------------------------------- #
     # --- [2] 1次元プロット用 デフォルト設定        --- #

@@ -1,6 +1,6 @@
 import sys
 import nkUtilities.mpl_baseSettings
-import nkUtilities.LoadConfig       as lcf
+import nkUtilities.load__config     as lcf
 import nkUtilities.generalFilter    as gfl
 import numpy                        as np
 import matplotlib.pyplot            as plt
@@ -28,7 +28,7 @@ class plot1D:
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
-        if ( self.config is     None ): self.config                = lcf.LoadConfig()
+        if ( self.config is     None ): self.config                = lcf.load__config()
         if ( label       is not None ): self.label.append( label )
         if ( pngFile     is not None ): self.config["pngFile"]     = pngFile
         # ------------------------------------------------- #

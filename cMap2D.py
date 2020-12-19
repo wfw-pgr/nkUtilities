@@ -1,6 +1,6 @@
 import sys
 import nkUtilities.mpl_baseSettings
-import nkUtilities.LoadConfig       as lcf
+import nkUtilities.load__config     as lcf
 import numpy                        as np
 import matplotlib.pyplot            as plt
 import scipy.interpolate            as sit
@@ -31,7 +31,7 @@ class cMap2D:
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
-        if ( self.config  is     None ): self.config            = lcf.LoadConfig()
+        if ( self.config  is     None ): self.config            = lcf.load__config()
         if ( pngFile      is not None ): self.config["pngFile"] = pngFile
         # ------------------------------------------------- #
         # --- レベルの設定  ( カラー / コンター )       --- #
