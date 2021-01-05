@@ -171,12 +171,18 @@ class cMap2D:
         # ------------------------------------------------- #
         xAxis_ = np.linspace( self.config["cmp_xRange"][0], self.config["cmp_xRange"][-1], self.config["vec_nvec_x"] )
         yAxis_ = np.linspace( self.config["cmp_yRange"][0], self.config["cmp_yRange"][-1], self.config["vec_nvec_y"] )
-        uxIntp = sit.interp2d( xAxis, yAxis, uvec )
-        vyIntp = sit.interp2d( xAxis, yAxis, vvec )
-        uvec_  = uxIntp( xAxis_, yAxis_ )
-        vvec_  = vyIntp( xAxis_, yAxis_ )
+        if ( order=="ji" ):
+            uxIntp = sit.interp2d( yAxis, xAxis, uvec, kind=self.config["vec_interpolation"] )
+            vyIntp = sit.interp2d( yAxis, xAxis, vvec, kind=self.config["vec_interpolation"] )
+            uvec_  = uxIntp( yAxis_, xAxis_ )
+            vvec_  = vyIntp( yAxis_, xAxis_ )
+        if ( order=="ij" ):
+            uxIntp = sit.interp2d( xAxis, yAxis, uvec, kind=self.config["vec_interpolation"] )
+            vyIntp = sit.interp2d( xAxis, yAxis, vvec, kind=self.config["vec_interpolation"] )
+            uvec_  = uxIntp( xAxis_, yAxis_ )
+            vvec_  = vyIntp( xAxis_, yAxis_ )
         if ( self.config["vec_AutoScale"] ):
-            self.config["vec_scale"] = np.sqrt( np.max( uvec_**2 + vvec_**2 ) )*8.0
+            self.config["vec_scale"] = np.sqrt( np.max( uvec_**2 + vvec_**2 ) )*self.config["vec_AutoScaleFactor"]
         # ------------------------------------------------- #
         # -- ベクトルプロット                            -- #
         # ------------------------------------------------- #

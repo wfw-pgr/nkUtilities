@@ -4,7 +4,7 @@ import nkUtilities.load__config     as lcf
 import numpy                        as np
 import matplotlib.pyplot            as plt
 import matplotlib.tri               as tri
-import scipy.interpolate            as sit
+import scipy.interpolate            as itp
 
 
 # ========================================================= #
@@ -173,27 +173,33 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( uvec  is None ): sys.exit("[ERROR] No Information for uvec, vvec --@add__vector [ERROR]")
-        if ( vvec  is None ): sys.exit("[ERROR] No Information for uvec, vvec --@add__vector [ERROR]")
-        if ( xAxis is None ): xAxis = np.linspace( 0.0, 1.0, len( uvec[:,0] ) )
-        if ( yAxis is None ): yAxis = np.linspace( 0.0, 1.0, len( uvec[0,:] ) )
+        if ( uvec  is None ): sys.exit("[ERROR] No Information for uvec , vvec  --@add__vector [ERROR]")
+        if ( vvec  is None ): sys.exit("[ERROR] No Information for uvec , vvec  --@add__vector [ERROR]")
+        if ( xAxis is None ): sys.exit("[ERROR] No Information for xAxis, yAxis --@add__vector [ERROR]")
+        if ( yAxis is None ): sys.exit("[ERROR] No Information for yAxis, yAxis --@add__vector [ERROR]")
         if ( color is None ): color = self.config["vec_color"]
         if ( order == "ji" ): uvec, vvec = np.transpose( uvec ), np.transpose( vvec )
+        if ( self.config["vec_AutoRange"] ):
+            self.config["vec_xRange"] = self.config["cmp_xRange"]
+            self.config["vec_yRange"] = self.config["cmp_yRange"]
         # ------------------------------------------------- #
         # -- 座標系 及びプロット点                       -- #
         # ------------------------------------------------- #
-        xAxis_ = np.linspace( self.config["cmp_xRange"][0], self.config["cmp_xRange"][-1], self.config["vec_nvec_x"] )
-        yAxis_ = np.linspace( self.config["cmp_yRange"][0], self.config["cmp_yRange"][-1], self.config["vec_nvec_y"] )
-        uxIntp = sit.interp2d( xAxis, yAxis, uvec )
-        vyIntp = sit.interp2d( xAxis, yAxis, vvec )
-        uvec_  = uxIntp( xAxis_, yAxis_ )
-        vvec_  = vyIntp( xAxis_, yAxis_ )
+        xa     = np.linspace( self.config["vec_xRange"][0], self.config["vec_xRange"][-1], self.config["vec_nvec_x"] )
+        ya     = np.linspace( self.config["vec_yRange"][0], self.config["vec_yRange"][-1], self.config["vec_nvec_y"] )
+        xg,yg  = np.meshgrid( xa, ya )
+        pAxis  = np.concatenate( [ np.ravel( xAxis )[:,None], np.ravel( yAxis )[:,None] ], axis=1 )
+        uxIntp = itp.griddata( pAxis, uvec, (xg,yg), method=self.config["vec_interpolation"] )
+        vyIntp = itp.griddata( pAxis, vvec, (xg,yg), method=self.config["vec_interpolation"] )
+        # ------------------------------------------------- #
+        # --- プロット 設定                             --- #
+        # ------------------------------------------------- #
         if ( self.config["vec_AutoScale"] ):
-            self.config["vec_scale"] = np.sqrt( np.max( uvec_**2 + vvec_**2 ) )*8.0
+            self.config["vec_scale"] = np.sqrt( np.max( uxIntp**2 + vyIntp**2 ) )*self.config["vec_AutoScaleRef"]
         # ------------------------------------------------- #
         # -- ベクトルプロット                            -- #
         # ------------------------------------------------- #
-        self.ax1.quiver( xAxis_, yAxis_, uvec_, vvec_, angles='uv', scale_units='xy', \
+        self.ax1.quiver( xg, yg, uxIntp, vyIntp, angles='uv', scale_units='xy', \
                          color     =color, \
                          pivot     =self.config["vec_pivot"], scale     =self.config["vec_scale"],     \
                          width     =self.config["vec_width"], headwidth =self.config["vec_headwidth"], \
@@ -474,3 +480,64 @@ if ( __name__=="__main__" ):
     prof = ltp.load__testprofile( mode="2D", returnType="point" )
     print( prof.shape )
     cMapTri( xAxis=prof[:,0], yAxis=prof[:,1], cMap=prof[:,2], pngFile="tri.png" )
+
+
+    import nkUtilities.equiSpaceGrid as esg
+    x1MinMaxNum = [ 0.0, 1.0, 11 ]
+    x2MinMaxNum = [ 0.0, 1.0, 11 ]
+    x3MinMaxNum = [ 0.0, 1.0, 11 ]
+    ret         = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
+                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
+    xAxis       = ret[:,0]
+    yAxis       = ret[:,1]
+    
+    uvec        = ret[:,1]
+    vvec        = ret[:,0]
+    fig = cMapTri( pngFile="vec.png" )
+    fig.add__cMap  ( xAxis=xAxis, yAxis=yAxis, cMap=uvec )
+    fig.add__vector( xAxis=xAxis, yAxis=yAxis, uvec=uvec, vvec=vvec )
+    fig.save__figure()
+
+
+
+
+
+
+
+
+
+
+
+    # # ========================================================= #
+    # # ===   ベクトル 追加  ルーチン                         === #
+    # # ========================================================= #
+    # def add__vector( self, xAxis=None, yAxis=None, uvec=None, vvec=None, color=None, order="ji" ):
+    #     # ------------------------------------------------- #
+    #     # --- 引数チェック                              --- #
+    #     # ------------------------------------------------- #
+    #     if ( uvec  is None ): sys.exit("[ERROR] No Information for uvec, vvec --@add__vector [ERROR]")
+    #     if ( vvec  is None ): sys.exit("[ERROR] No Information for uvec, vvec --@add__vector [ERROR]")
+    #     if ( xAxis is None ): xAxis = np.linspace( 0.0, 1.0, len( uvec[:,0] ) )
+    #     if ( yAxis is None ): yAxis = np.linspace( 0.0, 1.0, len( uvec[0,:] ) )
+    #     if ( color is None ): color = self.config["vec_color"]
+    #     if ( order == "ji" ): uvec, vvec = np.transpose( uvec ), np.transpose( vvec )
+    #     # ------------------------------------------------- #
+    #     # -- 座標系 及びプロット点                       -- #
+    #     # ------------------------------------------------- #
+    #     xAxis_ = np.linspace( self.config["cmp_xRange"][0], self.config["cmp_xRange"][-1], self.config["vec_nvec_x"] )
+    #     yAxis_ = np.linspace( self.config["cmp_yRange"][0], self.config["cmp_yRange"][-1], self.config["vec_nvec_y"] )
+    #     uxIntp = sit.interp2d( xAxis, yAxis, uvec )
+    #     vyIntp = sit.interp2d( xAxis, yAxis, vvec )
+    #     uvec_  = uxIntp( xAxis_, yAxis_ )
+    #     vvec_  = vyIntp( xAxis_, yAxis_ )
+    #     if ( self.config["vec_AutoScale"] ):
+    #         self.config["vec_scale"] = np.sqrt( np.max( uvec_**2 + vvec_**2 ) )*8.0
+    #     # ------------------------------------------------- #
+    #     # -- ベクトルプロット                            -- #
+    #     # ------------------------------------------------- #
+    #     self.ax1.quiver( xAxis_, yAxis_, uvec_, vvec_, angles='uv', scale_units='xy', \
+    #                      color     =color, \
+    #                      pivot     =self.config["vec_pivot"], scale     =self.config["vec_scale"],     \
+    #                      width     =self.config["vec_width"], headwidth =self.config["vec_headwidth"], \
+    #                      headlength=self.config["vec_headlength"] )
+
