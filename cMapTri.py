@@ -4,6 +4,7 @@ import nkUtilities.load__config     as lcf
 import numpy                        as np
 import matplotlib.pyplot            as plt
 import matplotlib.tri               as tri
+import matplotlib.ticker            as tic
 import scipy.interpolate            as itp
 
 
@@ -111,12 +112,13 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- 軸情報整形 : 1次元軸 を 各点情報へ変換    --- #
         # ------------------------------------------------- #
-        xAxis_, yAxis_ = xAxis, yAxis
+        xAxis_, yAxis_ = np.copy( xAxis ), np.copy( yAxis )
         # ------------------------------------------------- #
         # --- カラーマップを作図                        --- #
         # ------------------------------------------------- #
-        self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0]
-        self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1]
+        eps = 1.e-10 * abs( self.cmpLevels[-1] - self.cmpLevels[0] )
+        self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0] + eps
+        self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1] - eps
         triangulated = tri.Triangulation( xAxis_, yAxis_ )
         self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
                                             cmap = self.config["cmp_ColorTable"], zorder=0 )
@@ -137,12 +139,16 @@ class cMapTri:
     # ========================================================= #
     # === 等高線 追加 ルーチン  ( add__contour )            === #
     # ========================================================= #
-    def add__contour( self, xAxis=None, yAxis=None, Cntr=None, levels=None ):
+    def add__contour( self, xAxis=None, yAxis=None, Cntr=None ):
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
-        self.Cntr = Cntr
-        if ( levels is not None ): self.cntLevels = levels
+        if ( xAxis  is not None ): self.xAxis = xAxis
+        if ( yAxis  is not None ): self.yAxis = yAxis
+        if ( Cntr   is None     ):
+            sys.exit( "[add__contour] Cntr == ???" )
+        else:
+            self.Cntr = Cntr
         # ------------------------------------------------- #
         # --- コンター情報を設定する                    --- #
         # ------------------------------------------------- #
@@ -153,16 +159,21 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- 軸情報整形 : 1次元軸 を 各点情報へ変換    --- #
         # ------------------------------------------------- #
-        if ( ( xAxis.ndim == 1 ) and ( yAxis.ndim == 1 ) ):
-            xAxis_, yAxis_ = np.meshgrid( xAxis, yAxis, indexing='ij' )
-        else:
-            xAxis_, yAxis_ = xAxis, yAxis
+        xAxis_, yAxis_ = np.copy( xAxis ), np.copy( yAxis )
+        # ------------------------------------------------- #
+        # --- カラーマップを作成                        --- #
+        # ------------------------------------------------- #
+        eps = 1.e-10 * abs( self.cntLevels[-1] - self.cntLevels[0] )
+        self.Cntr[ np.where( self.Cntr < float( self.cntLevels[ 0] ) ) ] = self.cntLevels[ 0] + eps
+        self.Cntr[ np.where( self.Cntr > float( self.cntLevels[-1] ) ) ] = self.cntLevels[-1] - eps
+        triangulated = tri.Triangulation( xAxis_, yAxis_ )
         # ------------------------------------------------- #
         # --- 等高線をプロット                          --- #
         # ------------------------------------------------- #
-        self.ax1.contour( xAxis_, yAxis_, Cntr, self.cntLevels , \
-                          colors     = self.config["cnt_color"], \
-                          linewidths = self.config["cnt_linewidth"] )
+        self.cImage = self.ax1.tricontour( triangulated, self.Cntr, self.cntLevels, \
+                                           colors     = self.config["cnt_color"], \
+                                           linewidths = self.config["cnt_linewidth"], \
+                                           zorder=1 )
         self.set__axis()
 
         
@@ -209,7 +220,7 @@ class cMapTri:
     # ========================================================= #
     # ===  点 追加                                          === #
     # ========================================================= #
-    def add__point( self, xAxis=None, yAxis=None, color=None, marker=None, markersize=None ):
+    def add__point( self, xAxis=None, yAxis=None, color=None, marker=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
@@ -217,12 +228,12 @@ class cMapTri:
         if ( yAxis      is None ): yAxis      = 0
         if ( color      is None ): color      = self.config["cmp_pointColor"]
         if ( marker     is None ): marker     = self.config["cmp_pointMarker"]
-        if ( markersize is None ): markersize = self.config["cmp_pointSize"]
         # ------------------------------------------------- #
         # --- 点 描画                                   --- #
         # ------------------------------------------------- #
         self.ax1.plot( xAxis, yAxis, marker=marker, color=color, \
-                       markersize=markersize, linewidth=0.0 )
+                       markersize=self.config["cmp_pointSize"], \
+                       linewidth=0.0 )
 
 
     # ========================================================= #
@@ -247,10 +258,6 @@ class cMapTri:
                        alpha =0.95,  marker=marker, \
                        label =label, linewidth=linewidth, \
                        color =color, linestyle=linestyle, )
-        if ( xAxis  is None ): xAxis  = [0.,1.]
-        if ( yAxis  is None ): yAxis  = [0.,1.]
-        if ( color  is None ): color  = "black"
-        self.ax1.plot( xAxis, yAxis, color=color )
     
 
     # ========================================================= #
@@ -333,6 +340,8 @@ class cMapTri:
                               length=self.config["xMajor_length"], width    =self.config["xMajor_width"   ]  )
         self.ax1.tick_params( axis  ="y"                         , labelsize=self.config["yMajor_FontSize"], \
                               length=self.config["yMajor_length"], width    =self.config["yMajor_width"   ]  )
+        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_Nticks"] ) )
+        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_Nticks"] ) )
         # ------------------------------------------------- #
         # --- 軸目盛 無し                               --- #
         # ------------------------------------------------- #
@@ -348,8 +357,8 @@ class cMapTri:
         # ------------------------------------------------- #
         # --- 軸タイトル 設定 ( xlabel, ylabel )        --- #
         # ------------------------------------------------- #
-        self.ax1.set_xlabel( self.config["xTitle"] )
-        self.ax1.set_ylabel( self.config["yTitle"] )
+        self.ax1.set_xlabel( self.config["xTitle"], fontsize=self.config["xTitle_FontSize"] )
+        self.ax1.set_ylabel( self.config["yTitle"], fontsize=self.config["xTitle_FontSize"] )
         # ------------------------------------------------- #
         # --- 軸タイトル 無し                           --- #
         # ------------------------------------------------- #            
@@ -390,7 +399,7 @@ class cMapTri:
         # ------------------------------------------------- #
         if ( nLevels is None ): nLevels = self.config["cnt_nLevels"]
         if (  levels is None ):
-            minVal, maxVal  = np.min( self.cMap ), np.max( self.cMap )
+            minVal, maxVal  = np.min( self.Cntr ), np.max( self.Cntr )
             levels          = np.linspace( minVal, maxVal, nLevels )
         # ------------------------------------------------- #
         # --- cntLevels を 設定                         --- #
@@ -496,6 +505,7 @@ if ( __name__=="__main__" ):
     fig = cMapTri( pngFile="vec.png" )
     fig.add__cMap  ( xAxis=xAxis, yAxis=yAxis, cMap=uvec )
     fig.add__vector( xAxis=xAxis, yAxis=yAxis, uvec=uvec, vvec=vvec )
+    fig.add__contour( xAxis=xAxis, yAxis=yAxis, Cntr=uvec )
     fig.save__figure()
 
 
