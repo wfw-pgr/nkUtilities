@@ -199,7 +199,7 @@ class cMapTri:
         xa     = np.linspace( self.config["vec_xRange"][0], self.config["vec_xRange"][-1], self.config["vec_nvec_x"] )
         ya     = np.linspace( self.config["vec_yRange"][0], self.config["vec_yRange"][-1], self.config["vec_nvec_y"] )
         xg,yg  = np.meshgrid( xa, ya )
-        pAxis  = np.concatenate( [ np.ravel( xAxis )[:,None], np.ravel( yAxis )[:,None] ], axis=1 )
+        pAxis  = np.concatenate( [ np.ravel( np.copy( xAxis ) )[:,None], np.ravel( np.copy( yAxis ) )[:,None] ], axis=1 )
         uxIntp = itp.griddata( pAxis, uvec, (xg,yg), method=self.config["vec_interpolation"] )
         vyIntp = itp.griddata( pAxis, vvec, (xg,yg), method=self.config["vec_interpolation"] )
         # ------------------------------------------------- #
