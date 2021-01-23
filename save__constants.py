@@ -61,7 +61,7 @@ def save__constants( outFile=None, const=None, keys=None ):
                 print( const )
                 sys.exit()
 
-            f.write( "{0:<24}{1:<14}{2}\n".format( key, vtype, value ) )
+            f.write( "{0:<24} {1:<14} {2}\n".format( key, vtype, value ) )
         print( "[save__constants.py] const is saved in {0} ".format( outFile ) )
 
         
