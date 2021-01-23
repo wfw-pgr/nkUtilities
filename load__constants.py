@@ -4,7 +4,7 @@ import re, sys
 # ========================================================= #
 # ===  Load Tabled Data from File                       === #
 # ========================================================= #
-def load__constants( inpFile=None ):
+def load__constants( inpFile=None, returnKeys=False ):
     
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -22,6 +22,7 @@ def load__constants( inpFile=None ):
     # --- [3] generate Dictionary                   --- #
     # ------------------------------------------------- #
     vdict = {}
+    keys  = []
     for line in lines:
 
         # -- empty line skip       -- #
@@ -65,10 +66,14 @@ def load__constants( inpFile=None ):
             vdict[vname] = lst
         else:
             print("[ERROR] Unknown Object in load__constants :: {0} [ERROR]".format(inpFile) )
+        keys.append( vname )
 
     # ------------------------------------------------- #
     # --- [4] return                                --- #
     # ------------------------------------------------- #
-    return( vdict )
+    if ( returnKeys is True ):
+        return( keys  )
+    else:
+        return( vdict )
 
 
