@@ -17,6 +17,7 @@ def genArgs( silent=False ):
     parser.add_argument("--dir"      , help="directory name"         )
     parser.add_argument("--mode"     , help="mode select."           )
     parser.add_argument("--key"      , help="key variables."         )
+    parser.add_argument("--file"     , help="file name"              ) 
     parser.add_argument("--MinMaxNum", help="Min / Max / Num"        )
     parser.add_argument("--size"     , help="Size of Array."         )
     parser.add_argument("--integer"  , help="General arg for int"    )
@@ -33,7 +34,7 @@ def genArgs( silent=False ):
     # --- [4] 返却用辞書 キー 準備 / 初期化         --- #
     # ------------------------------------------------- #
     rets  = {}
-    items = [ "job", "id", "dir", "mode", "key", "MinMaxNum", "size", \
+    items = [ "job", "id", "dir", "mode", "key", "MinMaxNum", "size", "file", \
               "integer", "float", "string", "array"  ]
     for item in items: rets[item] = None
 
@@ -50,6 +51,9 @@ def genArgs( silent=False ):
     if ( args.mode ): rets["mode"] = str(args.mode)
     #  -- [5-5] key                                  --  #
     if ( args.key  ): rets["key"]  = str(args.key)
+    #  -- [5-6] file                                 --  #
+    if ( args.file ): rets["file"] = str(args.file)
+    
 
     # ------------------------------------------------- #
     # --- [6] 引数定義 ( 配列  引数群 )             --- #
