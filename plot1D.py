@@ -162,7 +162,7 @@ class plot1D:
         #  -- 軸目盛 自動調整 (y)                       --  #
         if ( self.config["plt_yAutoTicks"] ):
             yMin, yMax  = self.ax1.get_ylim()
-            self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], dtype=ytick_dtype )
+            self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], dtype=ytick_dtype  )
             self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_Nticks"] )  )
         else:
             self.yticks = np.array( self.config["plt_yTicks"], dtype=ytick_dtype )
@@ -319,6 +319,36 @@ class plot1D:
         # --- プロット ( 2軸目 )                        --- #
         # ------------------------------------------------- #
         self.ax2.plot( xAxis, yAxis, alpha=0.95, label=label )
+
+
+
+    # ========================================================= #
+    # ===  bar 追加                                         === #
+    # ========================================================= #
+    def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None ):
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( yAxis      is None ): yAxis      = self.yAxis
+        if ( xAxis      is None ): xAxis      = self.xAxis
+        if ( yAxis      is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( width      is None ): width      = 1.0
+        if ( color      is None ): color      = self.config["plt_color"]
+        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
+        # ------------------------------------------------- #
+        # --- 軸設定                                    --- #
+        # ------------------------------------------------- #
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        bar_width    = ( xAxis[1]-xAxis[0] ) * width
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        self.ax1.bar( xAxis, yAxis , \
+                      color =color , alpha =alpha , width=bar_width  )
 
 
     # ========================================================= #
