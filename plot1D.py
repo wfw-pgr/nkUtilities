@@ -333,7 +333,7 @@ class plot1D:
         if ( xAxis      is None ): xAxis      = self.xAxis
         if ( yAxis      is None ): sys.exit( " [add__plot] yAxis == ?? " )
         if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( width      is None ): width      = 1.0
+        if ( width      is None ): width      = self.config["bar_width"]
         if ( color      is None ): color      = self.config["plt_color"]
         if ( alpha      is None ): alpha      = self.config["plt_alpha"]
         # ------------------------------------------------- #
