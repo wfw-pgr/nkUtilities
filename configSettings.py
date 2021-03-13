@@ -14,9 +14,9 @@ def configSettings( configType=None, config=None ):
     # --- [2] 1次元プロット用 デフォルト設定        --- #
     # ------------------------------------------------- #
     if ( configType == "plot1D_def" ):
-        config["FigSize"]         = (5,5)
+        config["FigSize"]         = (3.5,3.5)
         config["grid_sw"]         = True
-        config["plt_Position"]    = [0.24,0.24,0.93,0.93]
+        config["plt_position"]    = [0.24,0.24,0.93,0.93]
         config["xTitle_FontSize"] = 16
         config["yTitle_FontSize"] = 16
         config["xMajor_Nticks"]   = 5

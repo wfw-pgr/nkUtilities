@@ -104,7 +104,7 @@ class plot1D:
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax1.plot( xAxis, yAxis , \
+        self.ax1.plot( xAxis, yAxis , c=colormap, \
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
@@ -350,6 +350,63 @@ class plot1D:
         self.ax1.bar( xAxis, yAxis , \
                       color =color , alpha =alpha , width=bar_width  )
 
+
+    # ========================================================= #
+    # ===  色付きライン                                     === #
+    # ========================================================= #
+    def add__colorline( self, xAxis=None, yAxis    =None , label =None, alpha     =None, \
+                        linestyle  =None, linewidth=None , marker=None, markersize=None, \
+                        color      =None, cmap     ="jet", norm  =plt.Normalize(0.0, 1.0) ):
+
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( yAxis      is None ): yAxis      = self.yAxis
+        if ( xAxis      is None ): xAxis      = self.xAxis
+        if ( yAxis      is None ): sys.exit( " [add__colorline] yAxis == ?? " )
+        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label      is None ): label      = " "*self.config["leg_labelLength"]
+        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
+        if ( linestyle  is None ): linestyle  = self.config["plt_linestyle"]
+        if ( linewidth  is None ): linewidth  = self.config["plt_linewidth"]
+        if ( marker     is None ): marker     = self.config["plt_marker"]
+        if ( markersize is None ): markersize = self.config["plt_markersize"]
+        
+        # ------------------------------------------------- #
+        # --- フィルタリング                            --- #
+        # ------------------------------------------------- #
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        
+        # ------------------------------------------------- #
+        # --- make & check color_array                  --- #
+        # ------------------------------------------------- #
+        if ( color is None ):
+            color  = np.linspace(0.0, 1.0, len(xAxis) )
+        if ( not( hasattr( color, "__iter__" ) ) ):
+            color  = np.array( [ color ] )
+        if ( ( np.min( color ) < 0.0 ) or ( np.max( color ) > 1.0 ) ):
+            print( "[add__colorline @ plot1D.py] color range exceeds [0,1] :: Normalize.... " )
+            color  = ( color - np.min( color ) ) / ( np.max( color ) - np.min( color ) )
+            
+        # ------------------------------------------------- #
+        # --- 軸設定                                    --- #
+        # ------------------------------------------------- #
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        color        = np.asarray( color )
+        points       = np.array( [xAxis, yAxis] ).T.reshape( -1,1,2 )
+        segments     = np.concatenate( [points[:-1], points[1:]], axis=1)
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        import matplotlib.collections as mcoll
+        lc           = mcoll.LineCollection( segments, array=color, cmap=cmap, norm=norm,
+                                             linewidth=linewidth, alpha=alpha )
+        self.ax1.add_collection( lc )
+        
 
     # ========================================================= #
     # ===  ファイル 保存                                    === #
