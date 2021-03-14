@@ -1,4 +1,4 @@
-import sys
+import sys, math
 import nkUtilities.mpl_baseSettings
 import nkUtilities.load__config     as lcf
 import nkUtilities.generalFilter    as gfl
@@ -104,7 +104,7 @@ class plot1D:
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax1.plot( xAxis, yAxis , c=colormap, \
+        self.ax1.plot( xAxis, yAxis , \
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
@@ -120,10 +120,14 @@ class plot1D:
         # ------------------------------------------------- #
         #  -- オートレンジ (x)                          --  #
         if ( ( self.config["plt_xAutoRange"] ) and ( self.DataRange is not None ) ):
-            self.config["plt_xRange"] = [ self.DataRange[0], self.DataRange[1] ]
+            ret = self.auto__griding( vMin=self.DataRange[0], vMax=self.DataRange[1], \
+                                      nGrid=self.config["xMajor_Nticks"] )
+            self.config["plt_xRange"] = [ ret[0], ret[1] ]
         #  -- オートレンジ (y)                          --  #
         if ( ( self.config["plt_yAutoRange"] ) and ( self.DataRange is not None ) ):
-            self.config["plt_yRange"] = [ self.DataRange[2], self.DataRange[3] ]
+            ret = self.auto__griding( vMin=self.DataRange[2], vMax=self.DataRange[3], \
+                                      nGrid=self.config["yMajor_Nticks"] )
+            self.config["plt_yRange"] = [ ret[0], ret[1] ]
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
@@ -140,6 +144,31 @@ class plot1D:
         # --- 目盛を調整する                            --- #
         # ------------------------------------------------- #
         self.set__ticks()
+
+
+    # ========================================================= #
+    # ===  軸の値 自動算出ルーチン                          === #
+    # ========================================================= #
+    def auto__griding( self, vMin=None, vMax=None, nGrid=None ):
+
+        # ------------------------------------------------- #
+        # --- auto grid making                          --- #
+        # ------------------------------------------------- #
+        minimum_tick = ( vMax - vMin ) / float( nGrid )
+        magnitude    = 10**( math.floor( math.log( minimum_tick, 10 ) ) )
+        significand  = minimum_tick / magnitude
+        if   ( significand > 5    ):
+            grid_size = 10 * magnitude
+        elif ( significand > 2    ):
+            grid_size =  5 * magnitude
+        elif ( significand > 1    ):
+            grid_size =  2 * magnitude
+        else:
+            grid_size =  1 * magnitude
+        tick_below   = grid_size * math.floor( vMin / grid_size ) 
+        tick_above   = grid_size * math.ceil ( vMax / grid_size )
+        
+        return( [tick_below,tick_above] )
         
         
     # ========================================================= #
