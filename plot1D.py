@@ -149,8 +149,20 @@ class plot1D:
     # ========================================================= #
     # ===  軸の値 自動算出ルーチン                          === #
     # ========================================================= #
-    def auto__griding( self, vMin=None, vMax=None, nGrid=None ):
+    def auto__griding( self, vMin=None, vMax=None, nGrid=5 ):
 
+        eps = 1.e-8
+
+        # ------------------------------------------------- #
+        # --- check Arguments                           --- #
+        # ------------------------------------------------- #
+        if ( vMax  <  vMin ):
+            sys.exit( "[auto__griding] ( vMin,vMax ) == ( {0},{1} ) ??? ".format( vMin, vMax ) )
+        if ( nGrid <= 0 ):
+            sys.exit( "[auto__griding] nGrid == {0} ??? ".format( nGrid ) )
+        if ( vMin == vMax  ):
+            return( [ vMin-eps, vMax+eps] )
+            
         # ------------------------------------------------- #
         # --- auto grid making                          --- #
         # ------------------------------------------------- #
