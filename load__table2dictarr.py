@@ -38,7 +38,10 @@ def load__table2dictarr( inpFile=None, datatype="auto" ):
                 else:
                     stack.append(   str( content ) )
             dicts.append( { items[ik]:stack[ik] for ik in range( len( items ) ) } )
-        
+
+        if ( datatype=="array" ):
+            dicts.append( { item:list(contents[ik]) for ik,item in enumerate( items ) } )
+            
     return( dicts )
 
 

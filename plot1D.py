@@ -393,6 +393,43 @@ class plot1D:
 
 
     # ========================================================= #
+    # ===  vector 追加                                      === #
+    # ========================================================= #
+    def add__arrow( self, xAxis=None, yAxis=None, uvec=None, vvec=None, color=None, width=None, \
+                    scale=1.0, nvec=10 ):
+    
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( yAxis      is None ): yAxis      = self.yAxis
+        if ( xAxis      is None ): xAxis      = self.xAxis
+        if ( yAxis      is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( width      is None ): width      = 1.0
+        if ( color      is None ): color      = "blue"
+        
+        # ------------------------------------------------- #
+        # --- 軸設定                                    --- #
+        # ------------------------------------------------- #
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
+        nData = self.yAxis.shape[0]
+        uvec_ = scale * uvec
+        vvec_ = scale * vvec
+        index = np.linspace( 0.0, nData-1, nvec, dtype=np.int64 )
+        index = np.array( index, dtype=np.int64 )
+        
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        for ik in index:
+            self.ax1.arrow( xAxis[ik], yAxis[ik] , uvec_[ik], vvec_[ik], \
+                            color =color , width=width  )
+    
+        
+    # ========================================================= #
     # ===  色付きライン                                     === #
     # ========================================================= #
     def add__colorline( self, xAxis=None, yAxis    =None , label =None, alpha     =None, \
