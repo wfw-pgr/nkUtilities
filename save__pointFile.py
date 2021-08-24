@@ -6,7 +6,8 @@ import numpy as np
 # ========================================================= #
 
 def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat", \
-                     shape=None, size =None, DataOrder="ijk", fmt    ="%15.8e"  ):
+                     shape=None, size =None, DataOrder="ijk", fmt    ="%15.8e" , \
+                     no_header=False ):
     # ------------------------------------------------- #
     # --- [1] Arguments Preparation                 --- #
     # ------------------------------------------------- #
@@ -60,10 +61,11 @@ def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat",
     # ------------------------------------------------- #
     with open( outFile, "w" ) as f:
         print( names )
-        f.write( "# " + " ".join( names ) + "\n" )
-        f.write( "# " + " ".join( [ str(i) for i in size ] ) + "\n" )
-        if ( shape is not None ):
-            f.write( "# " + " ".join( [str(i) for i in shape] ) + "\n" )
+        if ( not( no_header ) ):
+            f.write( "# " + " ".join( names ) + "\n" )
+            f.write( "# " + " ".join( [ str(i) for i in size ] ) + "\n" )
+            if ( shape is not None ):
+                f.write( "# " + " ".join( [str(i) for i in shape] ) + "\n" )
         np.savetxt( f, Data_, fmt=fmt )
 
     # ------------------------------------------------- #

@@ -13,7 +13,10 @@ def save__constants( outFile=None, const=None, keys=None ):
     if ( outFile is None ):
         sys.exit( "[save__constants] outFile == ???" )
     if ( const   is None ):
-        sys.exit( "[save__constants] const   == ???" )
+        if ( inpFile is None ):
+            sys.exit( "[save__constants] const   == ???" )
+        else:
+            const = lcn.load__constants( inpFile=inpFile )
     if ( keys    is None ):
         print( "[save__constants.py] no keys is designated... alphabetical order..." )
         keys = sorted( list( const.keys() ) )
