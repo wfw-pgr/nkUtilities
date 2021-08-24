@@ -72,7 +72,7 @@ class plot1D:
     # ===  プロット 追加                                    === #
     # ========================================================= #
     def add__plot( self, xAxis=None, yAxis    =None, label =None, color     =None, alpha=None, \
-                   linestyle  =None, linewidth=None, marker=None, markersize=None ):
+                   linestyle  =None, linewidth=None, marker=None, markersize=None, markeredgewidth=0.0 ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
@@ -108,7 +108,7 @@ class plot1D:
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
-                       alpha =alpha   )
+                       markeredgewidth=markeredgewidth, alpha =alpha   )
 
         
     # ========================================================= #
@@ -489,28 +489,26 @@ class plot1D:
     # ========================================================= #
     # ===  ファイル 保存                                    === #
     # ========================================================= #
-    def save__figure( self, pngFile=None ):
+    def save__figure( self, pngFile=None, dpi=None ):
         # ------------------------------------------------- #
         # --- 引数設定                                  --- #
         # ------------------------------------------------- #
-        if ( pngFile is not None ): self.config["pngFile"] = pngFile
+        if ( pngFile is None ): pngFile = self.config["pngFile"]
+        if ( dpi     is None ): dpi     = self.config["densityPNG"]
         # ------------------------------------------------- #
         # --- ファイル ( png ) 出力                     --- #
         # ------------------------------------------------- #
         if ( self.config["MinimalOut"] ):
             # -- 最小プロット (透明) -- #
-            self.fig.savefig( self.config["pngFile"], dpi=self.config["densityPNG"], \
-                              bbox_inches='tight'   , pad_inches=0, transparent=True )
+            self.fig.savefig( pngFile, dpi=dpi, bbox_inches='tight', pad_inches=0, transparent=True )
         elif ( self.config["MinimalWhite"] ):
             # -- 最小プロット (白地) -- #
-            self.fig.savefig( self.config["pngFile"], dpi=self.config["densityPNG"], \
-                              bbox_inches="tight"   , pad_inches=0.0 )
+            self.fig.savefig( pngFile, dpi=dpi, bbox_inches="tight", pad_inches=0.0 )
         else:
             # -- 通常プロット        -- #
-            self.fig.savefig( self.config["pngFile"], dpi=self.config["densityPNG"], \
-                              pad_inches=0 )
+            self.fig.savefig( pngFile, dpi=dpi, pad_inches=0 )
         plt.close()
-        print( "[ save__figure -@plot1d- ] out :: {0}".format( self.config["pngFile"] ) )
+        print( "[ save__figure -@plot1d- ] out :: {0}".format( pngFile ) )
         
 
 # ======================================== #
