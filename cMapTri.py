@@ -96,12 +96,13 @@ class cMapTri:
     # ========================================================= #
     # === カラーマップ 追加 ルーチン  ( add__cMap )         === #
     # ========================================================= #
-    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None ):
+    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None ):
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
         self.xAxis, self.yAxis, self.cMap = xAxis, yAxis, cMap
         if ( levels is not None ): self.cmpLevels = levels
+        if ( alpha  is     None ): alpha = self.config["cmp_alpha"]
         # ------------------------------------------------- #
         # --- コンター情報を設定する                    --- #
         # ------------------------------------------------- #
@@ -120,8 +121,8 @@ class cMapTri:
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0] + eps
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1] - eps
         triangulated = tri.Triangulation( xAxis_, yAxis_ )
-        self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
-                                            cmap = self.config["cmp_ColorTable"], zorder=0 )
+        self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, alpha=alpha, \
+                                            cmap = self.config["cmp_ColorTable"], zorder=0, extend="both" )
         # ------------------------------------------------- #
         # --- 軸調整 / 最大 / 最小 表示                 --- #
         # ------------------------------------------------- #
