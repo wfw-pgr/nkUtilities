@@ -366,30 +366,33 @@ class plot1D:
     # ========================================================= #
     # ===  bar 追加                                         === #
     # ========================================================= #
-    def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None ):
+    def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None, \
+                  label=None, align="center" ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( yAxis      is None ): yAxis      = self.yAxis
-        if ( xAxis      is None ): xAxis      = self.xAxis
-        if ( yAxis      is None ): sys.exit( " [add__plot] yAxis == ?? " )
-        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( width      is None ): width      = self.config["bar_width"]
-        if ( color      is None ): color      = self.config["plt_color"]
-        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
+        if ( yAxis is None ): yAxis      = self.yAxis
+        if ( xAxis is None ): xAxis      = self.xAxis
+        if ( yAxis is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label is None ): label      = ' '*self.config["leg_labelLength"]
+        if ( width is None ): width      = self.config["bar_width"]
+        if ( color is None ): color      = self.config["plt_color"]
+        if ( alpha is None ): alpha      = self.config["plt_alpha"]
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
+        bar_width    = ( xAxis[1]-xAxis[0] ) * width
         self.xAxis   = xAxis
         self.yAxis   = yAxis
-        bar_width    = ( xAxis[1]-xAxis[0] ) * width
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax1.bar( xAxis, yAxis , \
-                      color =color , alpha =alpha , width=bar_width  )
+        self.ax1.bar( xAxis, yAxis, label =label, \
+                      color =color, alpha =alpha, width=bar_width, \
+                      align =align )
 
 
     # ========================================================= #
