@@ -45,8 +45,8 @@ def save__namelist( outFile=None, const=None, keys=None, skipkeys=[], group="par
                 elif ( const[key] is False ):
                     value = "False"
             elif ( type_ is list ):
-                print( "[save__namelist.py] namelist cannot handle array.... [ERROR] " )
-                value = None
+                value = [ str( val ) for val in const[key] ]
+                value = ",".join( value )
             else:
                 print( "[save__namelist.py] Unknown Object in const.... [ERROR] " )
                 print( "[save__namelist.py]    key :: {0}".format( key   ) )
