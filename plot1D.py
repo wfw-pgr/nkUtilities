@@ -73,7 +73,7 @@ class plot1D:
     # ========================================================= #
     def add__plot( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
                    linestyle=None, linewidth=None, \
-                   marker=None, markersize=None, markeredgewidth=0.0 ):
+                   marker=None, markersize=None, markeredgewidth=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
@@ -119,7 +119,7 @@ class plot1D:
                        capsize=None, capthick=None, fmt="none", \
                        label=None, color=None, alpha=None, \
                        linestyle=None, linewidth=None, marker=None, \
-                       markersize=None, markeredgewidth=0.0 ):
+                       markersize=None, markeredgewidth=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
