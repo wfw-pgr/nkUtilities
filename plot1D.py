@@ -73,21 +73,22 @@ class plot1D:
     # ========================================================= #
     def add__plot( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
                    linestyle=None, linewidth=None, \
-                   marker=None, markersize=None, markeredgewidth=None ):
+                   marker=None, markersize=None, markerwidth=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( yAxis      is None ): yAxis      = self.yAxis
-        if ( xAxis      is None ): xAxis      = self.xAxis
-        if ( yAxis      is None ): sys.exit( " [add__plot] yAxis == ?? " )
-        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( label      is None ): label      = ' '*self.config["leg_labelLength"]
-        if ( color      is None ): color      = self.config["plt_color"]
-        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
-        if ( linestyle  is None ): linestyle  = self.config["plt_linestyle"]
-        if ( linewidth  is None ): linewidth  = self.config["plt_linewidth"]
-        if ( marker     is None ): marker     = self.config["plt_marker"]
-        if ( markersize is None ): markersize = self.config["plt_markersize"]
+        if ( yAxis       is None ): yAxis       = self.yAxis
+        if ( xAxis       is None ): xAxis       = self.xAxis
+        if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( markerwidth is None ): markerwidth = self.config["plt_markerwidth"]
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
@@ -109,7 +110,7 @@ class plot1D:
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
-                       markeredgewidth=markeredgewidth, alpha =alpha   )
+                       markeredgewidth=markerwidth, alpha =alpha   )
         
 
     # ========================================================= #
@@ -118,23 +119,22 @@ class plot1D:
     def add__errorbar( self, xAxis=None, yAxis=None, xerr=None, yerr=None, \
                        capsize=None, capthick=None, fmt="none", \
                        label=None, color=None, alpha=None, \
-                       linestyle=None, linewidth=None, marker=None, \
-                       markersize=None, markeredgewidth=None ):
+                       linestyle=None, linewidth=None, marker=None, markersize=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( yAxis      is None ): yAxis      = self.yAxis
-        if ( xAxis      is None ): xAxis      = self.xAxis
-        if ( yAxis      is None ): sys.exit( " [add__errorbar] yAxis == ?? " )
-        if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( color      is None ): color      = self.config["plt_color"]
-        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
-        if ( linewidth  is None ): linewidth  = self.config["plt_linewidth"] * 0.8
-        if ( linestyle  is None ): linestyle  = self.config["plt_linestyle"]
-        if ( marker     is None ): marker     = self.config["plt_marker"]
-        if ( markersize is None ): markersize = self.config["plt_markersize"]
-        if ( capthick   is None ): capthick   = self.config["plt_error_capthick"]
-        if ( capsize    is None ): capsize    = self.config["plt_error_capsize"]
+        if ( yAxis       is None ): yAxis       = self.yAxis
+        if ( xAxis       is None ): xAxis       = self.xAxis
+        if ( yAxis       is None ): sys.exit( " [add__errorbar] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"] * 0.8
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( capthick    is None ): capthick    = self.config["plt_error_capthick"]
+        if ( capsize     is None ): capsize     = self.config["plt_error_capsize"]
         
         if ( ( xerr is None ) and ( yerr is None ) ):
             sys.exit("[add__errorbar] xerr=None & yerr=None ")
@@ -566,6 +566,20 @@ class plot1D:
 # ===  実行部                          === #
 # ======================================== #
 if ( __name__=="__main__" ):
-    import nkUtilities.load__testprofile as ltp
-    prof   = ltp.load__testprofile( mode="1D", returnType="Dictionary" )
-    plot1D( xAxis=prof["x1Axis"], yAxis=prof["profile"], pngFile="out.png" )
+
+    import numpy as np
+    xAxis = np.linspace( 0., 1., 21 )
+    yAxis = - ( xAxis - 0.5 )**2 + 1.0
+    
+    import nkUtilities.plot1D       as pl1
+    import nkUtilities.load__config as lcf
+
+    pngFile = "out.png"
+    config  = lcf.load__config()
+    fig     = pl1.plot1D( config=config, pngFile=pngFile )
+    fig.add__plot( xAxis=xAxis, yAxis=yAxis, marker="x", linewidth=0.0 )
+    fig.set__axis()
+    fig.save__figure()
+
+
+    
