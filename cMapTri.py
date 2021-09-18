@@ -341,8 +341,8 @@ class cMapTri:
                               length=self.config["xMajor_length"], width    =self.config["xMajor_width"   ]  )
         self.ax1.tick_params( axis  ="y"                         , labelsize=self.config["yMajor_FontSize"], \
                               length=self.config["yMajor_length"], width    =self.config["yMajor_width"   ]  )
-        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_Nticks"] ) )
-        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_Nticks"] ) )
+        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_nticks"] ) )
+        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_nticks"] ) )
         # ------------------------------------------------- #
         # --- 軸目盛 無し                               --- #
         # ------------------------------------------------- #
