@@ -237,22 +237,24 @@ class plot1D:
         #  -- 軸目盛 整数設定                           --  #
         xtick_dtype     = np.int32 if ( self.config["xMajor_integer"] ) else np.float64
         ytick_dtype     = np.int32 if ( self.config["yMajor_integer"] ) else np.float64
-        if ( config["xMinor_sw"] is False ): config["xMinor_nticks"] = 1
-        if ( config["yMinor_sw"] is False ): config["yMinor_nticks"] = 1
         #  -- 軸目盛 自動調整 (x)                       --  #
         if ( self.config["xMajor_auto"] ):
             xMin, xMax  = self.ax1.get_xlim()
             self.xticks = np.linspace( xMin, xMax, self.config["xMajor_Nticks"], dtype=xtick_dtype  )
-            self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_nticks"] )  )
         else:
             self.xticks = np.array( self.config["xMajor_ticks"], dtype=xtick_dtype )
         #  -- 軸目盛 自動調整 (y)                       --  #
         if ( self.config["yMajor_auto"] ):
             yMin, yMax  = self.ax1.get_ylim()
             self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], dtype=ytick_dtype  )
-            self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_nticks"] )  )
+
         else:
             self.yticks = np.array( self.config["yMajor_ticks"], dtype=ytick_dtype )
+        #  -- Minor 軸目盛                              --  #
+        if ( self.config["xMinor_sw"] is False ): self.config["xMinor_nticks"] = 1
+        if ( self.config["yMinor_sw"] is False ): self.config["yMinor_nticks"] = 1
+        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_nticks"] ) )
+        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_nticks"] ) )
         #  -- 軸目盛 調整結果 反映                      --  #
         self.ax1.set_xticks( self.xticks )
         self.ax1.set_yticks( self.yticks )
