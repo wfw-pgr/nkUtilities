@@ -57,13 +57,33 @@ def load__constants( inpFile=None, returnKeys=False ):
             elif ( value.lower() in ["false","f"] ):
                 vdict[vname] = False
                 
-        elif ( vtype.lower() == 'array'  ):
+        elif ( vtype.lower() in [ "array", "fltarr", "floatarray"] ):
             value        = "".join( ( line.split() )[2:] )
             pattern      = r"\[(.+)\]"
             sarr         = re.search( pattern, value )
             arrcontent   = ( sarr.group(1) ).split(",")
             lst          = [ float(s) for s in arrcontent ]
             vdict[vname] = lst
+
+        elif ( vtype.lower() in [ "intarr", "intarray" ] ):
+            value        = "".join( ( line.split() )[2:] )
+            pattern      = r"\[(.+)\]"
+            sarr         = re.search( pattern, value )
+            arrcontent   = ( sarr.group(1) ).split(",")
+            lst          = [ str(s) for s in arrcontent ]
+            pattern      = r"(.+)-(.+)"
+            ilst         = []
+            for val in lst:
+                reval = re.search( pattern, val )
+                if ( reval ):
+                    imin = min( int( reval.group(1) ), int( reval.group(2) ) )
+                    imax = max( int( reval.group(1) ), int( reval.group(2) ) )
+                    ival = list( range( imin, imax+1 ) )
+                else:
+                    ival = [ int( val ) ]
+                ilst += ival
+            vdict[vname] = ilst
+            
         else:
             print("[ERROR] Unknown Object in load__constants :: {0} [ERROR]".format(inpFile) )
         keys.append( vname )
@@ -77,3 +97,12 @@ def load__constants( inpFile=None, returnKeys=False ):
         return( vdict )
 
 
+
+
+# ========================================================= #
+# ===   実行部                                          === #
+# ========================================================= #
+
+if ( __name__=="__main__" ):
+    const = load__constants( inpFile="test/parameter.conf" )
+    print( const )
