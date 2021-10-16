@@ -51,13 +51,13 @@ def load__constants( inpFile=None, returnKeys=False ):
         elif ( vtype.lower() == 'string' ):
             vdict[vname] = value
 
-        elif ( vtype.lower() == 'logical' ):
+        elif ( vtype.lower() in ['logical',"bool"] ):
             if   ( value.lower() in ["true","t" ] ):
                 vdict[vname] = True
             elif ( value.lower() in ["false","f"] ):
                 vdict[vname] = False
                 
-        elif ( vtype.lower() in [ "array", "fltarr", "floatarray"] ):
+        elif ( vtype.lower() in [ "array", "fltarr" ] ):
             value        = "".join( ( line.split() )[2:] )
             pattern      = r"\[(.+)\]"
             sarr         = re.search( pattern, value )
