@@ -233,8 +233,9 @@ class cMapTri:
         # --- 点 描画                                   --- #
         # ------------------------------------------------- #
         self.ax1.plot( xAxis, yAxis, marker=marker, color=color, \
-                       markersize=self.config["cmp_pointSize"], \
-                       linewidth=0.0 )
+                       markersize     =self.config["cmp_pointSize"], \
+                       markeredgewidth=self.config["cmp_pointWidth"], \
+                       linewidth      =0.0 )
 
 
     # ========================================================= #
