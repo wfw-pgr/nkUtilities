@@ -350,13 +350,19 @@ class plot1D:
         # ------------------------------------------------- #
         # --- 凡例 描画                                 --- #
         # ------------------------------------------------- #
-        self.ax1.legend( loc          =loc_interpretted, \
-                         fontsize     =self.config["leg_FontSize"]     , \
-                         ncol         =self.config["leg_nColumn" ]     , \
-                         frameon      =self.config["leg_FrameOn" ]     , \
-                         labelspacing =self.config["leg_labelGap"]     , \
-                         columnspacing=self.config["leg_columnGap"]    , \
-                         handlelength =self.config["leg_handleLength" ]  )
+        if ( self.config["leg.position"] is not None ):
+            bbox_to_anchor   = tuple( self.config["leg.position"] )
+            loc_interpretted = "lower left"
+        else:
+            bbox_to_anchor = None
+        self.ax1.legend( loc           =loc_interpretted, \
+                         fontsize      =self.config["leg_FontSize"]     , \
+                         ncol          =self.config["leg_nColumn" ]     , \
+                         frameon       =self.config["leg_FrameOn" ]     , \
+                         labelspacing  =self.config["leg_labelGap"]     , \
+                         columnspacing =self.config["leg_columnGap"]    , \
+                         handlelength  =self.config["leg_handleLength" ], \
+                         bbox_to_anchor=bbox_to_anchor )
 
 
     # ========================================================= #
