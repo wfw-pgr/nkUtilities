@@ -49,7 +49,9 @@ def load__constants( inpFile=None, returnKeys=False ):
             vdict[vname] = int( float(value) )
             
         elif ( vtype.lower() == 'string' ):
-            vdict[vname] = value
+            pattern      = r"^[^\s]+\s+[^\s]+\s+(.+)"
+            ret          = re.match( pattern, line.strip() )
+            vdict[vname] = ( ( ( ret.group(1) ).split("#") )[0] ).strip()
 
         elif ( vtype.lower() in ['logical',"bool"] ):
             if   ( value.lower() in ["true","t" ] ):
