@@ -1,3 +1,4 @@
+import os, sys
 import numpy as np
 
 
@@ -27,17 +28,31 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
     # --- [3] names & size                          --- #
     # ------------------------------------------------- #
     if ( readHeader ):
-        if ( ( line1.strip() )[0] == "#" ):
+        if ( ( ( line1.strip() )[0] == "#" ) and ( ( line2.strip() )[0] == "#" ) and \
+             ( ( line3.strip() )[0] == "#" ) ):
             ext1  = ( ( ( line1.strip() ).strip( "#" ) ).strip() ).split()
-            names = [ str(s) for s in ext1 ]
-        if ( ( line2.strip() )[0] == "#" ):
             ext2  = ( ( ( line2.strip() ).strip( "#" ) ).strip() ).split()
-            size  = [ int(i) for i in ext2 ]
-        if ( ( line3.strip() )[0] == "#" ):
             ext3  = ( ( ( line3.strip() ).strip( "#" ) ).strip() ).split()
-            shape = [ int(i) for i in ext3 ]
+
+            try:
+                names = [ str(s) for s in ext1 ]
+            except:
+                names = [ "x{0}".format(ik) for ik in range( nComponents ) ]
+
+            try:
+                size  = [ int(i) for i in ext2 ]
+            except:
+                size  = Data.shape
+                    
+            try:
+                shape = [ int(i) for i in ext3 ]
+            except:
+                if ( returnType.lower() == "structured" ):
+                    print( "[load__pointFile.py] [WARNING] returnType == structured , but, specification is wrong. " )
+                shape = Data.shape
     else:
         size        = Data.shape
+        shape       = Data.shape
         if ( Data.ndim == 1 ):
             nComponents = 1
         else:
