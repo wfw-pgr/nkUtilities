@@ -18,38 +18,44 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
     # --- [2] load Data with header                 --- #
     # ------------------------------------------------- #
     with open( inpFile, "r" ) as f:
-        line1 = f.readline()
-        line2 = f.readline()
-        line3 = f.readline()
+        line1 = ( f.readline() ).strip()
+        line2 = ( f.readline() ).strip()
+        line3 = ( f.readline() ).strip()
     with open( inpFile, "r" ) as f:
         Data  = np.loadtxt( f )
 
+    if   ( ( len(line1) == 0 ) or ( len(line2) == 0 ) or ( len(line3) == 0 ) ):
+        readHeader = False
+    elif ( ( line1[0] != "#" ) or ( line2[0] != "#" ) or ( line3[0] != "#" ) ):
+        readHeader = False
+        
     # ------------------------------------------------- #
     # --- [3] names & size                          --- #
     # ------------------------------------------------- #
     if ( readHeader ):
-        if ( ( ( line1.strip() )[0] == "#" ) and ( ( line2.strip() )[0] == "#" ) and \
-             ( ( line3.strip() )[0] == "#" ) ):
-            ext1  = ( ( ( line1.strip() ).strip( "#" ) ).strip() ).split()
-            ext2  = ( ( ( line2.strip() ).strip( "#" ) ).strip() ).split()
-            ext3  = ( ( ( line3.strip() ).strip( "#" ) ).strip() ).split()
-
-            try:
-                names = [ str(s) for s in ext1 ]
-            except:
-                names = [ "x{0}".format(ik) for ik in range( nComponents ) ]
-
-            try:
-                size  = [ int(i) for i in ext2 ]
-            except:
-                size  = Data.shape
+        ext1  = ( ( ( line1.strip() ).strip( "#" ) ).strip() ).split()
+        ext2  = ( ( ( line2.strip() ).strip( "#" ) ).strip() ).split()
+        ext3  = ( ( ( line3.strip() ).strip( "#" ) ).strip() ).split()
+        
+        try:
+            names = [ str(s) for s in ext1 ]
+        except:
+            names = [ "x{0}".format(ik) for ik in range( nComponents ) ]
+            
+        try:
+            size  = [ int(i) for i in ext2 ]
+        except:
+            size  = Data.shape
                     
-            try:
-                shape = [ int(i) for i in ext3 ]
-            except:
-                if ( returnType.lower() == "structured" ):
-                    print( "[load__pointFile.py] [WARNING] returnType == structured , but, specification is wrong. " )
-                shape = Data.shape
+        try:
+            shape = [ int(i) for i in ext3 ]
+        except:
+            if ( returnType.lower() == "structured" ):
+                print( "[load__pointFile.py] [WARNING] returnType == structured, but, header specification is somehow wrong. " )
+                print( "[load__pointFile.py] line1 :: {0} ".format( line1 ) )
+                print( "[load__pointFile.py] line2 :: {0} ".format( line2 ) )
+                print( "[load__pointFile.py] line3 :: {0} ".format( line3 ) )
+            shape = Data.shape
     else:
         size        = Data.shape
         shape       = Data.shape
@@ -90,8 +96,19 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
 # ======================================== #
 if ( __name__=="__main__" ):
 
-    inpFile = "output.dat"
+    # import nkUtilities.equiSpaceGrid as esg
+    # x1MinMaxNum = [ 0.0, 1.0, 11 ]
+    # x2MinMaxNum = [ 0.0, 1.0, 11 ]
+    # x3MinMaxNum = [ 0.0, 1.0, 11 ]
+    # Data        = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
+    #                                  x3MinMaxNum=x3MinMaxNum, returnType = "structured" )
+    # import nkUtilities.save__pointFile as spf
+    # outFile   = "test/out.dat"
+    # spf.save__pointFile( outFile=outFile, Data=Data )
+
+    
+    inpFile = "test/out.dat"
     
     Data = load__pointFile( inpFile=inpFile, returnType="structured" )
     print( Data.shape )
-    print( Data[0,0,:,0] )
+    # print( Data[0,0,:,0] )
