@@ -60,7 +60,12 @@ def load__config( config=None ):
             lst        = [ float(s) for s in arrcontent ]
             ret[vname] = lst
         else:
-            print("[ERROR] Unknown Object in load__config :: {0} [ERROR]".format(config) )
+            print()
+            print("[load__config.py] Unknown Object in load__config [WARNING]" )
+            print("[load__config.py] config file  :: {0} ".format( config ) )
+            print("[load__config.py] illegal line :: {0} ".format( line   ) )
+            print()
+            
     # ------------------------------------------------- #
     # --- [4] return                                --- #
     # ------------------------------------------------- #

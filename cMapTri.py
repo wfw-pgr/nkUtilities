@@ -50,7 +50,7 @@ class cMapTri:
         self.fig   = plt.figure( figsize=self.config["FigSize"] )
         self.ax1   = self.fig.add_axes( [ cmppos[0], cmppos[1], cmppos[2]-cmppos[0], cmppos[3]-cmppos[1] ] )
         #  -- 格子の描画 on/off                         --  #
-        if ( self.config["grid_sw"] ): self.ax1.grid( b=None )
+        if ( self.config["grid_sw"] ): self.set__grid()
         # ------------------------------------------------- #
         # --- x軸 - y軸の作成                           --- #
         # ------------------------------------------------- #
@@ -459,6 +459,35 @@ class cMapTri:
                          ctitle, fontsize=self.config["clb_title_size"] )
             textax.set_axis_off()
 
+
+    # ========================================================= #
+    # ===  グリッド / y=0 軸線 追加                         === #
+    # ========================================================= #
+    def set__grid( self ):
+        
+        # ------------------------------------------------- #
+        # --- グリッド ( 主グリッド :: Major )          --- #
+        # ------------------------------------------------- #
+        if ( self.config["grid_sw"]      ):
+            self.ax1.grid( b        =self.config["grid_sw"]       , \
+                           which    ='major'                      , \
+                           color    =self.config["grid_color"]    , \
+                           alpha    =self.config["grid_alpha"]    , \
+                           linestyle=self.config["grid_linestyle"], \
+                           linewidth=self.config["grid_linewidth"]  )
+        # ------------------------------------------------- #
+        # --- グリッド ( 副グリッド :: Minor )          --- #
+        # ------------------------------------------------- #
+        if ( self.config["grid_minor_sw"] ):
+            self.ax1.grid( b        =self.config["grid_minor_sw"]   , \
+                           which    ='minor'                        , \
+                           color    =self.config["grid_minor_color"], \
+                           linestyle=self.config["grid_minor_style"], \
+                           alpha    =self.config["grid_minor_alpha"], \
+                           linewidth=self.config["grid_minor_width"]  )
+
+            
+
             
     # ========================================================= #
     # ===  ファイル 保存                                    === #
@@ -487,31 +516,51 @@ class cMapTri:
         print( "[ save__figure -@cMapTri- ] out :: {0}".format( self.config["pngFile"] ) )
 
 
-# ======================================== #
-# ===  実行部                          === #
-# ======================================== #
+# ========================================================= #
+# ===   Execution of Pragram                            === #
+# ========================================================= #
+
 if ( __name__=="__main__" ):
-    import nkUtilities.load__testprofile as ltp
-    prof = ltp.load__testprofile( mode="2D", returnType="point" )
-    print( prof.shape )
-    cMapTri( xAxis=prof[:,0], yAxis=prof[:,1], cMap=prof[:,2], pngFile="tri.png" )
 
+    x_, y_, z_ = 0, 1, 2
 
-    import nkUtilities.equiSpaceGrid as esg
-    x1MinMaxNum = [ 0.0, 1.0, 11 ]
-    x2MinMaxNum = [ 0.0, 1.0, 11 ]
-    x3MinMaxNum = [ 0.0, 1.0, 11 ]
-    ret         = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
-                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
-    xAxis       = ret[:,0]
-    yAxis       = ret[:,1]
+    # ------------------------------------------------- #
+    # --- [1] load config                           --- #
+    # ------------------------------------------------- #
+    import nkUtilities.load__config as lcf
+    config = lcf.load__config()
     
-    uvec        = ret[:,1]
-    vvec        = ret[:,0]
-    fig = cMapTri( pngFile="vec.png" )
-    fig.add__cMap  ( xAxis=xAxis, yAxis=yAxis, cMap=uvec )
-    fig.add__vector( xAxis=xAxis, yAxis=yAxis, uvec=uvec, vvec=vvec )
-    fig.add__contour( xAxis=xAxis, yAxis=yAxis, Cntr=uvec )
+    # ------------------------------------------------- #
+    # --- [2] generate profile 1                    --- #
+    # ------------------------------------------------- #
+    import nkUtilities.equiSpaceGrid as esg
+    x1MinMaxNum = [ -1.0, 1.0, 21 ]
+    x2MinMaxNum = [ -1.0, 1.0, 21 ]
+    x3MinMaxNum = [  0.0, 0.0,  1 ]
+    coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
+                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
+    coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
+    cMapTri( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
+             config=config, pngFile="test/cMapTri.png" )
+
+    # ------------------------------------------------- #
+    # --- [3] generate profile 2                    --- #
+    # ------------------------------------------------- #
+    import nkUtilities.equiSpaceGrid as esg
+    x1MinMaxNum = [ -1.0, 1.0, 21 ]
+    x2MinMaxNum = [ -1.0, 1.0, 21 ]
+    x3MinMaxNum = [  0.0, 0.0,  1 ]
+    coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
+                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
+    import nkBasicAlgs.robustInv as inv
+    radii       = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
+    uvec        = ( - coord[:,y_] * inv.robustInv( radii ) )
+    vvec        = ( + coord[:,x_] * inv.robustInv( radii ) )
+    
+    fig         = cMapTri( pngFile="test/vector_map.png", config=config )
+    fig.add__cMap   ( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=radii )
+    fig.add__vector ( xAxis=coord[:,x_], yAxis=coord[:,y_], uvec=uvec, vvec=vvec )
+    fig.add__contour( xAxis=coord[:,x_], yAxis=coord[:,y_], Cntr=radii )
     fig.save__figure()
 
 

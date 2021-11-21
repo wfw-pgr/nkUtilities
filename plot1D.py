@@ -11,6 +11,7 @@ import matplotlib.ticker            as tic
 # === 1次元プロット描画用クラス                         === #
 # ========================================================= #
 class plot1D:
+    
     # ------------------------------------------------- #
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
@@ -394,17 +395,65 @@ class plot1D:
                              linestyles=self.config["cursor_linestyle"], \
                              linewidth =self.config["cursor_linewidth"] )
 
+    # ========================================================= #
+    # ===  プロット 追加                                    === #
+    # ========================================================= #
+    def add__plot_Axis2nd( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
+                           linestyle=None, linewidth=None, \
+                           marker=None, markersize=None, markerwidth=None ):
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( yAxis       is None ): yAxis       = self.yAxis
+        if ( xAxis       is None ): xAxis       = self.xAxis
+        if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( markerwidth is None ): markerwidth = self.config["plt_markerwidth"]
+        # ------------------------------------------------- #
+        # --- フィルタリング                            --- #
+        # ------------------------------------------------- #
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
+        # ------------------------------------------------- #
+        # --- 軸設定                                    --- #
+        # ------------------------------------------------- #
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        self.ax1.plot( xAxis, yAxis , \
+                       color =color , linestyle =linestyle , \
+                       label =label , linewidth =linewidth , \
+                       marker=marker, markersize=markersize, \
+                       markeredgewidth=markerwidth, alpha =alpha   )
+        
+
+
             
     # =================================================== #
     # === 2軸目 プロット用 ルーチン                   === #
     # =================================================== #
     def add__plot_ax2( self, xAxis=None, yAxis=None, label='' ):
+        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( self.nAxis==1 ): self.ax2 = self.ax1.twinx()
         if ( yAxis is None ): sys.exit( " [add__plot_ax2] yAxis == ?? " )
         if ( xAxis is None ): xAxis = np.arange( yAxis.size ) # -- インデックス代用 -- #
+        
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
