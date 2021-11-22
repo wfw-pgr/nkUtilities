@@ -1,6 +1,7 @@
 import sys, math
 import nkUtilities.mpl_baseSettings
 import nkUtilities.load__config     as lcf
+import nkUtilities.generalFilter    as gfl
 import numpy                        as np
 import matplotlib.pyplot            as plt
 import matplotlib.ticker            as tic
@@ -40,11 +41,6 @@ class plot1D:
         self.ax1 = self.fig.add_axes( [ pos[0], pos[1], pos[2]-pos[0], pos[3]-pos[1] ] )
         self.set__axis()
         self.set__grid()
-        # ------------------------------------------------- #
-        # --- 2nd Axis settings                         --- #
-        # ------------------------------------------------- #
-        self.ax2           = None
-        self.DataRange_ax2 = None
         # ------------------------------------------------- #
         # --- 速攻描画                                  --- #
         # ------------------------------------------------- #
@@ -97,7 +93,10 @@ class plot1D:
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
-        # xAxis, yAxis = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
@@ -105,8 +104,6 @@ class plot1D:
         self.yAxis   = yAxis
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
-        if ( self.config["plt_colorStack"] is not None ):
-            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
@@ -139,14 +136,16 @@ class plot1D:
         if ( markersize  is None ): markersize  = self.config["plt_markersize"]
         if ( capthick    is None ): capthick    = self.config["plt_error_capthick"]
         if ( capsize     is None ): capsize     = self.config["plt_error_capsize"]
+        
         if ( ( xerr is None ) and ( yerr is None ) ):
             sys.exit("[add__errorbar] xerr=None & yerr=None ")
-        if ( self.config["plt_colorStack"] is not None ):
-            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
-        # xAxis, yAxis = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
@@ -191,72 +190,6 @@ class plot1D:
         # ------------------------------------------------- #
         self.set__ticks()
 
-
-        
-    # ========================================================= #
-    # ===  軸 レンジ 自動調整用 ルーチン for axis2          === #
-    # ========================================================= #
-    def set__axis2( self, xRange=None, yRange=None ):
-        # ------------------------------------------------- #
-        # --- 自動レンジ調整   ( 優先順位 2 )           --- #
-        # ------------------------------------------------- #
-        #  -- オートレンジ (y)                          --  #
-        if ( ( self.config["ax2.yAutoRange"] ) and ( self.DataRange_ax2 is not None ) ):
-            ret = self.auto__griding( vMin=self.DataRange_ax2[2], vMax=self.DataRange_ax2[3], \
-                                      nGrid=self.config["ax2.yMajor.nticks"] )
-            self.config["ax2.yRange"] = [ ret[0], ret[1] ]
-        # ------------------------------------------------- #
-        # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
-        # ------------------------------------------------- #
-        if ( yRange is not None ): self.config["ax2.yRange"] = yRange
-        self.ax2.set_ylim( self.config["ax2.yRange"][0], self.config["ax2.yRange"][1] )
-        # ------------------------------------------------- #
-        # --- 軸タイトル 設定                           --- #
-        # ------------------------------------------------- #
-        self.ax2.set_ylabel( self.config["ax2.yTitle"], fontsize=self.config["ax2.yTitle.fontsize"] )
-        # ------------------------------------------------- #
-        # --- 目盛を調整する                            --- #
-        # ------------------------------------------------- #
-        self.set__ticks2()
-
-    # ========================================================= #
-    # ===  軸目盛 設定 ルーチン for axis2                   === #
-    # ========================================================= #
-    def set__ticks2( self ):
-        # ------------------------------------------------- #
-        # --- 軸目盛 自動調整                           --- #
-        # ------------------------------------------------- #
-        #  -- 軸目盛 整数設定                           --  #
-        ytick_dtype      = np.int32 if ( self.config["ax2.yMajor.integer"] ) else np.float64
-        #  -- 軸目盛 自動調整 (y)                       --  #
-        if ( self.config["ax2.yMajor.auto"] ):
-            yMin, yMax   = self.ax2.get_ylim()
-            self.yticks2 = np.linspace( yMin, yMax, self.config["ax2.yMajor.nticks"], dtype=ytick_dtype  )
-        else:
-            self.yticks2 = np.array( self.config["ax2.yMajor.ticks"], dtype=ytick_dtype )
-        #  -- Minor 軸目盛                              --  #
-        if ( self.config["ax2.yMinor.sw"] is False ):
-            self.config["ax2.yMinor.nticks"] = 1
-        self.ax2.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax2.yMinor.nticks"] ) )
-        #  -- 軸目盛 調整結果 反映                      --  #
-        self.ax2.set_yticks( self.yticks2 )
-        # ------------------------------------------------- #
-        # --- 軸目盛 スタイル                           --- #
-        # ------------------------------------------------- #
-        #  -- 軸スタイル (y)                            --  #
-        self.ax2.tick_params( axis     ="y", \
-                              labelsize=self.config["ax2.yMajor.fontsize"], \
-                              length   =self.config["ax2.yMajor.length"  ], \
-                              width    =self.config["ax2.yMajor.width"   ]  )
-        #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["ax2.ylog"] ): self.ax2.set_yscale("log")
-        # ------------------------------------------------- #
-        # --- 軸目盛  オフ                              --- #
-        # ------------------------------------------------- #
-        if ( self.config["ax2.yMajor.noLabel"] ):
-            self.ax2.set_yticklabels( [ "" for i in self.ax2.get_yaxis().get_ticklocs() ] )
-
-        
 
     # ========================================================= #
     # ===  軸の値 自動算出ルーチン                          === #
@@ -350,28 +283,12 @@ class plot1D:
     # =================================================== #
     # === データレンジ更新 for 複数プロット自動範囲用 === #
     # =================================================== #
-    def update__DataRange( self, xAxis=None, yAxis=None, ax2=False ):
+    def update__DataRange( self, xAxis=None, yAxis=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( ( xAxis is None ) or ( yAxis is None ) ):
             sys.exit(  "[ERROR] [@update__DataRange] xAxis or yAxis is None [ERROR]" )
-
-        if ( ax2 ):
-            if ( self.DataRange_ax2 is None ):
-                # -- DataRange_ax2 未定義のとき -- #
-                self.DataRange_ax2    = np.array( [ np.min( xAxis ), np.max( xAxis ),
-                                                    np.min( yAxis ), np.max( yAxis ) ] )
-            else:
-                # -- DataRange_ax2 を更新する -- #
-                self.DataRange_ax2 = np.array( [ min( self.DataRange_ax2[0], np.min( xAxis ) ), \
-                                                 max( self.DataRange_ax2[1], np.max( xAxis ) ), \
-                                                 min( self.DataRange_ax2[2], np.min( yAxis ) ), \
-                                                 max( self.DataRange_ax2[3], np.max( yAxis ) ), ] )
-            return()
-        # ------------------------------------------------- #
-        # --- update DataRange for ax1                  --- #
-        # ------------------------------------------------- #
         if ( self.DataRange is None ):
             # -- DataRange 未定義のとき -- #
             self.DataRange    = np.zeros( (4,) )
@@ -447,23 +364,7 @@ class plot1D:
                          columnspacing =self.config["leg_columnGap"]    , \
                          handlelength  =self.config["leg_handleLength" ], \
                          bbox_to_anchor=bbox_to_anchor )
-        
-        if ( self.ax2 is not None ):
-            if ( self.config["ax2.legend.position"] is not None ):
-                bbox_to_anchor   = tuple( self.config["ax2.legend.position"] )
-                loc_interpretted = "lower left"
-            else:
-                bbox_to_anchor = None
-            self.ax2.legend( loc           =loc_interpretted, \
-                             fontsize      =self.config["leg_FontSize"]     , \
-                             ncol          =self.config["leg_nColumn" ]     , \
-                             frameon       =self.config["leg_FrameOn" ]     , \
-                             labelspacing  =self.config["leg_labelGap"]     , \
-                             columnspacing =self.config["leg_columnGap"]    , \
-                             handlelength  =self.config["leg_handleLength" ], \
-                             bbox_to_anchor=bbox_to_anchor )
 
-        
 
     # ========================================================= #
     # ===  カーソル 描画                                    === #
@@ -494,17 +395,18 @@ class plot1D:
                              linestyles=self.config["cursor_linestyle"], \
                              linewidth =self.config["cursor_linewidth"] )
 
-            
-    # =================================================== #
-    # === 2軸目 プロット用 ルーチン                   === #
-    # =================================================== #
-    def add__plot2( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
-                    linestyle=None, linewidth=None, \
-                    marker=None, markersize=None, markerwidth=None ):
+    # ========================================================= #
+    # ===  プロット 追加                                    === #
+    # ========================================================= #
+    def add__plot_Axis2nd( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
+                           linestyle=None, linewidth=None, \
+                           marker=None, markersize=None, markerwidth=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( yAxis       is None ): sys.exit( " [add__plot2] yAxis for axis 2 == ?? " )
+        if ( yAxis       is None ): yAxis       = self.yAxis
+        if ( xAxis       is None ): xAxis       = self.xAxis
+        if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
         if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
         if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
         if ( color       is None ): color       = self.config["plt_color"]
@@ -515,19 +417,53 @@ class plot1D:
         if ( markersize  is None ): markersize  = self.config["plt_markersize"]
         if ( markerwidth is None ): markerwidth = self.config["plt_markerwidth"]
         # ------------------------------------------------- #
+        # --- フィルタリング                            --- #
+        # ------------------------------------------------- #
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
+        # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
-        if ( self.ax2    is None ): self.ax2 = self.ax1.twinx()
-        self.update__DataRange( xAxis=xAxis, yAxis=yAxis, ax2=True )
-        self.set__axis2()
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax2.plot( xAxis, yAxis , \
+        self.ax1.plot( xAxis, yAxis , \
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
                        markeredgewidth=markerwidth, alpha =alpha   )
+        
+
+
+            
+    # =================================================== #
+    # === 2軸目 プロット用 ルーチン                   === #
+    # =================================================== #
+    def add__plot_ax2( self, xAxis=None, yAxis=None, label='' ):
+        
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( self.nAxis==1 ): self.ax2 = self.ax1.twinx()
+        if ( yAxis is None ): sys.exit( " [add__plot_ax2] yAxis == ?? " )
+        if ( xAxis is None ): xAxis = np.arange( yAxis.size ) # -- インデックス代用 -- #
+        
+        # ------------------------------------------------- #
+        # --- フィルタリング                            --- #
+        # ------------------------------------------------- #
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
+        # ------------------------------------------------- #
+        # --- プロット ( 2軸目 )                        --- #
+        # ------------------------------------------------- #
+        self.ax2.plot( xAxis, yAxis, alpha=0.95, label=label )
+
 
 
     # ========================================================= #
@@ -623,7 +559,8 @@ class plot1D:
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
-        # xAxis, yAxis = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        Filtered     = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+        xAxis, yAxis = Filtered["xAxis"], Filtered["yAxis"]
         
         # ------------------------------------------------- #
         # --- make & check color_array                  --- #
@@ -686,28 +623,16 @@ class plot1D:
 if ( __name__=="__main__" ):
 
     import numpy as np
-    xAxis  = np.linspace( 0.0, 2.0*np.pi, 101 )
-    yAxis1 = np.sin( xAxis )
-    yAxis2 = np.cos( xAxis ) * 2.0
+    xAxis = np.linspace( 0., 1., 21 )
+    yAxis = - ( xAxis - 0.5 )**2 + 1.0
     
-    import nkUtilities.load__config   as lcf
-    import nkUtilities.configSettings as cfs
-    
+    import nkUtilities.plot1D       as pl1
+    import nkUtilities.load__config as lcf
+
     pngFile = "out.png"
     config  = lcf.load__config()
-    config  = cfs.configSettings( configType="plot.def"   , config=config)
-    config  = cfs.configSettings( configType="plot.marker", config=config )
-    config["plt_position"]      = [ 0.12,0.12,0.70, 0.70 ]
-    config["plt_xAutoRange"]    = False
-    config["plt_xRange"]        = [0.0,6.0]
-    config["ax2.yMajor.nticks"] = 7
-    config["ax2.yAutoRange"]    = False
-    config["ax2.yRange"]        = [-3.0,+3.0]
-    fig     = plot1D( config=config, pngFile=pngFile )
-    fig.add__plot ( xAxis=xAxis, yAxis=yAxis1, label="sin(x)", color="Orange" )
-    fig.add__plot ( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue" )
-    # fig.add__plot2( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue"  )
-    fig.add__legend()
+    fig     = pl1.plot1D( config=config, pngFile=pngFile )
+    fig.add__plot( xAxis=xAxis, yAxis=yAxis, marker="x", linewidth=0.0 )
     fig.set__axis()
     fig.save__figure()
 
