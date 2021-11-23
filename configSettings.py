@@ -126,6 +126,25 @@ def configSettings( configType=None, config=None ):
         config["MinimalOut"]      = True
         config["clb_nLabel"]      = 0
         config["clb_sw"]          = False
+
+    # ------------------------------------------------- #
+    # --- [9] 2nd Axis Settings                     --- #
+    # ------------------------------------------------- #
+    if ( configType.lower() in ["plot.ax2"] ):
+        config["FigSize"]             = (6,6)
+        config["plt_position"]        = [ 0.14,0.14,0.86, 0.86 ]
+        config["grid_sw"]             = True
+        config["xTitle_FontSize"]     = 16
+        config["yTitle_FontSize"]     = 16
+        config["xMajor_FontSize"]     = 10
+        config["yMajor_FontSize"]     = 10
+        config["leg_location"]        = "best"
+        config["leg_FontSize"]        = 12
+        config["ax2.yMajor.nticks"]   = 7
+        config["ax2.yAutoRange"]      = True
+        config["ax2.yMinor.sw"]	      = False
+        config["ax2.yMinor.ntikcs"]   = 2
+        config["ax2.legend.position"] = [0.65,0.75]
         
     return( config )
 

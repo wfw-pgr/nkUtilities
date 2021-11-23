@@ -434,8 +434,8 @@ class plot1D:
         # ------------------------------------------------- #
         # --- 凡例 描画                                 --- #
         # ------------------------------------------------- #
-        if ( self.config["leg.position"] is not None ):
-            bbox_to_anchor   = tuple( self.config["leg.position"] )
+        if ( self.config["ax1.legend.position"] is not None ):
+            bbox_to_anchor   = tuple( self.config["ax1.legend.position"] )
             loc_interpretted = "lower left"
         else:
             bbox_to_anchor = None
@@ -688,25 +688,24 @@ if ( __name__=="__main__" ):
     import numpy as np
     xAxis  = np.linspace( 0.0, 2.0*np.pi, 101 )
     yAxis1 = np.sin( xAxis )
-    yAxis2 = np.cos( xAxis ) * 2.0
+    yAxis2 = np.cos( xAxis ) * 100.0
     
     import nkUtilities.load__config   as lcf
     import nkUtilities.configSettings as cfs
     
-    pngFile = "out.png"
+    pngFile = "test/plot_sample.png"
     config  = lcf.load__config()
     config  = cfs.configSettings( configType="plot.def"   , config=config)
     config  = cfs.configSettings( configType="plot.marker", config=config )
-    config["plt_position"]      = [ 0.12,0.12,0.70, 0.70 ]
+    config  = cfs.configSettings( configType="plot.ax2"   , config=config )
     config["plt_xAutoRange"]    = False
     config["plt_xRange"]        = [0.0,6.0]
     config["ax2.yMajor.nticks"] = 7
     config["ax2.yAutoRange"]    = False
-    config["ax2.yRange"]        = [-3.0,+3.0]
+    config["ax2.yRange"]        = [-120.0,+120.0]
     fig     = plot1D( config=config, pngFile=pngFile )
     fig.add__plot ( xAxis=xAxis, yAxis=yAxis1, label="sin(x)", color="Orange" )
-    fig.add__plot ( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue" )
-    # fig.add__plot2( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue"  )
+    fig.add__plot2( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue" )
     fig.add__legend()
     fig.set__axis()
     fig.save__figure()
