@@ -1,4 +1,4 @@
-import os, sys, re, subprocess
+import os, sys, re
 import numpy as np
 
 # ========================================================= #
