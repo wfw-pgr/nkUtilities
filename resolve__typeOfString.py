@@ -4,7 +4,7 @@ import os,sys,re
 # ===  resolve__typeOfString.py                         === #
 # ========================================================= #
 def resolve__typeOfString( word=None, priority=["None","int","float","logical",\
-                                                "intarr","fltarr","string"] ):
+                                                "intarr","fltarr","strarr", "string"] ):
 
     # ------------------------------------------------- #
     # --- [1] arguments check                       --- #
@@ -102,10 +102,21 @@ def resolve__typeOfString( word=None, priority=["None","int","float","logical",\
                 ret = lst
                 break
         # ------------------------------------------------- #
+        # --- [2-7] strarr type                         --- #
+        # ------------------------------------------------- #
+        if ( prior == "strarr" ):
+            pattern      = r"\[(.*)\]"
+            ret          = re.search( pattern, word )
+            if ( ret is not None ):
+                arrcontent   = ( ret.group(1) ).split(",")
+                ret          = [ ( s.strip('"') ).strip( "'" ).strip() for s in arrcontent ]
+                break
+        # ------------------------------------------------- #
         # --- [2-7] string type                         --- #
         # ------------------------------------------------- #
         if ( prior == "string" ):
             ret = word.strip()
+            break
 
     # ------------------------------------------------- #
     # --- [3] return value                          --- #
@@ -146,3 +157,9 @@ if ( __name__=="__main__" ):
     ret = resolve__typeOfString( "[1,2,3]" )
     print( type(ret) )
     print( type(ret[0]) )
+
+    ret = resolve__typeOfString( "[ aaa, bbb, ccc ]" )
+    print( type(ret) )
+    print( type(ret[0]) )
+    print( ret  )
+
