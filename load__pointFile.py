@@ -6,28 +6,34 @@ import numpy as np
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
     names, size = None, None
-    if ( inpFile is None ): sys.exit( "[load__pointFile] inpFile   == ??? " )
+    if ( inpFile  is None ): sys.exit( "[load__pointFile] inpFile   == ??? " )
 
     # ------------------------------------------------- #
     # --- [2] load Data with header                 --- #
     # ------------------------------------------------- #
-    with open( inpFile, "r" ) as f:
-        line1 = ( f.readline() ).strip()
-        line2 = ( f.readline() ).strip()
-        line3 = ( f.readline() ).strip()
-    with open( inpFile, "r" ) as f:
-        Data  = np.loadtxt( f )
+    if ( type(skiprows) is int ):
+        readHeader = False
+    else:
+        skiprows = 0
+    if ( readHeader ):
+        with open( inpFile, "r" ) as f:
+            line1 = ( f.readline() ).strip()
+            line2 = ( f.readline() ).strip()
+            line3 = ( f.readline() ).strip()
+        if   ( ( len(line1) == 0 ) or ( len(line2) == 0 ) or ( len(line3) == 0 ) ):
+            readHeader = False
+        elif ( ( line1[0] != "#" ) or ( line2[0] != "#" ) or ( line3[0] != "#" ) ):
+            readHeader = False
 
-    if   ( ( len(line1) == 0 ) or ( len(line2) == 0 ) or ( len(line3) == 0 ) ):
-        readHeader = False
-    elif ( ( line1[0] != "#" ) or ( line2[0] != "#" ) or ( line3[0] != "#" ) ):
-        readHeader = False
+    with open( inpFile, "r" ) as f:
+        Data  = np.loadtxt( f, skiprows=skiprows )
+
         
     # ------------------------------------------------- #
     # --- [3] names & size                          --- #
@@ -109,6 +115,6 @@ if ( __name__=="__main__" ):
     
     inpFile = "test/out.dat"
     
-    Data = load__pointFile( inpFile=inpFile, returnType="structured" )
+    Data = load__pointFile( inpFile=inpFile, returnType="structured", skiprows=10 )
     print( Data.shape )
     # print( Data[0,0,:,0] )
