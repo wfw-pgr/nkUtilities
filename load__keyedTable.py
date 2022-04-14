@@ -1,5 +1,6 @@
 import re, sys
-import nkUtilities.resolve__typeOfString as tos
+import nkUtilities.resolve__typeOfString       as tos
+import nkUtilities.replace__variableDefinition as rvd
 
 
 # ========================================================= #
@@ -25,12 +26,17 @@ def load__keyedTable( inpFile=None, returnType="dict-dict", \
         lines = f.readlines()
 
     # ------------------------------------------------- #
-    # --- [3] load header                           --- #
+    # --- [3] replace variables                     --- #
     # ------------------------------------------------- #
-    names  = search__namesTags( lines=lines )
+    lines = rvd.replace__variableDefinition( lines=lines, replace_expression=True )
     
     # ------------------------------------------------- #
-    # --- [4] generate Dictionary                   --- #
+    # --- [4] load header                           --- #
+    # ------------------------------------------------- #
+    names  = search__namesTags( lines=lines )
+
+    # ------------------------------------------------- #
+    # --- [5] generate Dictionary                   --- #
     # ------------------------------------------------- #
     vdict   = {}
     keys    = []
@@ -85,7 +91,7 @@ def load__keyedTable( inpFile=None, returnType="dict-dict", \
             sys.exit()
 
     # ------------------------------------------------- #
-    # --- [4] return                                --- #
+    # --- [6] return                                --- #
     # ------------------------------------------------- #
     if   ( returnType == "dict-dict" ):
         return( vdict )
@@ -131,7 +137,10 @@ def search__namesTags( lines=None ):
                 names = ( ( ret.group(1) ).strip() ).split()
             irows = ik
             break
-        
+
+    # ------------------------------------------------- #
+    # --- [3] cannot find any header :: default tag --- #
+    # ------------------------------------------------- #
     if ( irows == -1 ):
         irows = 0
         for ik,line in enumerate( lines ):
