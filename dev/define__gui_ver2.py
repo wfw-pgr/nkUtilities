@@ -61,7 +61,6 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         # --- [2] set values                            --- #
         # ------------------------------------------------- #
-        self.set__values()
         self.set__params()
         self.set__labels()
         self.set__functions()
@@ -78,18 +77,6 @@ class gui__template( ttk.Frame ):
         self.pack_propagate( False ) # to stop shrinking into minimum size.
         self.pack()
 
-
-    # ========================================================= #
-    # ===  set values                                       === #
-    # ========================================================= #
-    def set__values( self ):
-
-        # ------------------------------------------------- #
-        # ---   store default values                    --- #
-        # ------------------------------------------------- #
-        self.values["opencv"] = None
-
-        return()
         
     # ========================================================= #
     # ===  set function name                                === #
@@ -100,9 +87,9 @@ class gui__template( ttk.Frame ):
         # ---   store associated function name          --- #
         # ------------------------------------------------- #
         self.functions["Button01"] = self.draw__opencvWindow
-        self.functions["Adjust01"] = self.update__opencvWindow
-        self.functions["Adjust02"] = self.update__opencvWindow
-        self.functions["Adjust03"] = self.update__opencvWindow
+        self.functions["Adjust01"] = self.draw__opencvWindow
+        self.functions["Adjust02"] = self.draw__opencvWindow
+        self.functions["Adjust03"] = self.draw__opencvWindow
         self.functions["opencv"]   = self.draw__opencvWindow
         self.functions["FileOpen01.button"] = self.load__fileButton
         self.functions["FileOpen01.dialog"] = self.load__fileDialog
@@ -119,12 +106,12 @@ class gui__template( ttk.Frame ):
         # ---   store parameters to be used             --- #
         # ------------------------------------------------- #
         #   < params > [ min, max, init, increment ]   #
-        self.params["Spinbox01"]   = [ 0, 255,  90,   1 ]  
-        self.params["Spinbox02"]   = [ 0, 255, 110,   1 ] 
+        self.params["Spinbox01"]   = [ 0, 255,  80,   1 ]  
+        self.params["Spinbox02"]   = [ 0, 255, 120,   1 ] 
         self.params["Spinbox03"]   = [ 0,   5, 1.5, 0.1 ]
-        self.params["Adjust01"]    = [ 0, 200, 110,   1 ]
-        self.params["Adjust02"]    = [ 0, 200,  20,   1 ]
-        self.params["Adjust03"]    = [ 0, 200, 120,   1 ]
+        self.params["Adjust01"]    = [ 0, 200,  80,   1 ]
+        self.params["Adjust02"]    = [ 0, 200, 120,   1 ]
+        self.params["Adjust03"]    = [ 0, 200, 100,   1 ]
         self.params["opencv"]      = None
         
         return()
@@ -178,7 +165,7 @@ class gui__template( ttk.Frame ):
         self.posits ["Adjust03.label"]    = [  0.50, 0.42, 0.90, 0.08, "center" ]
         self.posits ["Adjust03.scale"]    = [  0.08, 0.42, 0.68, None ]
         self.posits ["Adjust03.spinb"]    = [  0.78, 0.42, 0.16, None ]
-        self.posits ["opencv"]            = [  0.1,  0.50, 0.80, 0.45 ]
+        self.posits ["opencv"]            = [  0.1,  0.50, 0.80, 0.28 ]
         return()
 
     
@@ -499,10 +486,8 @@ class gui__template( ttk.Frame ):
     # ===  draw__opencv                                     === #
     # ========================================================= #
     def draw__opencvWindow( self, event=None ):
-
-        pE_         = 2
-        name_, img_ = 0, 1
-        key         = "opencv"
+        
+        key = "opencv"
         
         # ------------------------------------------------- #
         # --- [1] plot area                             --- #
@@ -517,55 +502,13 @@ class gui__template( ttk.Frame ):
         # --- [2] image opencv                          --- #
         # ------------------------------------------------- #
         if ( self.params[key] is not None ):
-            img_bgr             = cv2.imread  ( self.params[key][name_]    )
-            img_rgb             = cv2.cvtColor( img_bgr, cv2.COLOR_BGR2RGB )
-            self.params[key][1] = img_bgr
+            img_bgr = cv2.imread( self.params[key] )
+            img_rgb = cv2.cvtColor( img_bgr, cv2.COLOR_BGR2RGB )
         else:
-            img_rgb             = np.array( [ [0,0,0] ] )
-            self.params[key]    = [ None, img_rgb ]
-        self.values[key][pE_] = ax.imshow( img_rgb )
+            img_rgb = np.array( [ [0,0,0] ] )
+        ax.imshow( img_rgb )
         canvas.draw()
 
-    # ========================================================= #
-    # ===  update__opencv                                   === #
-    # ========================================================= #
-    def update__opencvWindow( self, event=None ):
-
-        name_, img_    = 0, 1
-        key            = "opencv"
-
-        # ------------------------------------------------- #
-        # --- [1] modify opencv images                  --- #
-        # ------------------------------------------------- #
-        _,ax,pE,canvas = self.values[key]
-        th1            =   int(        self.values["Spinbox01"].get()   )
-        th2            =   int(        self.values["Spinbox02"].get()   )
-        dp             =        float( self.values["Spinbox03"].get() )
-        minDist        =   int( float( self.values["Adjust01" ].get() ) )
-        minRadius      =   int( float( self.values["Adjust02" ].get() ) )
-        maxRadius      =   int( float( self.values["Adjust03" ].get() ) )
-
-        # ------------------------------------------------- #
-        # --- [2] canny                                 --- #
-        # ------------------------------------------------- #
-        img_rgb        = cv2.cvtColor( self.params[key][img_], cv2.COLOR_BGR2RGB  )
-        img_gray       = cv2.cvtColor( self.params[key][img_], cv2.COLOR_BGR2GRAY )
-        img_gauss      = cv2.GaussianBlur( img_gray, (5,5), 0 )
-        img_canny      = cv2.Canny( img_gauss, threshold1=th1, threshold2=th2 )
-        circles        = cv2.HoughCircles( img_canny, cv2.HOUGH_GRADIENT, minDist=minDist, \
-                                           dp=dp, minRadius=minRadius, maxRadius=maxRadius )
-        if ( circles is not None ):
-            circles        = circles[0]
-            nCircles       = circles.shape[0]
-            for circle in circles:
-                x, y, r    = int( circle[0] ), int( circle[1] ), int( circle[2] )
-                img_show   = cv2.circle( img_rgb, (x, y), r, (255, 255, 0), 4 )
-        else:
-            img_show = np.copy( img_rgb )
-        pE.set_data( img_show )
-        canvas.draw()
-        
-    
         
     # ========================================================= #
     # ===  load__fileButton                                 === #
@@ -593,7 +536,7 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         if ( os.path.isfile( path ) ):
             self.values [key].set( path )
-            self.params ["opencv"] = [ path, None ]
+            self.params ["opencv"] = path
             self.draw__opencvWindow()
         else:
             print( "\n" + "[define__gui.py] path is NOT file path... [ERROR] "   )
@@ -612,10 +555,8 @@ class gui__template( ttk.Frame ):
         # --- [1] open Dialog Box & set it in variable  --- #
         # ------------------------------------------------- #
         path = self.open__fileDialogBox()
-        if ( len( path ) == 0 ):
-            return
         self.values [key].set( path )
-        self.params ["opencv"] = [ path, None ]
+        self.params ["opencv"] = path
         self.draw__opencvWindow()
         return()
     
