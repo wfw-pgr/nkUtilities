@@ -11,31 +11,27 @@ import matplotlib.backends.backend_tkagg as btk
 # ===  define_gui                                       === #
 # ========================================================= #
 
-class define__gui:
+def define__gui( title="gui", width=None, height=None ):
 
-    # ========================================================= #
-    # ===  constructor                                      === #
-    # ========================================================= #
-    def __init__( title="gui", width=None, height=None ):
-
-        # ------------------------------------------------- #
-        # --- [1] arguments                             --- #
-        # ------------------------------------------------- #
-        if ( width  is None ):
-            width  = 400
-            print( "[define__gui.py] default  {0:12} : {1}   is used.".format( "width" , width  ) )
-        if ( height is None ):
-            height = 800
-            print( "[define__gui.py] default  {0:12} : {1}   is used.".format( "height", height ) )
+    # ------------------------------------------------- #
+    # --- [1] arguments                             --- #
+    # ------------------------------------------------- #
+    if ( width is None ):
+        width  = 400
+        print( "[define__gui.py] default  {0:12} : {1}   is used.".format( "width" , width  ) )
+    if ( height is None ):
+        height = 800
+        print( "[define__gui.py] default  {0:12} : {1}   is used.".format( "height", height ) )
         
-        # ------------------------------------------------- #
-        # --- [2] define gui application                --- #
-        # ------------------------------------------------- #
-        frame = tk.Tk()
-        frame.title   ( title )
-        frame.geometry( "{0}x{1}".format( width, height ) )
-        gui__template( frame, width=width, height=height )
-        frame.mainloop()
+    # ------------------------------------------------- #
+    # --- [2] define gui application                --- #
+    # ------------------------------------------------- #
+    frame = tk.Tk()
+    frame.title   ( title )
+    frame.geometry( "{0}x{1}".format( width, height ) )
+    gui__template( frame, width=width, height=height )
+    frame.mainloop()
+    return()
 
 
 # ========================================================= #
@@ -65,6 +61,7 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         # --- [2] set values                            --- #
         # ------------------------------------------------- #
+        self.set__values()
         self.set__params()
         self.set__labels()
         self.set__functions()
@@ -83,6 +80,18 @@ class gui__template( ttk.Frame ):
 
 
     # ========================================================= #
+    # ===  set values                                       === #
+    # ========================================================= #
+    def set__values( self ):
+
+        # ------------------------------------------------- #
+        # ---   store default values                    --- #
+        # ------------------------------------------------- #
+        self.values["opencv"] = None
+
+        return()
+        
+    # ========================================================= #
     # ===  set function name                                === #
     # ========================================================= #
     def set__functions( self ):
@@ -90,13 +99,13 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         # ---   store associated function name          --- #
         # ------------------------------------------------- #
-        self.functions["Adjust01"]          = lambda: self.update__opencvWindow( key="opencv" )
-        self.functions["Adjust02"]          = lambda: self.update__opencvWindow( key="opencv" )
-        self.functions["Adjust03"]          = lambda: self.update__opencvWindow( key="opencv" )
+        self.functions["Button01"] = self.draw__opencvWindow
+        self.functions["Adjust01"] = self.update__opencvWindow
+        self.functions["Adjust02"] = self.update__opencvWindow
+        self.functions["Adjust03"] = self.update__opencvWindow
+        self.functions["opencv"]   = self.draw__opencvWindow
         self.functions["FileOpen01.button"] = self.load__fileButton
         self.functions["FileOpen01.dialog"] = self.load__fileDialog
-        self.functions["FileOpen01"]        = lambda: self.draw__opencvWindow  ( key="opencv" )
-        self.functions["opencv"]            = lambda: self.draw__opencvWindow  ( key="opencv" )
 
         return()
 
@@ -116,11 +125,7 @@ class gui__template( ttk.Frame ):
         self.params["Adjust01"]    = [ 0, 200, 110,   1 ]
         self.params["Adjust02"]    = [ 0, 200,  20,   1 ]
         self.params["Adjust03"]    = [ 0, 200, 120,   1 ]
-        #   < params > None :: initialize
         self.params["opencv"]      = None
-
-        #   < params > target params key to store file name & Data #
-        self.params["FileOpen01"]  = "opencv"
         
         return()
 
@@ -133,14 +138,14 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         # ---   store lable for each widget             --- #
         # ------------------------------------------------- #
-        self.labels["Spinbox01"]          = "threshold1"
-        self.labels["Spinbox02"]          = "threshold2"
-        self.labels["Spinbox03"]          = "dp"
-        self.labels["Adjust01"]           = "min_Distance"
-        self.labels["Adjust02"]           = "min_Radius"
-        self.labels["Adjust03"]           = "max_Radius"
-        self.labels["FileOpen01.button"]  = "Load"
-        self.labels["FileOpen01.dialog"]  = "Open File"
+        self.labels["Spinbox01"]   = "threshold1"
+        self.labels["Spinbox02"]   = "threshold2"
+        self.labels["Spinbox03"]   = "dp"
+        self.labels["Adjust01"]    = "min_Distance"
+        self.labels["Adjust02"]    = "min_Radius"
+        self.labels["Adjust03"]    = "max_Radius"
+        self.labels["FileOpen01.button"] = "Load"
+        self.labels["FileOpen01.dialog"] = "Open File"
 
         return()
 
@@ -176,51 +181,29 @@ class gui__template( ttk.Frame ):
         self.posits ["opencv"]            = [  0.1,  0.50, 0.80, 0.45 ]
         return()
 
-
+    
     # ========================================================= #
     # ===  create widgets                                   === #
     # ========================================================= #
     def create__widgets( self ):
 
-        self.widgets__FileOpen    ( key="FileOpen01" )
-        self.widgets__Spinbox     ( key="Spinbox01"  )
-        self.widgets__Spinbox     ( key="Spinbox02"  )
-        self.widgets__Spinbox     ( key="Spinbox03"  )
-        self.widgets__adjustParams( key="Adjust01"   )
-        self.widgets__adjustParams( key="Adjust02"   )
-        self.widgets__adjustParams( key="Adjust03"   )
-
-
-    # ========================================================= #
-    # ===  widgets to open file                             === #
-    # ========================================================= #
-    def widgets__FileOpen( self, key=None ):
-        
-        if ( key is None ): sys.exit( "[widgets__FileOpen] key == ???" )
-        
         # ------------------------------------------------- #
         # --- [1] File Open Set                         --- #
         # ------------------------------------------------- #
+        key                = "FileOpen01"
         ekey, bkey, dkey   = [ key+suffix for suffix in [ ".entry", ".button", ".dialog" ] ]
         self.values [key]  = tk.StringVar()
-        self.widgets[ekey] = ttk.Entry ( self, textvariable=self.values[key] )
+        self.widgets[ekey] = ttk.Entry( self, textvariable=self.values[key] )
         self.widgets[bkey] = ttk.Button( self, text=self.labels[bkey], \
-                                         command=lambda:self.functions[bkey]( **{"key":key} ) )
-        self.widgets[dkey] = ttk.Button( self, text=self.labels[dkey], \
-                                         command=lambda:self.functions[dkey]( **{"key":key} ) )
+                                         command=self.functions[bkey] )
+        self.widgets[dkey] = ttk.Button( self, text=self.labels[dkey],\
+                                         command=self.functions[dkey] )
 
-        
-    # ========================================================= #
-    # ===  widgets of Spinbox                               === #
-    # ========================================================= #
-    def widgets__Spinbox( self, key=None ):
-
+        # ------------------------------------------------- #
+        # --- [3] spinbox for parameters                --- #
+        # ------------------------------------------------- #
         min_,max_,ini_,inc_ = 0, 1, 2, 3
-        if ( key is None ): sys.exit( "[widgets__Spinbox] key == ???" )
-        
-        # ------------------------------------------------- #
-        # --- [1] spinbox for parameters                --- #
-        # ------------------------------------------------- #
+        key                 = "Spinbox01"
         lkey                = "{}.label".format( key )
         self.widgets[lkey]  = ttk.Label( self, text=self.labels[key] )
         self.values [key]   = tk.StringVar()
@@ -231,37 +214,104 @@ class gui__template( ttk.Frame ):
                                            to_         =self.params[key][max_], \
                                            increment   =self.params[key][inc_]  )
         
+        # ------------------------------------------------- #
+        # --- [4] spinbox for parameters 2              --- #
+        # ------------------------------------------------- #
+        min_,max_,ini_,inc_ = 0, 1, 2, 3
+        key                 = "Spinbox02"
+        lkey                = "{}.label".format( key )
+        self.widgets[lkey]  = ttk.Label( self, text=self.labels[key] )
+        self.values [key]   = tk.StringVar()
+        self.values [key].set( str( self.params[key][ini_] ) )
+        self.widgets[key]   = ttk.Spinbox( self, state="readonly", \
+                                           textvariable=self.values[key], \
+                                           from_       =self.params[key][min_], \
+                                           to_         =self.params[key][max_], \
+                                           increment   =self.params[key][inc_]  )
 
-    # ========================================================= #
-    # ===  widgets for adjust in parameters                 === #
-    # ========================================================= #
-    def widgets__adjustParams( self, key=None ):
+        # ------------------------------------------------- #
+        # --- [5] spinbox for parameters 3              --- #
+        # ------------------------------------------------- #
+        min_,max_,ini_,inc_ = 0, 1, 2, 3
+        key                 = "Spinbox03"
+        lkey                = "{}.label".format( key )
+        self.widgets[lkey]  = ttk.Label( self, text=self.labels[key] )
+        self.values [key]   = tk.StringVar()
+        self.values [key].set( str( self.params[key][ini_] ) )
+        self.widgets[key]   = ttk.Spinbox( self, state="readonly", \
+                                           textvariable=self.values[key], \
+                                           from_       =self.params[key][min_], \
+                                           to_         =self.params[key][max_], \
+                                           increment   =self.params[key][inc_]  )
 
+        # ------------------------------------------------- #
+        # --- [6] adjust set widgets                    --- #
+        # ------------------------------------------------- #
+        key                 = "Adjust01"
         min_,max_,ini_,inc_ = 0, 1, 2, 3
         borderwidth         = 8
-        if ( key is None ): sys.exit( "[widgets__adjustParams] key == ???" )
-        
-        # ------------------------------------------------- #
-        # --- [1] adjust set widgets                    --- #
-        # ------------------------------------------------- #
         lkey,sckey,spkey    = [ key+suffix for suffix in [ ".label", ".scale", ".spinb" ] ]
         self.widgets[lkey]  = ttk.LabelFrame( self, text=self.labels[key], \
-                                              borderwidth=borderwidth, labelanchor=tk.N )
+                                             borderwidth=borderwidth, labelanchor=tk.N )
         self.values [key]   = tk.StringVar()
         self.values [key].set( str( self.params[key][ini_] ) )
         self.widgets[sckey] = ttk.Scale  ( self, variable=self.values[key], \
                                            orient        =tk.HORIZONTAL, \
                                            from_         =self.params[key][min_], \
                                            to_           =self.params[key][max_], \
-                                           command       =lambda event: self.functions[key]() )
+                                           command       =self.functions[key] )
         self.widgets[spkey] = ttk.Spinbox( self, state   ="readonly", \
                                            textvariable  =self.values[key], \
                                            from_         =self.params[key][min_], \
                                            to_           =self.params[key][max_], \
                                            increment     =self.params[key][inc_], \
-                                           command       =lambda      : self.functions[key]() )
-        # --- [Caution] :: ttk.Scale takes 1 positional argument.
-        #                  Be carefull when you use lambda.                   --- #
+                                           command       =self.functions[key] )
+        
+        # ------------------------------------------------- #
+        # --- [7] adjust set widgets                    --- #
+        # ------------------------------------------------- #
+        key                 = "Adjust02"
+        min_,max_,ini_,inc_ = 0, 1, 2, 3
+        borderwidth         = 8
+        lkey,sckey,spkey    = [ key+suffix for suffix in [ ".label", ".scale", ".spinb" ] ]
+        self.widgets[lkey]  = ttk.LabelFrame( self, text=self.labels[key], \
+                                             borderwidth=borderwidth, labelanchor=tk.N )
+        self.values [key]   = tk.StringVar()
+        self.values [key].set( str( self.params[key][ini_] ) )
+        self.widgets[sckey] = ttk.Scale  ( self, variable=self.values[key], \
+                                           orient        =tk.HORIZONTAL, \
+                                           from_         =self.params[key][min_], \
+                                           to_           =self.params[key][max_], \
+                                           command       =self.functions[key] )
+        self.widgets[spkey] = ttk.Spinbox( self, state   ="readonly", \
+                                           textvariable  =self.values[key], \
+                                           from_         =self.params[key][min_], \
+                                           to_           =self.params[key][max_], \
+                                           increment     =self.params[key][inc_], \
+                                           command       =self.functions[key] )
+        
+        # ------------------------------------------------- #
+        # --- [8] adjust set widgets                    --- #
+        # ------------------------------------------------- #
+        key                 = "Adjust03"
+        min_,max_,ini_,inc_ = 0, 1, 2, 3
+        borderwidth         = 8
+        lkey,sckey,spkey    = [ key+suffix for suffix in [ ".label", ".scale", ".spinb" ] ]
+        self.widgets[lkey]  = ttk.LabelFrame( self, text=self.labels[key], \
+                                             borderwidth=borderwidth, labelanchor=tk.N )
+        self.values [key]   = tk.StringVar()
+        self.values [key].set( str( self.params[key][ini_] ) )
+        self.widgets[sckey] = ttk.Scale  ( self, variable=self.values[key], \
+                                           orient        =tk.HORIZONTAL, \
+                                           from_         =self.params[key][min_], \
+                                           to_           =self.params[key][max_], \
+                                           command       =self.functions[key] )
+        self.widgets[spkey] = ttk.Spinbox( self, state   ="readonly", \
+                                           textvariable  =self.values[key], \
+                                           from_         =self.params[key][min_], \
+                                           to_           =self.params[key][max_], \
+                                           increment     =self.params[key][inc_], \
+                                           command       =self.functions[key] )
         
 
     # ========================================================= #
@@ -394,11 +444,13 @@ class gui__template( ttk.Frame ):
     # ===  set__matplotlibWindow                            === #
     # ========================================================= #
     def set__matplotlibWindow( self, key=None ):
-        
-        if ( key is None ): sys.exit( "[set__matplotlibWindow] key == ???" )
-            
         # ------------------------------------------------- #
-        # --- [1] set figure area                       --- #
+        # --- [1] Arguments                             --- #
+        # ------------------------------------------------- #
+        if ( key is None ):
+            sys.exit( "[set__matplotlibWindow] key == ???" )
+        # ------------------------------------------------- #
+        # --- [2] set figure area                       --- #
         # ------------------------------------------------- #
         fig                = plt.figure()
         ax                 = fig.add_axes( [0,0,1,1] )
@@ -412,15 +464,17 @@ class gui__template( ttk.Frame ):
     # ========================================================= #
     # ===  draw__matplotlib                                 === #
     # ========================================================= #
-    def draw__matplotlibWindow( self, event=None, key=None ):
-
-        if ( key is None ): sys.exit( "[draw__matplotlibWindow] key == ???" )
+    def draw__matplotlibWindow( self, event=None ):
         
+        # ------------------------------------------------- #
+        # --- [1] function determination                --- #
+        # ------------------------------------------------- #
+        widgets_key   = "plot"
         params_key    = "Adjust01.scale"
         # ------------------------------------------------- #
         # --- [2] plot area                             --- #
         # ------------------------------------------------- #
-        ax,pE,canvas  = ( self.values[key] )[1:]
+        ax,pE,canvas  = ( self.values[widgets_key] )[1:]
         ax.set_position   ( [ 0.12, 0.12, 0.90, 0.90 ] )
         ax.set_xticks     ( np.round( np.linspace(  0.0, 1.0, 6 ), 2 ) )
         ax.set_yticks     ( np.round( np.linspace(  0.0, 1.0, 6 ), 2 ) )
@@ -444,16 +498,16 @@ class gui__template( ttk.Frame ):
     # ========================================================= #
     # ===  draw__opencv                                     === #
     # ========================================================= #
-    def draw__opencvWindow( self, event=None, key=None ):
+    def draw__opencvWindow( self, event=None ):
 
-        fig_, ax_, pE_, canvas_ = 0, 1, 2, 3
-        name_, img_             = 0, 1
-        if ( key is None ): sys.exit( "[draw__opencvWindow] key == ???" )
+        pE_         = 2
+        name_, img_ = 0, 1
+        key         = "opencv"
         
         # ------------------------------------------------- #
         # --- [1] plot area                             --- #
         # ------------------------------------------------- #
-        fig, ax = ( self.values[key] )[0:2]
+        fig,ax,_,canvas = ( self.values[key] )[0:]
         ax.set_position( [ 0.05, 0.05, 0.9, 0.9 ] )
         ax.get_xaxis().set_ticks([])
         ax.get_yaxis().set_ticks([])
@@ -463,23 +517,23 @@ class gui__template( ttk.Frame ):
         # --- [2] image opencv                          --- #
         # ------------------------------------------------- #
         if ( self.params[key] is not None ):
-            self.params[key][img_] = cv2.imread  ( self.params[key][name_] )
-            img_rgb                = cv2.cvtColor( self.params[key][img_] , cv2.COLOR_BGR2RGB )
+            img_bgr             = cv2.imread  ( self.params[key][name_]    )
+            img_rgb             = cv2.cvtColor( img_bgr, cv2.COLOR_BGR2RGB )
+            self.params[key][1] = img_bgr
         else:
-            img_rgb                = np.array( [ [0,0,0] ] )
-            self.params[key]       = [ None, img_rgb ]
+            img_rgb             = np.array( [ [0,0,0] ] )
+            self.params[key]    = [ None, img_rgb ]
         self.values[key][pE_] = ax.imshow( img_rgb )
-        self.values[key][canvas_].draw()
+        canvas.draw()
 
-        
     # ========================================================= #
     # ===  update__opencv                                   === #
     # ========================================================= #
-    def update__opencvWindow( self, event=None, key=None ):
+    def update__opencvWindow( self, event=None ):
 
         name_, img_    = 0, 1
-        if ( key is None ): sys.exit( "[update__opencvWindow] key == ???" )
-        
+        key            = "opencv"
+
         # ------------------------------------------------- #
         # --- [1] modify opencv images                  --- #
         # ------------------------------------------------- #
@@ -510,15 +564,16 @@ class gui__template( ttk.Frame ):
             img_show = np.copy( img_rgb )
         pE.set_data( img_show )
         canvas.draw()
+        
     
         
     # ========================================================= #
     # ===  load__fileButton                                 === #
     # ========================================================= #
-    def load__fileButton( self, event=None, key=None ):
+    def load__fileButton( self ):
 
-        if ( key is None ): sys.exit( "[load__fileButton] key == ???" )
-        
+        key  = "FileOpen01"
+
         # ------------------------------------------------- #
         # --- [1] get File path from Entry              --- #
         # ------------------------------------------------- #
@@ -538,9 +593,8 @@ class gui__template( ttk.Frame ):
         # ------------------------------------------------- #
         if ( os.path.isfile( path ) ):
             self.values [key].set( path )
-            target               = self.params [key]   # where to store the [ path & Data ]
-            self.params[target]  = [ path, None ]
-            self.functions[key]()
+            self.params ["opencv"] = [ path, None ]
+            self.draw__opencvWindow()
         else:
             print( "\n" + "[define__gui.py] path is NOT file path... [ERROR] "   )
             print(        "[define__gui.py]  filename :: {}".format( path ) + "\n" )
@@ -550,9 +604,9 @@ class gui__template( ttk.Frame ):
     # ========================================================= #
     # ===  load__fileDialog                                 === #
     # ========================================================= #
-    def load__fileDialog( self, event=None, key=None  ):
+    def load__fileDialog( self ):
         
-        if ( key is None ): sys.exit( "[load__fileDialog] key == ???" )
+        key  = "FileOpen01"
 
         # ------------------------------------------------- #
         # --- [1] open Dialog Box & set it in variable  --- #
@@ -561,11 +615,9 @@ class gui__template( ttk.Frame ):
         if ( len( path ) == 0 ):
             return
         self.values [key].set( path )
-        target               = self.params [key]   # where to store the [ path & Data ]
-        self.params[target]  = [ path, None ]
-        self.functions[key]()
+        self.params ["opencv"] = [ path, None ]
+        self.draw__opencvWindow()
         return()
-
     
     
 # ========================================================= #
@@ -573,7 +625,8 @@ class gui__template( ttk.Frame ):
 # ========================================================= #
 
 if ( __name__=="__main__" ):
-    ret = define__gui()
+    define__gui()
+
 
 
 
