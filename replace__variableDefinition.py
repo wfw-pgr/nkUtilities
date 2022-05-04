@@ -33,8 +33,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
     if ( comment_mark in [ "$", "*" ] ):  # --:: Need - Escape-Sequence ... ::-- #
         if   ( escapeType == "UseEscapeSequence" ):
             cmt      = "\\" + comment_mark
-            expr_def = "{0}\s*{1}\s*{2}(\S*)\s*=\s*(.*)".format( comment_mark, define_mark, \
-                                                                 variable_mark )                
+            expr_def = "{0}\s*{1}\s*{2}(\S*)\s*=\s*(.*)".format( cmt, define_mark, variable_mark )
+            
         elif ( escapeType == "ReplaceCommentMark" ):
             original     = comment_mark
             comment_mark = "#"
@@ -58,7 +58,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
         # ------------------------------------------------- #
         # ---     search variable notation              --- #
         # ------------------------------------------------- #
-        ret = re.match( expr_def, line )
+        ret = re.search( expr_def, line )
         if ( ret ):      # Found.
 
             # ------------------------------------------------- #
