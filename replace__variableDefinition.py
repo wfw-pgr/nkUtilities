@@ -6,7 +6,8 @@ import nkUtilities.resolve__typeOfString as tos
 # ========================================================= #
 
 def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
-                                 replace_expression=True, comment_mark="#" ):
+                                 replace_expression=True, comment_mark="#", outFile=None, \
+                                 define_mark="<define>", variable_mark="@" ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -17,6 +18,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
         else:
             with open( inpFile, "r" ) as f:
                 lines = f.readlines()
+    if ( type( lines ) is str ):
+        lines = [ lines ]
     if ( priority is None ):
         priority = ["None","int","float","logical","intarr","fltarr","strarr","string"]
         
@@ -24,41 +27,40 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
     # --- [2] replace variables                     --- #
     # ------------------------------------------------- #
     vdict     = {}
-    expr_def  = comment_mark + "\s*define\s*@(\S*)\s*=\s*(.*)"
-    expr_eval = comment_mark + "\s*evaluate\s*@(\S*)\s*=\s*(.*)"
-    for line in lines:
+    # expr_def  = comment_mark + "\s*" + define_mark +  "\s*@(\S*)\s*=\s*(.*)"
+    expr_def  = "{0}\s*{1}\s*{2}(\S*)\s*=\s*(.*)".format( comment_mark, define_mark, \
+                                                          variable_mark )
+    
+    for line in lines:   # 1-line, 1-argument.
+        
         # ------------------------------------------------- #
-        # --- [2-1] define variable                     --- #
+        # ---     search variable notation              --- #
         # ------------------------------------------------- #
         ret = re.match( expr_def, line.lower() )
-        if ( ret ):
+        if ( ret ):      # Found.
+
+            # ------------------------------------------------- #
+            # --- [2-1] Definition of the variable          --- #
+            # ------------------------------------------------- #
             vname        = "@"+ret.group(1)
             if ( comment_mark in ret.group(2) ):
                 value = ( ( ( ret.group(2) ).split(comment_mark) )[0] ).strip()
             else:
                 value = ( ret.group(2) ).strip()
-            value        = tos.resolve__typeOfString( word=value, priority=priority )
-            vdict[vname] = value
-        # ------------------------------------------------- #
-        # --- [2-2] evaluate variable                   --- #
-        # ------------------------------------------------- #
-        ret = re.match( expr_eval, line.lower() )
-        if ( ret ):
-            # -- 
-            vname        = "@"+ret.group(1)
-            if ( comment_mark in ret.group(2) ):
-                value = ( ( ( ret.group(2) ).split(comment_mark) )[0] ).strip()
-            else:
-                value = ( ret.group(2) ).strip()
-            # -- 
+            # ------------------------------------------------- #
+            # --- [2-2] replace variables in value          --- #
+            # ------------------------------------------------- #
             for hname in list( vdict.keys() ):
                 ret = re.search( hname, value )
                 if ( ret ):
-                    if   ( type( vdict[hname] ) in [int,float] ):
+                    if   ( type( vdict[hname] ) in [int,float,bool] ):
                         hvalue = "{0}".format( vdict[hname] )
                         value  = value.replace( hname, hvalue )
                     else:
-                        sys.exit( "[replace__variableDefinition.py] variables of evaluation must be (int,float). [ERROR] " )
+                        sys.exit( "[replace__variableDefinition.py] variables of evaluation must be (int,float,bool). [ERROR] " )
+            # ------------------------------------------------- #
+            # --- [2-3] evaluation and store                --- #
+            # ------------------------------------------------- #
             value        = "{0}".format( eval( value ) )
             value        = tos.resolve__typeOfString( word=value, priority=priority )
             vdict[vname] = value
@@ -84,9 +86,19 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
                         value = "{0}".format( vdict[vname] )
                     elif ( type( vdict[vname] ) in [list] ):
                         value = "[" + ",".join( vdict[vname] ) + "]"
-                    hline = hline.replace( vname, value )
+                    hline = hline.replace( vname, value.strip() )
             replaced.append( hline )
-        print( "[replace__variableDefinition.py] replaced lines is returned. " )
+
+    # ------------------------------------------------- #
+    # --- [4] return                                --- #
+    # ------------------------------------------------- #
+    if ( replace_expression ):
+        if ( outFile is not None ):
+            text = "".join( replaced )
+            with open( outFile, "w" ) as f:
+                f.write( text )
+            print( "[replace__variableDefinition.py] output :: {}".format( outFile ) )
+        print( "[replace__variableDefinition.py] replaced lines is returned." + "\n" )
         return( replaced )
     else:
         print( "[replace__variableDefinition.py] variables dictionary is returned. " )
@@ -98,9 +110,25 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
 # ========================================================= #
 
 if ( __name__=="__main__" ):
-    ret = replace__variableDefinition( inpFile="test/replace_sample.conf" )
+
+    # ------------------------------------------------- #
+    # --- [1] define parametres                     --- #
+    # ------------------------------------------------- #
+    inpFile = "test/replace_sample.conf"
+    outFile = "test/replace_sample.out"
+    
+    # ------------------------------------------------- #
+    # --- [2] input / output Files                  --- #
+    # ------------------------------------------------- #
+    import nkUtilities.parse__arguments as par
+    args = par.parse__arguments()
+    if ( args["inpFile"] is not None ):
+        inpFile = args["inpFile"]
+    if ( args["outFile"] is not None ):
+        outFile = args["outFile"]
+
+    # ------------------------------------------------- #
+    # --- [3] call replace variableDefinition       --- #
+    # ------------------------------------------------- #
+    ret     = replace__variableDefinition( inpFile=inpFile, outFile=outFile )
     print( ret )
-    with open( "test/replace_sample.out", "w" ) as f:
-        for line in ret:
-            f.write(line)
-        print( "output :: {}".format( "test/replace_sample.out" ) )
