@@ -14,7 +14,7 @@ class plot1D:
     # ------------------------------------------------- #
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
-    def __init__( self, xAxis=None, yAxis=None, label=None, pngFile=None, config=None ):
+    def __init__( self, xAxis=None, yAxis=None, label=None, pngFile=None, config=None, window=False ):
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
@@ -71,7 +71,9 @@ class plot1D:
         if ( instantOut ):
             self.save__figure( pngFile=self.config["pngFile"] )
         # -- それ以外の場合は，外部から直接関数を読んでもらう． -- #
-
+        #  -- window に表示する．                       --  #
+        if ( window ):
+            self.display__window()
         
     # ========================================================= #
     # ===  プロット 追加                                    === #
@@ -654,7 +656,44 @@ class plot1D:
                                              linewidth=linewidth, alpha=alpha )
         self.ax1.add_collection( lc )
         
-
+    
+    # ========================================================= #
+    # ===  scatter プロット 追加                            === #
+    # ========================================================= #
+    def add__scatter( self, xAxis=None, yAxis=None, cAxis=None, color=None, cmap=None, \
+                      label=None, alpha=None, marker=None, markersize=None, markerwidth=None ):
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #
+        if ( yAxis       is None ): yAxis       = self.yAxis
+        if ( xAxis       is None ): xAxis       = self.xAxis
+        if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        # ------------------------------------------------- #
+        # --- 軸設定                                    --- #
+        # ------------------------------------------------- #
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
+        self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
+        self.set__axis()
+        if ( cmap is None ):
+            cmap = "jet"
+        if ( type( cmap ) is list ):
+            if ( type( cmap[0] ) == str ):
+                import matplotlib.colors as mcl
+                cmap = mcl.ListedColormap( cmap )
+            
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        self.ax1.scatter( xAxis, yAxis , c=cAxis, cmap=cmap, label=label, \
+                          marker=marker, alpha =alpha   )
+        
+        
     # ========================================================= #
     # ===  ファイル 保存                                    === #
     # ========================================================= #
@@ -676,8 +715,21 @@ class plot1D:
         else:
             # -- 通常プロット        -- #
             self.fig.savefig( pngFile, dpi=dpi, pad_inches=0 )
-        plt.close()
+        # plt.close()
         print( "[ save__figure -@plot1d- ] out :: {0}".format( pngFile ) )
+        
+
+    # ========================================================= #
+    # ===  Display window                                   === #
+    # ========================================================= #
+    def display__window( self ):
+        
+        # ------------------------------------------------- #
+        # --- Window へ出力                             --- #
+        # ------------------------------------------------- #
+        print( "\n" + "[ display__window -@plot1d- ]" + "\n" )
+        self.fig.show()
+               
         
 
 # ======================================== #

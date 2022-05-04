@@ -6,7 +6,7 @@ import nkUtilities.resolve__typeOfString as tos
 # ========================================================= #
 
 def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
-                                 replace_expression=True ):
+                                 replace_expression=True, comment_mark="#" ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -21,11 +21,11 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
         priority = ["None","int","float","logical","intarr","fltarr","strarr","string"]
         
     # ------------------------------------------------- #
-    # --- [2] replace variables                      --- #
+    # --- [2] replace variables                     --- #
     # ------------------------------------------------- #
     vdict     = {}
-    expr_def  = "#\s*define\s*@(\S*)\s*=\s*(.*)"
-    expr_eval = "#\s*evaluate\s*@(\S*)\s*=\s*(.*)"
+    expr_def  = comment_mark + "\s*define\s*@(\S*)\s*=\s*(.*)"
+    expr_eval = comment_mark + "\s*evaluate\s*@(\S*)\s*=\s*(.*)"
     for line in lines:
         # ------------------------------------------------- #
         # --- [2-1] define variable                     --- #
@@ -33,8 +33,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
         ret = re.match( expr_def, line.lower() )
         if ( ret ):
             vname        = "@"+ret.group(1)
-            if ( "#" in ret.group(2) ):
-                value = ( ( ( ret.group(2) ).split("#") )[0] ).strip()
+            if ( comment_mark in ret.group(2) ):
+                value = ( ( ( ret.group(2) ).split(comment_mark) )[0] ).strip()
             else:
                 value = ( ret.group(2) ).strip()
             value        = tos.resolve__typeOfString( word=value, priority=priority )
@@ -46,8 +46,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
         if ( ret ):
             # -- 
             vname        = "@"+ret.group(1)
-            if ( "#" in ret.group(2) ):
-                value = ( ( ( ret.group(2) ).split("#") )[0] ).strip()
+            if ( comment_mark in ret.group(2) ):
+                value = ( ( ( ret.group(2) ).split(comment_mark) )[0] ).strip()
             else:
                 value = ( ret.group(2) ).strip()
             # -- 
@@ -100,3 +100,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
 if ( __name__=="__main__" ):
     ret = replace__variableDefinition( inpFile="test/replace_sample.conf" )
     print( ret )
+    with open( "test/replace_sample.out", "w" ) as f:
+        for line in ret:
+            f.write(line)
+        print( "output :: {}".format( "test/replace_sample.out" ) )

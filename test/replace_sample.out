@@ -1,0 +1,12 @@
+# this is a sample of variable definition
+# -- below is definitions. -- #
+
+# define   @coef1 = 1.0   # this is coef1
+# define   @coef2 = 1000
+# evaluate @coef3 = @coef1 + @coef2
+
+# -- to disable the definition, use ## or ### etc. -- #
+# -- program catch following expressions "#\s*@(variable's name)\s# -- #
+
+set01	     0.1   0.2       1001.0
+set02	     0.2   1.0    1000
