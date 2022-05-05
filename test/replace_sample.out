@@ -1,22 +1,24 @@
 # this is a sample of variable definition
 # -- below is definitions. -- #
 
-# <define>   @coef1 = 1.0   # this is coef1
-# <define>   @coef2 = 1000
-# <define>   @coef3 = @coef1 + @coef2
+# <define>   3.0 = 1.0   # this is coef1
+# <define>   22 = 1000
+# <define>   25.0 = 3.0 + 22
 
 $ <define>   @coef1 = 3.0   $ this is coef1
 $ <define>   @coef2 = 22
 $ <define>   @coef3 = @coef1 + @coef2
+$ <define>   @type  = type-A
 
-* <define>   @coef1 = 3.0   * this is coef1
-* <define>   @coef2 = 22
-* <define>   @coef3 = @coef1 + @coef2
+* <define>   3.0 = 3.0   * this is coef1
+* <define>   22 = 22
+* <define>   25.0 = 3.0 + 22
 
 # -- to disable the definition, use ## or ### etc. -- #
 # -- program catch following expressions "#\s*@(variable's name)\s# -- #
 
-set01	     0.1   0.2       @coef3
-set02	     0.2   @coef1    @coef2
+set01	     0.1   0.2       25.0
+set02	     0.2   3.0    22
 Set03	     0.1   0.2       0.4
-Set04	     0.1   0.2       @coef2
+Set04	     0.1   0.2       22
+type	     type-A
