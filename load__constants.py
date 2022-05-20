@@ -34,9 +34,17 @@ def load__constants( inpFile=None, returnKeys=False ):
             continue
         
         # -- decomposition         -- #
-        vname = ( line.split() )[0]
-        vtype = ( line.split() )[1]
-        value = ( line.split() )[2]
+        try:
+            vname = ( line.split() )[0]
+            vtype = ( line.split() )[1]
+            value = ( line.split() )[2]
+        except IndexError as e:
+            print( "\n"+ "[load__constants.py] inpFile :: {}".format( inpFile ) )
+            print(       "[load__constants.py] line    :: " )
+            print( line + "\n" )
+            print( e )
+            print()
+            sys.exit()
 
         # -- classification        -- #
         if   ( value.lower() == 'none'   ):

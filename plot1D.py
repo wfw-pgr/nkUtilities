@@ -245,13 +245,13 @@ class plot1D:
         # ------------------------------------------------- #
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
+        #  -- 対数表示 ( x,y )                          --  #
+        if ( self.config["ax2.ylog"] ): self.ax2.set_yscale("log")
         #  -- 軸スタイル (y)                            --  #
         self.ax2.tick_params( axis     ="y", \
                               labelsize=self.config["ax2.yMajor.fontsize"], \
                               length   =self.config["ax2.yMajor.length"  ], \
                               width    =self.config["ax2.yMajor.width"   ]  )
-        #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["ax2.ylog"] ): self.ax2.set_yscale("log")
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #
@@ -331,15 +331,15 @@ class plot1D:
         # ------------------------------------------------- #
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
+        #  -- 対数表示 ( x,y )                          --  #
+        if ( self.config["plt_xlog"] ): self.ax1.set_xscale("log")
+        if ( self.config["plt_ylog"] ): self.ax1.set_yscale("log")
         #  -- 軸スタイル (x)                            --  #
         self.ax1.tick_params( axis  ="x"                         , labelsize=self.config["xMajor_FontSize"], \
                               length=self.config["xMajor_length"], width    =self.config["xMajor_width"   ]  )
         #  -- 軸スタイル (y)                            --  #
         self.ax1.tick_params( axis  ="y"                         , labelsize=self.config["yMajor_FontSize"], \
                               length=self.config["yMajor_length"], width    =self.config["yMajor_width"   ]  )
-        #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["plt_xlog"] ): self.ax1.set_xscale("log")
-        if ( self.config["plt_ylog"] ): self.ax1.set_yscale("log")
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #
