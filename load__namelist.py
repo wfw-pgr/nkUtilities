@@ -2,15 +2,15 @@ import re, os, sys, copy
 import nkUtilities.resolve__typeOfString as rts
 
 # ========================================================= #
-# ===  load__nameList.py                                === #
+# ===  load__namelist.py                                === #
 # ========================================================= #
 
-def load__nameList( inpFile=None ):
+def load__namelist( inpFile=None ):
 
     # ------------------------------------------------- #
     # --- [1] argument check                        --- #
     # ------------------------------------------------- #
-    if ( inpFile is None ): sys.exit( "[load__nameList.py] inpFile == ???" )
+    if ( inpFile is None ): sys.exit( "[load__namelist.py] inpFile == ???" )
 
     # ------------------------------------------------- #
     # --- [2] read file                             --- #
@@ -24,7 +24,7 @@ def load__nameList( inpFile=None ):
     pattern1 = r"&.*?\/"
     matches1 = list( re.finditer( pattern1, contents, re.S ) )
     if ( len(matches1) == 0 ):
-        print( "[load__nameList.py] no namelist block are detected..... [END] " )
+        print( "[load__namelist.py] no namelist block are detected..... [END] " )
         sys.exit()
     else:
         matches2   = [ match.group(0) for match in matches1 ]
@@ -55,7 +55,7 @@ def load__nameList( inpFile=None ):
                 key,value  = ( ret.group(1) ).strip(), ( ret.group(2) ).strip()
                 vdict[key] = rts.resolve__typeOfString( word=value )
             else:
-                print( "[load__nameList.py] wrong line @ line {0} in block {1}."\
+                print( "[load__namelist.py] wrong line @ line {0} in block {1}."\
                        .format( ik, blockNames[ik] ) )
                 sys.exit()
         blockItems[blockNames[ik]] = copy.copy( vdict )
@@ -68,4 +68,4 @@ def load__nameList( inpFile=None ):
 
 if ( __name__=="__main__" ):
     inpFile = "test/namelist.lst"
-    load__nameList( inpFile=inpFile )
+    load__namelist( inpFile=inpFile )
