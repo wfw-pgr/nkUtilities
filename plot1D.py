@@ -310,14 +310,15 @@ class plot1D:
         #  -- 軸目盛 自動調整 (x)                       --  #
         if ( self.config["xMajor_auto"] ):
             xMin, xMax  = self.ax1.get_xlim()
-            self.xticks = np.linspace( xMin, xMax, self.config["xMajor_Nticks"], dtype=xtick_dtype  )
+            self.xticks = np.linspace( xMin, xMax, self.config["xMajor_Nticks"], \
+                                       dtype=xtick_dtype  )
         else:
             self.xticks = np.array( self.config["xMajor_ticks"], dtype=xtick_dtype )
         #  -- 軸目盛 自動調整 (y)                       --  #
         if ( self.config["yMajor_auto"] ):
             yMin, yMax  = self.ax1.get_ylim()
-            self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], dtype=ytick_dtype  )
-
+            self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], \
+                                       dtype=ytick_dtype  )
         else:
             self.yticks = np.array( self.config["yMajor_ticks"], dtype=ytick_dtype )
         #  -- Minor 軸目盛                              --  #
@@ -335,11 +336,13 @@ class plot1D:
         if ( self.config["plt_xlog"] ): self.ax1.set_xscale("log")
         if ( self.config["plt_ylog"] ): self.ax1.set_yscale("log")
         #  -- 軸スタイル (x)                            --  #
-        self.ax1.tick_params( axis  ="x"                         , labelsize=self.config["xMajor_FontSize"], \
-                              length=self.config["xMajor_length"], width    =self.config["xMajor_width"   ]  )
+        self.ax1.tick_params( axis  ="x", labelsize=self.config["xMajor_FontSize"], \
+                              length=self.config["xMajor_length"], \
+                              width =self.config["xMajor_width"])
         #  -- 軸スタイル (y)                            --  #
-        self.ax1.tick_params( axis  ="y"                         , labelsize=self.config["yMajor_FontSize"], \
-                              length=self.config["yMajor_length"], width    =self.config["yMajor_width"   ]  )
+        self.ax1.tick_params( axis  ="y", labelsize=self.config["yMajor_FontSize"], \
+                              length=self.config["yMajor_length"], \
+                              width =self.config["yMajor_width"])
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #
@@ -536,7 +539,7 @@ class plot1D:
     # ===  bar 追加                                         === #
     # ========================================================= #
     def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None, \
-                  label=None, align="center" ):
+                  label=None, align="center", bottom=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
@@ -561,7 +564,7 @@ class plot1D:
         # ------------------------------------------------- #
         self.ax1.bar( xAxis, yAxis, label =label, \
                       color =color, alpha =alpha, width=bar_width, \
-                      align =align )
+                      align =align, bottom=bottom )
 
 
     # ========================================================= #

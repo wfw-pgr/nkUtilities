@@ -6,7 +6,7 @@ import numpy as np
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None, dtype=None ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -33,7 +33,8 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
 
     with open( inpFile, "r" ) as f:
         Data  = np.loadtxt( f, skiprows=skiprows )
-
+    if ( dtype is not None ):
+        Data  = np.array( Data, dtype=dtype )
         
     # ------------------------------------------------- #
     # --- [3] names & size                          --- #
