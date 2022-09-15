@@ -1,12 +1,12 @@
 import os, sys
-import numpy as np
+import numpy   as np
 
 
 # ========================================================= #
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None, dtype=None ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None, dtype=None, digit=None ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -71,6 +71,20 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
         else:
             nComponents = Data.shape[1]
         names = [ "x{0}".format(ik) for ik in range( nComponents ) ]
+
+    # ------------------------------------------------- #
+    # --- [4] digit                                 --- #
+    # ------------------------------------------------- #
+    if   ( digit is not None ):
+        if ( type(digit) in [ int, float ] ):
+            digit = [ int(digit) ] * nComponents
+        if ( type(digit) in [ list, tuple, np.ndarray ] ):
+            for ik in range( nComponents ):
+                if   ( digit[ik] is None ):
+                    pass
+                else:
+                    pass
+                    # Data[...,ik] = np.round( Data[...,ik], decimals=int(digit[ik]) )
             
     # ------------------------------------------------- #
     # --- [4] return                                --- #
@@ -116,6 +130,6 @@ if ( __name__=="__main__" ):
     
     inpFile = "test/out.dat"
     
-    Data = load__pointFile( inpFile=inpFile, returnType="structured", skiprows=10 )
-    print( Data.shape )
+    Data = load__pointFile( inpFile=inpFile, returnType="structured", skiprows=0, digit=3 )
+    print( Data )
     # print( Data[0,0,:,0] )
