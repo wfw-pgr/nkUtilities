@@ -31,8 +31,8 @@ def configSettings( configType=None, config=None ):
         config["yMajor_Nticks"]   = 5
         config["xTitle_FontSize"] = 16
         config["yTitle_FontSize"] = 16
-        config["xMajor_FontSize"] = 10
-        config["yMajor_FontSize"] = 10
+        config["xMajor_FontSize"] = 12
+        config["yMajor_FontSize"] = 12
         config["leg_location"]    = "best"
         config["leg_FontSize"]    = 12
 

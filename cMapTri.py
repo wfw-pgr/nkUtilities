@@ -438,7 +438,7 @@ class cMapTri:
             clbax.tick_params( labelsize=self.config["clb_FontSize"], \
                                length=self.config["clb.xMajor.length"], \
                                width=self.config["clb.xMajor.width" ]  )
-            clbax.xaxis.set_minor_locator( tic.AutoMinorLocator( config["clb.xMinor.nTicks"] ) )
+            clbax.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.xMinor.nTicks"] ) )
             clbax.get_xaxis().set_ticks( clb_tickLabel )
             clbax.get_yaxis().set_ticks([])
             self.myCbl  = clbax.contourf( self.cmpLevels, [0.0,1.0], clbdata, \
@@ -456,7 +456,7 @@ class cMapTri:
             clbax.tick_params( labelsize=self.config["clb_FontSize"], \
                                length=self.config["clb.yMajor.length"], \
                                width=self.config["clb.yMajor.width" ]  )
-            clbax.yaxis.set_minor_locator( tic.AutoMinorLocator( config["clb.yMinor.nTicks"] ) )
+            clbax.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.yMinor.nTicks"] ) )
             clbax.get_yaxis().set_ticks( clb_tickLabel )
             clbax.yaxis.tick_right()
             self.myCbl  = clbax.contourf( [0.0,1.0], self.cmpLevels, np.transpose( clbdata ), \
@@ -467,7 +467,7 @@ class cMapTri:
         # ------------------------------------------------- #        
         if ( self.config["clb_title"] is not None ):
             textax = self.fig.add_axes( [0,0,1,1] )
-            ctitle = r"${0}$".format( self.config["clb_title"] )
+            ctitle = "{}".format( self.config["clb_title"] )
             textax.text( self.config["clb_title_pos"][0], self.config["clb_title_pos"][1], \
                          ctitle, fontsize=self.config["clb_title_size"] )
             textax.set_axis_off()
