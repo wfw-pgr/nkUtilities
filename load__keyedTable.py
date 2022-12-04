@@ -30,7 +30,6 @@ def load__keyedTable( inpFile=None, returnType="dict-dict", \
     # --- [3] replace variables                     --- #
     # ------------------------------------------------- #
     lines = inc.include__dividedFile       ( lines=lines, comment_mark=comment_mark )
-    print( lines )
     lines = rvd.replace__variableDefinition( lines=lines, replace_expression=True, \
                                              comment_mark=comment_mark )
     
