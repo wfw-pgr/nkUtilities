@@ -1,6 +1,7 @@
 import re, sys
 import nkUtilities.resolve__typeOfString       as tos
 import nkUtilities.replace__variableDefinition as rvd
+import nkUtilities.include__dividedFile        as inc
 
 
 # ========================================================= #
@@ -9,7 +10,7 @@ import nkUtilities.replace__variableDefinition as rvd
 def load__keyedTable( inpFile=None, returnType="dict-dict", \
                       priority=["None","int","float","logical","intarr",\
                                 "fltarr","strarr","string"], \
-                      datatype=None ):
+                      datatype=None, comment_mark="#" ):
     
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -28,7 +29,10 @@ def load__keyedTable( inpFile=None, returnType="dict-dict", \
     # ------------------------------------------------- #
     # --- [3] replace variables                     --- #
     # ------------------------------------------------- #
-    lines = rvd.replace__variableDefinition( lines=lines, replace_expression=True )
+    lines = inc.include__dividedFile       ( lines=lines, comment_mark=comment_mark )
+    print( lines )
+    lines = rvd.replace__variableDefinition( lines=lines, replace_expression=True, \
+                                             comment_mark=comment_mark )
     
     # ------------------------------------------------- #
     # --- [4] load header                           --- #
@@ -85,7 +89,7 @@ def load__keyedTable( inpFile=None, returnType="dict-dict", \
                            for ik in range(nWords) }
             keys      += [ key ]
         else:
-            print( "[load__keyedTable.py] incompatible line... " )
+            print( "[load__keyedTable.py] incompatible line... @Line={}".format(il) )
             print( "[load__keyedTable.py] line  == {0}".format( " ".join( words ) ) )
             print( "[load__keyedTable.py] names == {0}".format( " ".join( names ) ) )
             sys.exit()

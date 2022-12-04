@@ -1,12 +1,15 @@
 import os, sys, re
 
+# use "<include> filepath = dat/xxx.conf" to include some file.
+
+
 # ========================================================= #
 # ===  include__dividedFile.py                          === #
 # ========================================================= #
 
 def include__dividedFile( inpFile=None, outFile=None, lines=None, \
-                          replace_expression=True, comment_mark="#", \
-                          include_mark="<include>", escapeType ="UseEscapeSequence" ):
+                          comment_mark="#", include_mark="<include>", \
+                          escapeType ="UseEscapeSequence" ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #

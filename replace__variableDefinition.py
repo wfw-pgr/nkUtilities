@@ -53,7 +53,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
     # --- [3] parse variables                       --- #
     # ------------------------------------------------- #
     
-    for line in lines:   # 1-line, 1-argument.
+    for iL,line in enumerate(lines):   # 1-line, 1-argument.
 
         # ------------------------------------------------- #
         # ---     search variable notation              --- #
@@ -79,6 +79,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
                         hvalue = "{0}".format( vdict[hname] )
                         value  = value.replace( hname, hvalue )
                     else:
+                        print( "[replace__variableDefinition.py] ERROR @ line {}, ".format(iL) )
+                        print( line )
                         sys.exit( "[replace__variableDefinition.py] variables of evaluation must be (int,float,bool). [ERROR] " )
             # ------------------------------------------------- #
             # --- [3-3] evaluation and store                --- #
