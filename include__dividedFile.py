@@ -53,6 +53,9 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
     stack = []
     while( True ):    # infinite loop
 
+        # ------------------------------------------------- #
+        # ---  check the contents of the lines          --- #
+        # ------------------------------------------------- #
         if ( len(lines) == 0 ):
             break
         else:
