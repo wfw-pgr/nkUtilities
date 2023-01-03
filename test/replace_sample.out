@@ -10,9 +10,6 @@ $ <define>   @coef2 = 22
 $ <define>   @coef3 = @coef1 + @coef2
 $ <define>   @type  = type-A
 
-* <define>   @coef1 = 3.0   * this is coef1
-* <define>   @coef2 = 22
-* <define>   @coef3 = @coef1 + @coef2
 
 # -- to disable the definition, use ## or ### etc. -- #
 # -- program catch following expressions "#\s*@(variable's name)\s# -- #
@@ -26,3 +23,18 @@ type	     @type
 $ <include> filepath = test/include.conf
 include_var1	0.2	0.4
 include_var2	strings
+
+* <define>   @coef1 = 3.0   * this is coef1
+* <define>   @coef2 = 22
+* <define>   @coef3 = @coef1 + @coef2
+
+$ <include> filepath = test/include_of_include.conf
+
+## this is a file include_of_include.conf
+
+
+aaa = 1.0
+
+$ <postProcess> echo "This is an echo test."
+$ <postProcess> echo "This is an echo test."
+$ <postProcess> cp test/replace_sample.conf test/replace_copy.conf
