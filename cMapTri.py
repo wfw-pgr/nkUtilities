@@ -470,7 +470,7 @@ class cMapTri:
         # ------------------------------------------------- #        
         if ( self.config["clb_title"] is not None ):
             textax = self.fig.add_axes( [0,0,1,1] )
-            ctitle = "{}".format( self.config["clb_title"] )
+            ctitle = r"{}".format( self.config["clb_title"] )
             textax.text( self.config["clb_title_pos"][0], self.config["clb_title_pos"][1], \
                          ctitle, fontsize=self.config["clb_title_size"] )
             textax.set_axis_off()
