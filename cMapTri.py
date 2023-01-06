@@ -140,12 +140,13 @@ class cMapTri:
     # ========================================================= #
     # === 等高線 追加 ルーチン  ( add__contour )            === #
     # ========================================================= #
-    def add__contour( self, xAxis=None, yAxis=None, Cntr=None ):
+    def add__contour( self, xAxis=None, yAxis=None, Cntr=None, levels=None ):
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
         if ( xAxis  is not None ): self.xAxis = xAxis
         if ( yAxis  is not None ): self.yAxis = yAxis
+        if ( levels is not None ): self.cntLevels = levels
         if ( Cntr   is None     ):
             sys.exit( "[add__contour] Cntr == ???" )
         else:
@@ -175,6 +176,8 @@ class cMapTri:
                                            colors     = self.config["cnt_color"], \
                                            linewidths = self.config["cnt_linewidth"], \
                                            zorder=1 )
+        if ( self.config["cnt.clabel.sw"] ):
+            self.ax1.clabel( self.cImage, fontsize=self.config["cnt.clabel.fontsize"] )
         self.set__axis()
 
         
