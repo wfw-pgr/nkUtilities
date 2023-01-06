@@ -5,7 +5,7 @@ import nkUtilities.resolve__typeOfString as tos
 # ===  replace__variableDefinition.py                   === #
 # ========================================================= #
 
-def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
+def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=None, \
                                  replace_expression=True, comment_mark="#", outFile=None, \
                                  define_mark="<define>", variable_mark="@", \
                                  escapeType ="UseEscapeSequence" ):
@@ -28,6 +28,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, \
     # --- [2] expression of definition              --- #
     # ------------------------------------------------- #
     vdict      = {}
+    if ( table is not None ):
+        vdict  = { **vdict, **table }
     Flag__changeComment = False
     
     if ( comment_mark in [ "$", "*" ] ):  # --:: Need - Escape-Sequence ... ::-- #
@@ -147,6 +149,7 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     inpFile = "test/replace_sample.conf"
     outFile = "test/replace_sample.out"
+    table   = { "@val_frm_tbl":"value_from_table" }
     
     # ------------------------------------------------- #
     # --- [2] input / output Files                  --- #
@@ -161,6 +164,7 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     # --- [3] call replace variableDefinition       --- #
     # ------------------------------------------------- #
-    ret   = replace__variableDefinition( inpFile=inpFile, outFile=outFile, comment_mark="$" )
+    ret   = replace__variableDefinition( inpFile=inpFile, outFile=outFile, \
+                                         table=table, comment_mark="$" )
     text  = "".join( ret )
     print( text )
