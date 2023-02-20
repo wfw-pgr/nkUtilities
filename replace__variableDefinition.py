@@ -114,7 +114,11 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
                     if   ( type( vdict[vname] ) in [None,int,float,bool,str] ):
                         value = "{0}".format( vdict[vname] )
                     elif ( type( vdict[vname] ) in [list] ):
-                        value = "[" + ",".join( vdict[vname] ) + "]"
+                        if ( type( vdict[vname][0] ) in [int,float] ):
+                            value = [ "{}".format( val ) for val in vdict[vname] ]
+                            value = "[" + ",".join( value ) + "]"
+                        else:
+                            value = "[" + ",".join( vdict[vname] ) + "]"
                     hline = hline.replace( vname, value.strip() )
             replaced.append( hline )
             

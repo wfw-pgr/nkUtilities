@@ -408,7 +408,7 @@ class plot1D:
         # --- グリッド ( 主グリッド :: Major )          --- #
         # ------------------------------------------------- #
         if ( self.config["grid_sw"]      ):
-            self.ax1.grid( b        =self.config["grid_sw"]       , \
+            self.ax1.grid( visible  =self.config["grid_sw"]       , \
                            which    ='major'                      , \
                            color    =self.config["grid_color"]    , \
                            alpha    =self.config["grid_alpha"]    , \
@@ -418,7 +418,7 @@ class plot1D:
         # --- グリッド ( 副グリッド :: Minor )          --- #
         # ------------------------------------------------- #
         if ( self.config["grid_minor_sw"] ):
-            self.ax1.grid( b        =self.config["grid_minor_sw"]   , \
+            self.ax1.grid( visible  =self.config["grid_minor_sw"]   , \
                            which    ='minor'                        , \
                            color    =self.config["grid_minor_color"], \
                            linestyle=self.config["grid_minor_style"], \
