@@ -95,7 +95,7 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
         with open( outFile, "w" ) as f:
             f.write( text )
         print( "[include__dividedFile.py] output :: {}".format( outFile ) )
-    print( "[include__dividedFile.py] inserted lines is returned." + "\n" )
+    print( "[include__dividedFile.py]        inserted lines is returned." )
     return( stack )
 
 

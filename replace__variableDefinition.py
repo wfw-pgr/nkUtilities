@@ -135,7 +135,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             with open( outFile, "w" ) as f:
                 f.write( text )
             print( "[replace__variableDefinition.py] output :: {}".format( outFile ) )
-        print( "[replace__variableDefinition.py] replaced lines is returned." + "\n" )
+        print( "[replace__variableDefinition.py] replaced lines is returned." )
         return( replaced )
     else:
         print( "[replace__variableDefinition.py] variables dictionary is returned. " )
