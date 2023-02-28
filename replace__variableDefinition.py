@@ -60,7 +60,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
         # ------------------------------------------------- #
         # ---     search variable notation              --- #
         # ------------------------------------------------- #
-        ret = re.search( expr_def, line )
+        ret = re.match( expr_def, line )     # use match here.
         if ( ret ):      # Found.
 
             # ------------------------------------------------- #
@@ -109,7 +109,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
                 replaced.append( hline )
                 continue
             for vname in vnames:
-                ret = re.search( vname, hline )
+                ret = re.search( vname, hline )     # use search here.
                 if ( ret ):
                     if   ( type( vdict[vname] ) in [None,int,float,bool,str] ):
                         value = "{0}".format( vdict[vname] )
