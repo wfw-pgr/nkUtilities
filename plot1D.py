@@ -333,8 +333,18 @@ class plot1D:
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
         #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["plt_xlog"] ): self.ax1.set_xscale("log")
-        if ( self.config["plt_ylog"] ): self.ax1.set_yscale("log")
+        if ( self.config["plt_xlog"] ):
+            self.ax1.set_xscale("log")
+            if ( self.config["xMajor_auto"] ):
+                pass
+            else:
+                self.ax1.set_xticks( self.config["xMajor_ticks"] )
+        if ( self.config["plt_ylog"] ):
+            self.ax1.set_yscale("log")
+            if ( self.config["yMajor_auto"] ):
+                pass
+            else:
+                self.ax1.set_yticks( self.config["yMajor_ticks"] )
         #  -- 軸スタイル (x)                            --  #
         self.ax1.tick_params( axis  ="x", labelsize=self.config["xMajor_FontSize"], \
                               length=self.config["xMajor_length"], \
