@@ -246,7 +246,13 @@ class plot1D:
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
         #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["ax2.ylog"] ): self.ax2.set_yscale("log")
+        if ( self.config["ax2.ylog"] ):
+            self.ax2.set_yscale("log")
+            if ( self.config["ax2.yMajor.auto"] ):
+                pass
+            else:
+                self.ax2.set_yticks( self.config["ax2.yMajor.ticks"] )
+
         #  -- 軸スタイル (y)                            --  #
         self.ax2.tick_params( axis     ="y", \
                               labelsize=self.config["ax2.yMajor.fontsize"], \

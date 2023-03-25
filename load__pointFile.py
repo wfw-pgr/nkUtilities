@@ -6,14 +6,29 @@ import numpy   as np
 # ===  load point file with prescribed header           === #
 # ========================================================= #
 
-def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", readHeader=True, skiprows=None, dtype=None, digit=None ):
+def load__pointFile( inpFile=None, returnType="point", shape=None, \
+                     order="C", readHeader=True, skiprows=None, dtype=None, digit=None ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
     names, size = None, None
     if ( inpFile  is None ): sys.exit( "[load__pointFile] inpFile   == ??? " )
+    extention   = ( inpFile.split( "." ) )[-1]
 
+    # ------------------------------------------------- #
+    # --- [2] load csv                              --- #
+    # ------------------------------------------------- #
+    if ( extention.lower() == "csv" ):
+        import pandas as pd
+        Data    = pd.read_csv( inpFile )
+        names   = Data.columns
+        if   ( returnType.lower() in [ "point", "structured" ] ):
+            ret = Data.values
+        elif ( returnType.lower() in [ "dict" ] ):
+            ret = { name:Data[name].values for name in names }
+        return( ret )
+    
     # ------------------------------------------------- #
     # --- [2] load Data with header                 --- #
     # ------------------------------------------------- #
@@ -110,6 +125,9 @@ def load__pointFile( inpFile=None, returnType="point", shape=None, order="C", re
     else:
         sys.exit( "[load__pointFile] returnType = ( point, dict )" )
     return( ret )
+
+
+
 
 
 # ======================================== #
