@@ -65,7 +65,7 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
         # ------------------------------------------------- #
         # ---     search variable notation              --- #
         # ------------------------------------------------- #
-        ret = re.search( expr_def, line )
+        ret = re.match( expr_def, line )
         if ( ret ):      # Found.
 
             # ------------------------------------------------- #
@@ -75,6 +75,7 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
                 filepath = ( ( ( ret.group(1) ).split(comment_mark) )[0] ).strip()
             else:
                 filepath = ( ret.group(1) ).strip()
+            filepath = filepath.strip( " "+'"'+"'" )
 
             # ------------------------------------------------- #
             # --- [3-2] file existing check & load          --- #
@@ -86,6 +87,7 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
             else:
                 print( "[include__dividedFile.py] Cannot Find such a file.... [ERROR] " )
                 print( "[include__dividedFile.py] filepath :: {} ".format( filepath   ) )
+                sys.exit()
 
     # ------------------------------------------------- #
     # --- [4] return                                --- #

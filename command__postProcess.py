@@ -52,14 +52,19 @@ def command__postProcess( inpFile=None, lines=None, comment_mark="#", execute=Tr
         # ------------------------------------------------- #
         # ---     search variable notation              --- #
         # ------------------------------------------------- #
-        ret = re.search( expr_def, line )
+        ret = re.match( expr_def, line )
         if ( ret ):      # Found.
             
             # ------------------------------------------------- #
             # --- [3-1] get file path                       --- #
             # ------------------------------------------------- #
-            if ( comment_mark in ret.group(1) ):
-                command = ( ( ( ret.group(1) ).split(comment_mark) )[0] ).strip()
+            if ( comment_mark in [ "$", "*"] ):   # exception for "$" and "*"
+                comment_mark_ = comment_mark*2
+            else:
+                comment_mark_ = comment_mark
+
+            if ( comment_mark_ in ret.group(1) ):
+                command = ( ( ( ret.group(1) ).split(comment_mark_) )[0] ).strip()
             else:
                 command = ( ret.group(1) ).strip()
 

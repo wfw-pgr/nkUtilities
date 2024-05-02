@@ -46,11 +46,14 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             for ik,line in enumerate( lines ):
                 lines[ik] = ( lines[ik] ).replace( original, comment_mark )
 
+        else:
+            print( "[replace__variableDefinition.py] Unknown escapeType :: {} ".format( escapeType ) )
+            sys.exit()
+
     else:
         expr_def     = "{0}\s*{1}\s*{2}(\S*)\s*=\s*(.*)".format( comment_mark, define_mark, \
                                                                  variable_mark ) 
 
-        
     # ------------------------------------------------- #
     # --- [3] parse variables                       --- #
     # ------------------------------------------------- #
@@ -94,6 +97,23 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             value        = tos.resolve__typeOfString( word=value, priority=priority )
             vdict[vname] = value
 
+    # ------------------------------------------------- #
+    # --- [4] check variable mark                   --- #
+    # ------------------------------------------------- #
+    vdict_ = {}
+    for key,val in vdict.items():
+        if ( not( variable_mark in ["@"] ) ):
+            print( "[replace__variableDefinition.py] variable_mark ??? :: {} "\
+                   .format( variable_mark ) )
+        check_expr = "{}\S+".format( variable_mark )
+        ret        = re.match( check_expr, key )
+        if ( ret ):
+            vdict_[key] = val
+        else:
+            key_ = "{0}{1}".format( variable_mark, key )
+            vdict_[key_] = val
+    vdict = vdict_
+    
     # ------------------------------------------------- #
     # --- [4] replace expression                    --- #
     # ------------------------------------------------- #
@@ -151,8 +171,8 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     # --- [1] define parametres                     --- #
     # ------------------------------------------------- #
-    inpFile = "test/replace_sample.conf"
-    outFile = "test/replace_sample.out"
+    inpFile = "test/replace_sample_2.conf"
+    outFile = "test/replace_sample_2.out"
     table   = { "@val_frm_tbl":"value_from_table" }
     
     # ------------------------------------------------- #

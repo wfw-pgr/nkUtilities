@@ -711,7 +711,25 @@ class plot1D:
         # ------------------------------------------------- #
         self.ax1.scatter( xAxis, yAxis , c=cAxis, cmap=cmap, label=label, \
                           marker=marker, alpha =alpha   )
+
+    # ========================================================= #
+    # ===  テキスト 追加                                    === #
+    # ========================================================= #
+    def add__text( self, xpos=0.5, ypos=0.5, text="", color="black", fontsize=None ):
+
+        # ------------------------------------------------- #
+        # --- 引数チェック                              --- #
+        # ------------------------------------------------- #        
+        xMin  , xMax   = self.ax1.get_xlim()
+        yMin  , yMax   = self.ax1.get_ylim()
+        xcoord, ycoord = xpos*(xMax-xMin)+xMin, ypos*(yMax-yMin)+yMin
         
+        # ------------------------------------------------- #
+        # --- プロット 追加                             --- #
+        # ------------------------------------------------- #
+        self.ax1.text( xcoord, ycoord, text, color=color, fontsize=fontsize )
+
+
         
     # ========================================================= #
     # ===  ファイル 保存                                    === #
