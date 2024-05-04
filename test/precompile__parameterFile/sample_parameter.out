@@ -1,0 +1,22 @@
+
+$ This is a parameter file for some calculation
+
+$ <define>  @var1 = 0.1
+$$$ <include> filepath = "include.inp"
+$ <include> filepath = "test/precompile__parameterFile/include.inp"
+
+$ <loadJSON> filepath = "test/precompile__parameterFile/sample_parameter.json"
+$ <define> @var2 = 0.2
+
+$$$ <loadJSON> filepath = "sample_parameter.json"
+$$$ <define> @var2 = 0.2
+
+BEGIN{
+
+  TITLE    = TEST01
+
+  x,y,z    = ( 0.0, 1.0, 2.0 )
+  particle = electron
+  iterMax  = 10
+
+}END

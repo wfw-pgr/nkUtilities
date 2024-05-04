@@ -1,0 +1,15 @@
+{
+    // This is a sample of json file
+    "string" :"This is a pen", 
+    "val1"   : 30.0,
+    "val2"   : 2,
+    "arr1"   : [1.0,2.0,3.0,],
+    "sw1"    :true, 
+    "sw2"    :false,
+    "item"   :null,
+    "fml"    : "`np.cos($val1/180.0*np.pi)*$val2`",
+    "fml2"   : "`np.cos(${val3}/180.0*np.pi)*${val2}`",
+    "val3"   : 60.0,
+    /* comment line */
+}
+

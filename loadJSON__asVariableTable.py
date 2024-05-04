@@ -7,7 +7,7 @@ import nkUtilities.json__formulaParser as jso
 # ========================================================= #
 
 def loadJSON__asVariableTable( inpFile=None, outFile=None, lines=None, table=None, \
-                               loadJSON_mark="<loadJSON>", comment_mark="#", \
+                               loadJSON_mark="<loadJSON>", comment_mark="#", variable_mark="@", \
                                escapeType="UseEscapeSequence" ):
     
     # ------------------------------------------------- #
@@ -70,7 +70,8 @@ def loadJSON__asVariableTable( inpFile=None, outFile=None, lines=None, table=Non
             # --- [3-2] file existing check & load          --- #
             # ------------------------------------------------- #
             if ( os.path.exists( filepath ) ):
-                vdict = jso.json__formulaParser( inpFile=filepath, table=vdict )
+                vdict = jso.json__formulaParser( inpFile=filepath, table=vdict,\
+                                                 variable_mark=variable_mark )
             else:
                 print( "[loadJSON__asVariableTable.py] Cannot Find such a file.... [ERROR] " )
                 print( "[loadJSON__asVariableTable.py] filepath :: {} ".format( filepath   ) )

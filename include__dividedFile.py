@@ -7,7 +7,7 @@ import os, sys, re
 # ===  include__dividedFile.py                          === #
 # ========================================================= #
 
-def include__dividedFile( inpFile=None, outFile=None, lines=None, \
+def include__dividedFile( inpFile=None, outFile=None, lines=None, silent=True, \
                           comment_mark="#", include_mark="<include>", \
                           escapeType ="UseEscapeSequence" ):
 
@@ -97,7 +97,8 @@ def include__dividedFile( inpFile=None, outFile=None, lines=None, \
         with open( outFile, "w" ) as f:
             f.write( text )
         print( "[include__dividedFile.py] output :: {}".format( outFile ) )
-    print( "[include__dividedFile.py]        inserted lines is returned." )
+    if ( not( silent ) ):
+        print( "[include__dividedFile.py]        inserted lines is returned." )
     return( stack )
 
 

@@ -1,12 +1,11 @@
 import os, sys
 
-
 # ========================================================= #
 # ===  show__section                                    === #
 # ========================================================= #
 
-def show__section( section=None, length=71, bar_mark="-", comment_mark="#", sidebarLen=3, sideSpaceLen=1, \
-                   newLine=True ):
+def show__section( section=None, length=71, bar_mark="-", comment_mark="#", \
+                   sidebarLen=3, sideSpaceLen=1, newLine=True ):
 
     # ------------------------------------------------- #
     # --- [1] arguments                             --- #
@@ -18,7 +17,8 @@ def show__section( section=None, length=71, bar_mark="-", comment_mark="#", side
     # ------------------------------------------------- #
     sectLen        = len(section)
     uprlwrbar_Len  = length - ( len( comment_mark ) + sideSpaceLen )*2
-    space_t_Len    = ( length - len(section) - 2*( len( comment_mark ) + sideSpaceLen*2 + sidebarLen ) )
+    space_t_Len    = ( length - len(section) - 2*( len( comment_mark )\
+                                                   + sideSpaceLen*2 + sidebarLen ) )
     space_f_Len    = space_t_Len // 2
     space_r_Len    = space_t_Len - space_f_Len
 
@@ -35,9 +35,9 @@ def show__section( section=None, length=71, bar_mark="-", comment_mark="#", side
     # ------------------------------------------------- #
     line1          = side1 + bar_mark*uprlwrbar_Len + side1[::-1] + "\n"
     line2          = side2 + space_f + section + space_r + side2[::-1] + "\n"
+    lines          = line1 + line2 + line1
     if ( newLine ):
-        lines = "\n" + line1 + line2 + line1 + "\n"
-    print( lines )
+        lines = "\n" + lines + "\n"
     return( lines )
 
 

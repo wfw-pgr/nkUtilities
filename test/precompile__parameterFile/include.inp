@@ -1,0 +1,6 @@
+
+$ $ <loadJSON> filepath = "test/precompile__parameterFile/sample_parameter.json"
+$ $ <define> @var2 = 0.2
+
+$ <loadJSON> filepath = "sample_parameter.json"
+$ <define> @var2 = 0.2

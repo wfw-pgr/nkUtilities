@@ -1,0 +1,16 @@
+
+$ This is a parameter file for some calculation
+
+$ <define>  @var1 = 0.1
+$ <include> filepath = "include.inp"
+$$$ <include> filepath = "test/precompile__parameterFile/include.inp"
+
+BEGIN{
+
+  TITLE    = @title
+
+  x,y,z    = ( @x, @y, @z )
+  particle = @particleType
+  iterMax  = @iterMax
+
+}END

@@ -8,7 +8,7 @@ import nkUtilities.resolve__typeOfString as tos
 def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=None, \
                                  replace_expression=True, comment_mark="#", outFile=None, \
                                  define_mark="<define>", variable_mark="@", \
-                                 escapeType ="UseEscapeSequence" ):
+                                 escapeType ="UseEscapeSequence", silent=True ):
 
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
@@ -155,10 +155,12 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             with open( outFile, "w" ) as f:
                 f.write( text )
             print( "[replace__variableDefinition.py] output :: {}".format( outFile ) )
-        print( "[replace__variableDefinition.py] replaced lines is returned." )
+        if ( not( silent ) ):
+            print( "[replace__variableDefinition.py] replaced lines is returned." )
         return( replaced )
     else:
-        print( "[replace__variableDefinition.py] variables dictionary is returned. " )
+        if ( not( silent ) ):
+            print( "[replace__variableDefinition.py] variables dictionary is returned. " )
         return( vdict    )
 
 

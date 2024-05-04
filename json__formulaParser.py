@@ -5,11 +5,19 @@ import numpy as np
 # ===  json__formulaParser.py                           === #
 # ========================================================= #
 
-def json__formulaParser( inpFile=None, stop__error=False, table=None ):
+def json__formulaParser( inpFile=None, stop__error=False, table=None, \
+                         expr_fml=None, formula_mark="`", variable_mark="$" ):
+    
+    if ( expr_fml is None ):
+        if   ( formula_mark == "`" ):
+            expr_fml = r"\s*`([\s\S]+)`\s*"
+        else:
+            print( "[json__formulaParser.py] formula_mark == {} ??? ".format( variable_mark ) )
+            sys.exit()
 
-    expr_fml    = r"\s*`([\s\S]+)`\s*"
-    expr_var    = r"\$\{(\S+)\}"
-
+    if ( variable_mark in [ "$" ] ):
+        variable_mark = "\{}".format( variable_mark )
+            
     # ------------------------------------------------- #
     # --- [1] load json file as json5               --- #
     # ------------------------------------------------- #
@@ -17,7 +25,7 @@ def json__formulaParser( inpFile=None, stop__error=False, table=None ):
         varDict = json5.load( f )
     if ( table is not None ):
         varDict = { **table, **varDict }
-        
+
     # ------------------------------------------------- #
     # --- [2] convert formula string into value     --- #
     # ------------------------------------------------- #
@@ -26,28 +34,25 @@ def json__formulaParser( inpFile=None, stop__error=False, table=None ):
             match_fml = re.match( expr_fml, val )
             if ( match_fml ):
                 formula   = match_fml.group(1)
-                match_var = re.findall( expr_var, formula )
-                for var in match_var:
-                    if ( var in varDict ):
-                        expr_from = "${"+var+"}"
-                        expr_into = "{}".format( varDict[var] )
-                        formula   = formula.replace( expr_from, expr_into )
-                    else:
-                        print( "\n[json__wformula.py] Cannot find variable [ERROR] :: {}\n".format( var ) )
-                        if ( stop__error ): sys.exit()
+                for var_,val_ in varDict.items():
+                    expr_from = variable_mark+"\{*"+var_+"\}*\s*"
+                    expr_into = "{}".format( val_ )
+                    formula = re.sub( expr_from, expr_into, formula )
                 try:
                     varDict[key] = eval( formula )
                 except SyntaxError:
                     print()
                     print( "[json__wformula.py] Cannot evaluate [ERROR]" )
-                    print( "[json__wformula.py] key     :: {}".format( key ) )
-                    print( "[json__wformula.py] formula :: {}".format( val ) )
+                    print( "[json__wformula.py] key     :: {}".format( key     ) )
+                    print( "[json__wformula.py] formula :: {}".format( val     ) )
+                    print( "[json__wformula.py]         :: {}".format( formula ) )
                     print()
                 except:
                     print()
                     print( "[json__wformula.py] Cannot evaluate [ERROR]" )
-                    print( "[json__wformula.py] key     :: {}".format( key ) )
-                    print( "[json__wformula.py] formula :: {}".format( val ) )
+                    print( "[json__wformula.py] key     :: {}".format( key     ) )
+                    print( "[json__wformula.py] formula :: {}".format( val     ) )
+                    print( "[json__wformula.py]         :: {}".format( formula ) )
                     print()
                     raise
                 
@@ -65,9 +70,14 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     # --- [1] declare regexp and file name          --- #
     # ------------------------------------------------- #
-    inpFile  = "test/sample.json"
-    ret      = json__formulaParser( inpFile=inpFile )
+    inpFile  = "test/json__formulaParser/sample1.json"
+    ret      = json__formulaParser( inpFile=inpFile, variable_mark="$" )
     print( ret )
 
-
+    # ------------------------------------------------- #
+    # --- [2] variable mark is "@" case             --- #
+    # ------------------------------------------------- #
+    inpFile  = "test/json__formulaParser/sample2.json"
+    ret      = json__formulaParser( inpFile=inpFile, variable_mark="@" )
+    print( ret )
 
