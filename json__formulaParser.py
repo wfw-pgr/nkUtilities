@@ -5,12 +5,14 @@ import numpy as np
 # ===  json__formulaParser.py                           === #
 # ========================================================= #
 
-def json__formulaParser( inpFile=None, stop__error=False, table=None, \
-                         expr_fml=None, formula_mark="`", variable_mark="$" ):
+def json__formulaParser( inpFile=None, stop__error=False, verbose=False, table=None, \
+                         expr_fml=None, formula_mark="", variable_mark="$" ):
     
     if ( expr_fml is None ):
         if   ( formula_mark == "`" ):
             expr_fml = r"\s*`([\s\S]+)`\s*"
+        elif ( formula_mark == "" ):
+            expr_fml = r"([\s\S]+)"
         else:
             print( "[json__formulaParser.py] formula_mark == {} ??? ".format( variable_mark ) )
             sys.exit()
@@ -41,20 +43,22 @@ def json__formulaParser( inpFile=None, stop__error=False, table=None, \
                 try:
                     varDict[key] = eval( formula )
                 except SyntaxError:
-                    print()
-                    print( "[json__wformula.py] Cannot evaluate [ERROR]" )
-                    print( "[json__wformula.py] key     :: {}".format( key     ) )
-                    print( "[json__wformula.py] formula :: {}".format( val     ) )
-                    print( "[json__wformula.py]         :: {}".format( formula ) )
-                    print()
+                    if ( verbose ):
+                        print()
+                        print( "[json__wformula.py] Cannot evaluate [ERROR]" )
+                        print( "[json__wformula.py] key     :: {}".format( key     ) )
+                        print( "[json__wformula.py] formula :: {}".format( val     ) )
+                        print( "[json__wformula.py]         :: {}".format( formula ) )
+                        print()
                 except:
-                    print()
-                    print( "[json__wformula.py] Cannot evaluate [ERROR]" )
-                    print( "[json__wformula.py] key     :: {}".format( key     ) )
-                    print( "[json__wformula.py] formula :: {}".format( val     ) )
-                    print( "[json__wformula.py]         :: {}".format( formula ) )
-                    print()
-                    raise
+                    if ( verbose ):
+                        print()
+                        print( "[json__wformula.py] Cannot evaluate [ERROR]" )
+                        print( "[json__wformula.py] key     :: {}".format( key     ) )
+                        print( "[json__wformula.py] formula :: {}".format( val     ) )
+                        print( "[json__wformula.py]         :: {}".format( formula ) )
+                        print()
+                        raise
                 
     # ------------------------------------------------- #
     # --- [4] print parsed items                    --- #

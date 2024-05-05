@@ -1,9 +1,9 @@
 {
 
-    "x": 0.0,
-    "y": 1.0,
-    "z": 2.0,
-    "iterMax":10,
-    "particleType":"electron",
+    x: 0.0,
+    y: 1.0,
+    z: 2.0,
+    iterMax:10,
+    particle.type:"electron",
 
 }

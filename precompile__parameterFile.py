@@ -16,7 +16,8 @@ def precompile__parameterFile( inpFile=None, outFile=None, lines=None, table=Non
                                priority=None, replace_expression=True, comment_mark="#", \
                                define_mark="<define>", include_mark="<include>",
                                loadJSON_mark="<loadJSON>", expr_var=None, \
-                               escapeType ="UseEscapeSequence", variable_mark="@" ):
+                               escapeType ="UseEscapeSequence", variable_mark="@", \
+                               append__variableList=True ):
 
     # ------------------------------------------------- #
     # --- [1] include divided Files                 --- #
@@ -38,9 +39,10 @@ def precompile__parameterFile( inpFile=None, outFile=None, lines=None, table=Non
     # ------------------------------------------------- #
     lines = rvd.replace__variableDefinition( outFile=outFile, lines=lines, table=table,
                                              replace_expression=replace_expression, \
-                                             comment_mark=comment_mark,\
+                                             comment_mark=comment_mark, \
                                              variable_mark=variable_mark, priority=priority, \
-                                             escapeType=escapeType, silent=silent )
+                                             escapeType=escapeType, silent=silent, \
+                                             append__variableList=append__variableList )
     return( lines )
 
 

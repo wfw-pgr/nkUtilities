@@ -10,7 +10,7 @@ BEGIN{
   TITLE    = @title
 
   x,y,z    = ( @x, @y, @z )
-  particle = @particleType
+  particle = @particle.type
   iterMax  = @iterMax
 
 }END

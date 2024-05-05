@@ -1,4 +1,5 @@
-import os, sys, re
+import os, sys, re, decimal
+import numpy as np
 import nkUtilities.resolve__typeOfString as tos
 
 # ========================================================= #
@@ -8,8 +9,11 @@ import nkUtilities.resolve__typeOfString as tos
 def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=None, \
                                  replace_expression=True, comment_mark="#", outFile=None, \
                                  define_mark="<define>", variable_mark="@", \
-                                 escapeType ="UseEscapeSequence", silent=True ):
+                                 escapeType ="UseEscapeSequence", silent=True, \
+                                 append__variableList=True, precision=12 ):
 
+    decimal.getcontext().prec = precision
+    
     # ------------------------------------------------- #
     # --- [1] Arguments                             --- #
     # ------------------------------------------------- #
@@ -113,6 +117,18 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             key_ = "{0}{1}".format( variable_mark, key )
             vdict_[key_] = val
     vdict = vdict_
+
+
+    # ------------------------------------------------- #
+    # --- [5] decimal expression                    --- #
+    # ------------------------------------------------- #
+    for key,val in vdict.items():
+        if ( type(val) in [float] ):
+            vdict[key] = str( decimal.Decimal( vdict[key] ).normalize() )
+        if ( type(val) in [list]  ):
+            if ( type( vdict[vname][0] ) in [float] ):
+                value = [ str( decimal.Decimal( val ).normalize() ) for val in vdict[key] ]
+                value = "[" + ",".join( value ) + "]"
     
     # ------------------------------------------------- #
     # --- [4] replace expression                    --- #
@@ -131,11 +147,17 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             for vname in vnames:
                 ret = re.search( vname, hline )     # use search here.
                 if ( ret ):
-                    if   ( type( vdict[vname] ) in [None,int,float,bool,str] ):
+                    if   ( type( vdict[vname] ) in [None,int,bool,str] ):
                         value = "{0}".format( vdict[vname] )
+                    elif ( type( vdict[vname] ) in [float] ):
+                        value = str( decimal.Decimal( vdict[vname] ).normalize() )
                     elif ( type( vdict[vname] ) in [list] ):
-                        if ( type( vdict[vname][0] ) in [int,float] ):
+                        if   ( type( vdict[vname][0] ) in [int] ):
                             value = [ "{}".format( val ) for val in vdict[vname] ]
+                            value = "[" + ",".join( value ) + "]"
+                        elif ( type( vdict[vname][0] ) in [float] ):
+                            value = [ str( decimal.Decimal( vdict[vname] ).normalize() )
+                                      for val in vdict[vname] ]
                             value = "[" + ",".join( value ) + "]"
                         else:
                             value = "[" + ",".join( vdict[vname] ) + "]"
@@ -145,9 +167,27 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
         if ( Flag__changeComment ):
             for ik,line in enumerate( replaced ):
                 replaced[ik] = ( line.replace( comment_mark, original ) )
-            
+
     # ------------------------------------------------- #
-    # --- [5] return                                --- #
+    # --- [5] append variable List                  --- #
+    # ------------------------------------------------- #
+    if ( append__variableList ):
+        lwidth     = 90
+        cm, dcm    = comment_mark, 2*comment_mark
+        leftside   = "{} === ".format(dcm) 
+        bar1       = "{} ".format(dcm) + "="*(lwidth-(1+len(dcm))*2) + " {}".format(dcm)
+        bar2       = leftside + "variables List".center(lwidth-2*(len(leftside))) + leftside[::-1]
+        stack      = "\n\n\n" + bar1 + "\n" + bar2 + "\n" + bar1 + "\n{}\n".format(dcm)
+        stack     += "{0}  {1} :   {2}\n".format( dcm, "name".ljust(30), "value".ljust(50) )
+        stack     += dcm + " " + "-"*(lwidth-3) + "\n"
+        for key,val in vdict.items():
+            stack += "{0} {1:>30} : {2:>50}\n".format( dcm, key, val )
+        stack     += dcm + " " + "-"*(lwidth-3) + "\n"
+        replaced  += [ stack ]
+        
+        
+    # ------------------------------------------------- #
+    # --- [6] return                                --- #
     # ------------------------------------------------- #
     if ( replace_expression ):
         if ( outFile is not None ):
@@ -190,7 +230,9 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     # --- [3] call replace variableDefinition       --- #
     # ------------------------------------------------- #
+    append__variableList=True 
     ret   = replace__variableDefinition( inpFile=inpFile, outFile=outFile, \
-                                         table=table, comment_mark="$" )
+                                         table=table, comment_mark="$", \
+                                         append__variableList=append__variableList )
     text  = "".join( ret )
     print( text )

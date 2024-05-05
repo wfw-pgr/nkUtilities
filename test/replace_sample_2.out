@@ -1,9 +1,9 @@
 # this is a sample of variable definition
 # -- below is definitions. -- #
 
-# <define>   3.0 = 1.0   # this is coef1
+# <define>   3 = 1.0   # this is coef1
 # <define>   22 = 1000
-# <define>   25.0 = 3.0+22
+# <define>   25 = 3+22
 
 $ <define>   @coef1 = 3.0   $ this is coef1
 $ <define>   @coef2 = 22
@@ -16,12 +16,12 @@ $ <define>   @type  = type-A
 # -- to disable the definition, use ## or ### etc. -- #
 # -- program catch following expressions "#\s*@(variable's name)\s# -- #
 
-set01	     0.1   0.2       25.0
-set02	     0.2   3.0    22
+set01	     0.1   0.2       25
+set02	     0.2   3    22
 Set03	     0.1   0.2       0.4
 Set04	     0.1   0.2       22
-ErrorPoint   25.0
-ErrorPoint   25.0 + 25.0
+ErrorPoint   25
+ErrorPoint   25 + 25.0
 type	     type-A
 val_frm_tbl  value_from_table
 
@@ -30,3 +30,19 @@ $ <include> filepath = test/include.conf
 $ <postProcess> echo "This is an echo test."
 $ <postProcess> echo "This is an echo test."
 $ <postProcess> cp test/replace_sample.conf test/replace_copy.conf
+
+
+$$ ================================================================ $$
+$$ ===                      variables List                      === $$
+$$ ================================================================ $$
+$$
+$$  name                           :   value                         
+$$ -------------------------------------------------------------------
+$$                   @val_frm_tbl :               value_from_table
+$$                         @coef1 :                              3
+$$                         @coef2 :                             22
+$$                         @coef3 :                             25
+$$                         @coef5 :                  @coef4 + 25.0
+$$                         @coef4 :                             25
+$$                          @type :                         type-A
+$$ -------------------------------------------------------------------
