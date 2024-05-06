@@ -6,7 +6,7 @@ import numpy as np
 # ========================================================= #
 
 def retrieveData__afterStatement( inpFile=None, outFile=None, expr_from=None, expr_to=None, \
-                                  fmt="%15.8e", names=None ):
+                                  sendline=1, fmt="%15.8e", names=None ):
     
     x_, y_, z_ = 0, 1, 2
 
@@ -30,7 +30,7 @@ def retrieveData__afterStatement( inpFile=None, outFile=None, expr_from=None, ex
         if ( found is False ):
             match = re.match( expr_from, line )
             if ( match ):
-                iFrom = ik+1
+                iFrom = ik+sendline
                 iTo   = len( lines )
                 found = True
         elif ( expr_to is not None ):
