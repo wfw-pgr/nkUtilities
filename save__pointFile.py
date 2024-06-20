@@ -7,7 +7,7 @@ import numpy as np
 
 def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat", \
                      shape=None, size =None, DataOrder="ijk", fmt    ="%15.8e" , \
-                     no_header=False ):
+                     silent=False, no_header=False ):
     # ------------------------------------------------- #
     # --- [1] Arguments Preparation                 --- #
     # ------------------------------------------------- #
@@ -60,7 +60,7 @@ def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat",
     # --- [4] save Data with header                 --- #
     # ------------------------------------------------- #
     with open( outFile, "w" ) as f:
-        print( names )
+        if ( not(silent) ): print( names )
         if ( not( no_header ) ):
             f.write( "# " + " ".join( names ) + "\n" )
             f.write( "# " + " ".join( [ str(i) for i in size ] ) + "\n" )
@@ -71,7 +71,8 @@ def save__pointFile( Data =None, names=None, ndim     =None , outFile="out.dat",
     # ------------------------------------------------- #
     # --- [5] return Nothing                        --- #
     # ------------------------------------------------- #
-    print( "[save__pointFile] output :: {0} ".format( outFile ) )
+    if ( not( silent ) ):
+        print( "[save__pointFile.py] output :: {0} ".format( outFile ) )
     return()
 
 
