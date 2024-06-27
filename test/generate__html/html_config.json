@@ -1,0 +1,26 @@
+{
+
+    "settings":{
+	
+	"title"      : "test page", 
+	"cssFile"    : "dat/style.css",
+	"paramsFile" : "dat/ri_prod.json",
+	"htmlFile"   : "html/output.html",
+	
+    },
+
+    "images":{
+	
+	"image1":{
+	    filepath : "png/dice.jpg",
+	    width    : "100px",
+	},
+	
+	"image2":{
+	    filepath : "png/dice.jpg",
+	    width    : "400px",
+	},
+	
+    },
+    
+}

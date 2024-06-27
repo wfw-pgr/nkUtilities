@@ -1,0 +1,87 @@
+/* 基本のページスタイル */
+body {
+    font-family: Arial, sans-serif;
+    font-size: 20px; 
+    margin: 20px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+/* ブール値のスタイル */
+.bool-true, .bool-false {
+    font-weight: bold;
+}
+
+.bool-true {
+    color: green;
+}
+
+.bool-false {
+    color: red;
+}
+
+/* 文字列のスタイル */
+.string.empty {
+    font-style: italic;
+    color: #999;
+}
+
+/* 数値のスタイル */
+.int, .float {
+    font-weight: bold;
+}
+
+.number {
+    color: blue;
+}
+
+/* 配列のスタイル */
+.table.array {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px; 
+}
+
+.array-value {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+    font-size: 12px; 
+}
+
+/* オブジェクトのスタイル */
+.table.object {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px; 
+}
+
+.object-key {
+    border: 1px solid #ddd;
+    padding: 5px;
+    font-weight: bold;
+    text-align: right;
+    background-color: #f0f0f0;
+    font-size: 12px; 
+}
+
+.object-value {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+    font-size: 12px; 
+}
+
+/* 関数のスタイル */
+.function {
+    font-style: italic;
+    color: #9900cc;
+}
+
+/* 未知のデータ型のスタイル */
+.unknown {
+    color: #ff0000;
+}
