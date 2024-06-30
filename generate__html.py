@@ -115,7 +115,8 @@ def generate__html( html_lines=[],  html_config=None, silent=False ):
     # ------------------------------------------------- #
     if ( csvFile ):
         csvData     = pd.read_csv( csvFile )
-        html_lines += [ csvData.to_html( classes='table_design' ) ]
+        csvData     = csvData.set_index( csvData.columns[0] )
+        html_lines += [ csvData.to_html( classes='table_design', index_names=False ) ]
 
     # ------------------------------------------------- #
     # --- [4] html image file                       --- #
