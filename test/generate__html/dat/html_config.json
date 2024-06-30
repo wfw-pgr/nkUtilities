@@ -6,9 +6,10 @@
 	"cssFile"    : "dat/style.css",
 	"paramsFile" : "dat/ri_prod.json",
 	"htmlFile"   : "html/output.html",
+	"csvFile"    : "dat/sample.csv", 
 	
     },
-
+    
     "images":{
 	
 	"image1":{
