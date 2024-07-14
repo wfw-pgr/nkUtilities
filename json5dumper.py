@@ -10,11 +10,12 @@ class json5dumper():
     # ========================================================= #
     # ===  initialize                                       === #
     # ========================================================= #
-    def __init__( self, Data=None, filename=None, numpyMark="numpyArrayPath::", silent=False ):
+    def __init__( self, Data=None, jsonFile=None, numpyMark="numpyArrayPath::", indent=True, silent=False ):
         self.Data      = Data
-        self.filename  = filename
+        self.jsonFile  = jsonFile
         self.numpyMark = numpyMark
         self.silent    = silent
+        self.indent    = indent
         if not( self.silent ):
             print( "[json5dumper.py] Class Defined. USE json5dumper.dump() / json5dumper.recall()" )
         
@@ -22,21 +23,21 @@ class json5dumper():
     # ========================================================= #
     # ===  dump command  ( save )                           === #
     # ========================================================= #
-    def dump( self, Data=None, outFile=None, filename=None, silent=None ):
+    def dump( self, Data=None, jsonFile=None, silent=None, indent=None ):
     
         # ------------------------------------------------- #
         # --- [1] arguments                             --- #
         # ------------------------------------------------- #
-        if ( outFile  is not None ): self.filename = outFile
-        if ( filename is not None ): self.filename = filename
+        if ( jsonFile is not None ): self.jsonFile = jsonFile
         if ( Data     is not None ): self.Data     = Data
         if ( silent   is not None ): self.silent   = silent
+        if ( indent   is not None ): self.indent   = indent
         
         # ------------------------------------------------- #
         # --- [2] detect numpy array                    --- #
         # ------------------------------------------------- #
-        basename   = os.path.splitext( os.path.basename( self.filename ) )[0]
-        dirname    = os.path.join( os.path.dirname( self.filename ), basename+"_npy" )
+        basename   = os.path.splitext( os.path.basename( self.jsonFile ) )[0]
+        dirname    = os.path.join( os.path.dirname( self.jsonFile ), basename+"_npy" )
         nameformat = os.path.join( dirname, "{}.npy" )
         textables  = {}
         numpyvars  = {}
@@ -52,8 +53,8 @@ class json5dumper():
         # ------------------------------------------------- #
         # --- [3] dump json5                            --- #
         # ------------------------------------------------- #
-        with open( self.filename, "w" ) as f:
-            json5.dump( textables, f )
+        with open( self.jsonFile, "w" ) as f:
+            json5.dump( textables, f, indent=self.indent )
 
         # ------------------------------------------------- #
         # --- [4] save numpy array in file separately   --- #
@@ -65,25 +66,24 @@ class json5dumper():
         # --- [5] return                                --- #
         # ------------------------------------------------- #
         if not( self.silent ):
-            print( "[json5dumper.py] save in :: {}".format( self.filename ) )
+            print( "[json5dumper.py] save in :: {}".format( self.jsonFile ) )
         return( self )
 
     
     # ========================================================= #
     # ===  recall command ( load )                          === #
     # ========================================================= #
-    def recall( self, inpFile=None, filename=None ):
+    def recall( self, jsonFile=None ):
         
         # ------------------------------------------------- #
         # --- [1] arguments                             --- #
         # ------------------------------------------------- #
-        if ( inpFile  is not None ): self.filename = inpFile
-        if ( filename is not None ): self.filename = filename
+        if ( jsonFile is not None ): self.jsonFile = jsonFile
         
         # ------------------------------------------------- #
         # --- [2] load json file                        --- #
         # ------------------------------------------------- #
-        with open( self.filename, "r" ) as f:
+        with open( self.jsonFile, "r" ) as f:
             Data = json5.load( f )
             
         # ------------------------------------------------- #
@@ -109,7 +109,7 @@ class json5dumper():
 
 if ( __name__=="__main__" ):
 
-    outFile  = "dat/output.json"
+    jsonFile  = "dat/output.json"
 
     # ------------------------------------------------- #
     # --- [1] define sample data                    --- #
@@ -125,8 +125,8 @@ if ( __name__=="__main__" ):
     # ------------------------------------------------- #
     # --- [2] dump & recall                         --- #
     # ------------------------------------------------- #
-    dumper   = ( json5dumper() ).dump( Data=Data, outFile=outFile )
-    recalled = ( json5dumper() ).recall( inpFile=outFile )
+    dumper   = ( json5dumper() ).dump( Data=Data, jsonFile=jsonFile )
+    recalled = ( json5dumper() ).recall( jsonFile=jsonFile )
     print()
     print( "[Data]" )
     print( Data )

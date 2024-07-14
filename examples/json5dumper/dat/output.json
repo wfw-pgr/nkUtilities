@@ -1,0 +1,23 @@
+{
+ float1: 0.0,
+ int1: 10,
+ str1: "string",
+ list1: [
+  0.0,
+  1.0,
+ ],
+ list2: [
+  "a1",
+  "b2",
+  "c2",
+  3,
+ ],
+ arr1: "numpyArrayPath::dat/output_npy/arr1.npy",
+ arr2: "numpyArrayPath::dat/output_npy/arr2.npy",
+ arr3: "numpyArrayPath::dat/output_npy/arr3.npy",
+ dict1: {
+  a: 0.0,
+  b: 1.0,
+  c: "ok",
+ },
+}
