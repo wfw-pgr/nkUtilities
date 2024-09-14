@@ -1,4 +1,4 @@
-import os, sys, re, decimal
+import os, sys, re, decimal, math
 import numpy as np
 import nkUtilities.resolve__typeOfString as tos
 
@@ -10,7 +10,7 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
                                  replace_expression=True, comment_mark="#", outFile=None, \
                                  define_mark="<define>", variable_mark="@", \
                                  escapeType ="UseEscapeSequence", silent=True, \
-                                 append__variableList=True, precision=12 ):
+                                 append__variableList=True, precision=12, maxDigit=10 ):
 
     decimal.getcontext().prec = precision
     
@@ -122,13 +122,23 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
     # ------------------------------------------------- #
     # --- [5] decimal expression                    --- #
     # ------------------------------------------------- #
-    for key,val in vdict.items():
-        if ( type(val) in [float] ):
-            vdict[key] = str( decimal.Decimal( vdict[key] ).normalize() )
-        if ( type(val) in [list]  ):
-            if ( type( vdict[vname][0] ) in [float] ):
-                value = [ str( decimal.Decimal( val ).normalize() ) for val in vdict[key] ]
-                value = "[" + ",".join( value ) + "]"
+    for key,value in vdict.items():
+        if ( type(value) in [float] ):
+            exp = math.floor( math.log10( value ) )
+            if ( abs( exp ) >= maxDigit ):
+                vdict[key] = "{:15.8e}".format( value )
+            else:
+                vdict[key] = str( decimal.Decimal( round( value, maxDigit ) ).normalize() )
+        if ( type(value) in [list]  ):
+            if ( type( value[0] ) in [float] ):
+                stack = []
+                for val in value:
+                    exp = math.floor( math.log10( val ) )
+                    if ( abs( exp ) >= maxDigit ):
+                        stack += [ "{:15.8e}".format( val ) ]
+                    else:
+                        stack += str( decimal.Decimal( round( val, maxDigit ) ).normalize() )
+                vdict[key] = "[" + ",".join( stack ) + "]"
     
     # ------------------------------------------------- #
     # --- [4] replace expression                    --- #

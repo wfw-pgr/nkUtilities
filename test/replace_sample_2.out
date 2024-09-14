@@ -1,12 +1,12 @@
 # this is a sample of variable definition
 # -- below is definitions. -- #
 
-# <define>   3 = 1.0   # this is coef1
-# <define>   22 = 1000
-# <define>   25 = 3+22
+# <define>   1.91100000e-04 = 1.0   # this is coef1
+# <define>   0.2222 = 3.0e8
+# <define>   0.2224 = 1.91100000e-04+0.2222
 
-$ <define>   @coef1 = 3.0   $ this is coef1
-$ <define>   @coef2 = 22
+$ <define>   @coef1 = 0.0001911   $ this is coef1
+$ <define>   @coef2 = 0.2222
 $ <define>   @coef3 = @coef1 + @coef2
 $ <define>   @coef5 = @coef4 + @coef3
 $ <define>   @coef4 = @coef3
@@ -16,12 +16,12 @@ $ <define>   @type  = type-A
 # -- to disable the definition, use ## or ### etc. -- #
 # -- program catch following expressions "#\s*@(variable's name)\s# -- #
 
-set01	     0.1   0.2       25
-set02	     0.2   3    22
+set01	     0.1   0.2       0.2224
+set02	     0.2   1.91100000e-04    0.2222
 Set03	     0.1   0.2       0.4
-Set04	     0.1   0.2       22
-ErrorPoint   25
-ErrorPoint   25 + 25.0
+Set04	     0.1   0.2       0.2222
+ErrorPoint   0.2224
+ErrorPoint   0.2224 + 0.2223911
 type	     type-A
 val_frm_tbl  value_from_table
 
@@ -32,17 +32,17 @@ $ <postProcess> echo "This is an echo test."
 $ <postProcess> cp test/replace_sample.conf test/replace_copy.conf
 
 
-$$ ================================================================ $$
-$$ ===                      variables List                      === $$
-$$ ================================================================ $$
+$$ ==================================================================================== $$
+$$ ===                                variables List                                === $$
+$$ ==================================================================================== $$
 $$
-$$  name                           :   value                         
-$$ -------------------------------------------------------------------
-$$                   @val_frm_tbl :               value_from_table
-$$                         @coef1 :                              3
-$$                         @coef2 :                             22
-$$                         @coef3 :                             25
-$$                         @coef5 :                  @coef4 + 25.0
-$$                         @coef4 :                             25
-$$                          @type :                         type-A
-$$ -------------------------------------------------------------------
+$$  name                           :   value                                             
+$$ ---------------------------------------------------------------------------------------
+$$                   @val_frm_tbl :                                   value_from_table
+$$                         @coef1 :                                     1.91100000e-04
+$$                         @coef2 :                                             0.2222
+$$                         @coef3 :                                             0.2224
+$$                         @coef5 :                                 @coef4 + 0.2223911
+$$                         @coef4 :                                             0.2224
+$$                          @type :                                             type-A
+$$ ---------------------------------------------------------------------------------------
