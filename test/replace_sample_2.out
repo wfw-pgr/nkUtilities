@@ -1,9 +1,9 @@
 # this is a sample of variable definition
 # -- below is definitions. -- #
 
-# <define>   1.91100000e-04 = 1.0   # this is coef1
+# <define>   0.0001911 = 1.0   # this is coef1
 # <define>   0.2222 = 3.0e8
-# <define>   0.2224 = 1.91100000e-04+0.2222
+# <define>   0.2223911 = 0.0001911+0.2222
 
 $ <define>   @coef1 = 0.0001911   $ this is coef1
 $ <define>   @coef2 = 0.2222
@@ -16,12 +16,12 @@ $ <define>   @type  = type-A
 # -- to disable the definition, use ## or ### etc. -- #
 # -- program catch following expressions "#\s*@(variable's name)\s# -- #
 
-set01	     0.1   0.2       0.2224
-set02	     0.2   1.91100000e-04    0.2222
+set01	     0.1   0.2       0.2223911
+set02	     0.2   0.0001911    0.2222
 Set03	     0.1   0.2       0.4
 Set04	     0.1   0.2       0.2222
-ErrorPoint   0.2224
-ErrorPoint   0.2224 + 0.2223911
+ErrorPoint   0.2223911
+ErrorPoint   0.2223911 + 0.2223911
 type	     type-A
 val_frm_tbl  value_from_table
 
@@ -39,10 +39,10 @@ $$
 $$  name                           :   value                                             
 $$ ---------------------------------------------------------------------------------------
 $$                   @val_frm_tbl :                                   value_from_table
-$$                         @coef1 :                                     1.91100000e-04
+$$                         @coef1 :                                          0.0001911
 $$                         @coef2 :                                             0.2222
-$$                         @coef3 :                                             0.2224
+$$                         @coef3 :                                          0.2223911
 $$                         @coef5 :                                 @coef4 + 0.2223911
-$$                         @coef4 :                                             0.2224
+$$                         @coef4 :                                          0.2223911
 $$                          @type :                                             type-A
 $$ ---------------------------------------------------------------------------------------

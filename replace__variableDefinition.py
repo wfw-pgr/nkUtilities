@@ -122,10 +122,18 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
     # ------------------------------------------------- #
     # --- [5] decimal expression                    --- #
     # ------------------------------------------------- #
+    def return__mantissa_and_exponent( value ):
+        if ( value == 0 ):
+            mantissa, exponent = 0, 0
+        else:
+            exponent = math.floor( math.log10( abs(value) ) )
+            mantissa = value / 10**exponent
+        return( mantissa, exponent )
+    
     for key,value in vdict.items():
         if ( type(value) in [float] ):
-            exp = math.floor( math.log10( value ) )
-            if ( abs( exp ) >= maxDigit ):
+            mantissa, exponent = return__mantissa_and_exponent( value )
+            if ( abs( exponent ) >= maxDigit ):
                 vdict[key] = "{:15.8e}".format( value )
             else:
                 vdict[key] = str( decimal.Decimal( round( value, maxDigit ) ).normalize() )
@@ -133,8 +141,8 @@ def replace__variableDefinition( inpFile=None, lines=None, priority=None, table=
             if ( type( value[0] ) in [float] ):
                 stack = []
                 for val in value:
-                    exp = math.floor( math.log10( val ) )
-                    if ( abs( exp ) >= maxDigit ):
+                    mantissa, exponent = return__mantissa_and_exponent( val )
+                    if ( abs( exponent ) >= maxDigit ):
                         stack += [ "{:15.8e}".format( val ) ]
                     else:
                         stack += str( decimal.Decimal( round( val, maxDigit ) ).normalize() )
