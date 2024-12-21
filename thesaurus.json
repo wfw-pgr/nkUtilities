@@ -1,0 +1,16 @@
+{
+    "densityPNG"     : "figure.dpi",
+    "Font"           : "figure.fontname",
+    "MathFont"       : "figure.mathfont",
+    "chsize1"        : "figure.font.size",
+    "chsize2"        : "figure.font.size", 
+    "FigSize"        : "figure.size", 
+    
+    "pngFile"        : "figure.pngFile", 
+    "plt_position"   : "figure.position",
+    
+    "axes_linewidth" : "axes.linewidth",
+
+    
+    
+}

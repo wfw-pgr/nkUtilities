@@ -1,0 +1,335 @@
+// #################################################################### //
+// #####  default.conf   ( revised @ 2024/12/20 )                 ##### //
+// #################################################################### //
+{
+
+    // ==================================================== //
+    // ===  一般設定                                    === //
+    // ==================================================== //
+
+    // ------------------------------------------------- //
+    // --- mpl_baseSettings.py 用 設定               --- //
+    // ------------------------------------------------- //
+    "figure.fontname"       : "STIXGeneral",
+    "figure.mathfont"       : "stix",
+    "figure.font.size"      : 18,
+    "figure.axes.linewidth" : 2.0,
+    "figure.dpi"            : 400,
+    
+    // ------------------------------------------------- //
+    // --- 一般 描画設定                             --- //
+    // ------------------------------------------------- //
+    "figure.size"           : [6,6],
+    "figure.position"       : [0.12,0.12,0.92,0.92],
+    "figure.pngFile"        : "out.png",
+    "figure.minimal"        : false,
+    "figure.transparent"    : false,
+
+    // ------------------------------------------------- //
+    // --- 軸 タイトル                               --- //
+    // ------------------------------------------------- //
+    "ax1.x.label"           : "x", 
+    "ax1.y.label"           : "y", 
+    "ax2.y.label"           : "dy/dx",
+    "ax1.x.label.fontsize"  : 16, 
+    "ax1.y.label.fontsize"  : 16,
+    "ax2.y.label.fontsize"  : 16,
+    
+    // ------------------------------------------------- //
+    // --- 軸 目盛 設定  ( x )                       --- //
+    // ------------------------------------------------- //
+    //  -- 主目盛 ( xMajor )  --  //
+    "ax1.x.major.auto"     : true,
+    "ax1.x.major.nticks"   : 5,
+    "ax1.x.major.ticks"    : [-10,-5,0,5.0,10.0],
+    "ax1.x.major.noLabel"  : false,
+    "ax1.x.major.size"     : 6.0,
+    "ax1.x.major.length"   : 6.0,
+    "ax1.x.major.width"    : 2.0,
+    "ax1.x.major.fontsize" : 12,
+    "ax1.x.major.integer"  : false,
+    "ax1.x.major.off"      : false,
+    //  -- 副目盛 ( xMinor )  --  //
+    "ax1.x.minor.sw"       : true,
+    "ax1.x.minor.nticks"   : 2,
+    "ax1.x.minor.size"     : 3.0,
+    "ax1.x.minor.width"    : 1.5,
+
+    // ------------------------------------------------- //
+    // --- 軸 目盛 設定  ( y )                       --- //
+    // ------------------------------------------------- //
+    //  -- 主目盛 ( yMajor )  --  //
+    "ax1.y.major.auto"     : true,
+    "ax1.y.major.nticks"   : 5,
+    "ax1.y.major.ticks"    : [-10,-5,0,5.0,10.0],
+    "ax1.y.major.noLabel"  : false,
+    "ax1.y.major.size"     : 6.0,
+    "ax1.y.major.length"   : 6.0,
+    "ax1.y.major.width"    : 2.0,
+    "ax1.y.major.fontsize" : 12,
+    "ax1.y.major.integer"  : false,
+    "ax1.y.major.sw"       : false,
+    "ax1.y.major.off"      : false,
+    //  -- 副目盛 ( yMinor )  --  //
+    "ax1.y.minor.sw"       : true,
+    "ax1.y.minor.nticks"   : 2,
+    "ax1.y.minor.size"     : 3.0,
+    "ax1.y.minor.width"    : 1.5,
+    
+    // ------------------------------------------------- //
+    // --- グリッド                                  --- //
+    // ------------------------------------------------- //
+    //  -- 主グリッド ( ax1.y.major. )  --  //
+    "grid_sw"               : true,
+    "grid_color"            : "gray",
+    "grid_alpha"            : 0.8,
+    "grid_linestyle"        : ":",
+    "grid_linewidth"        : 0.3,
+    "grid_minor_sw"         : true,
+    "grid_minor_color"      : "grey",
+    "grid_minor_style"      : ":",
+    "grid_minor_width"      : 0.2,
+    "grid_minor_alpha"      : 0.8,
+
+    // ------------------------------------------------- //
+    // --- カーソル                                  --- //
+    // ------------------------------------------------- //
+    "cursor_x"              : null,           // null or float or array //
+    "cursor_y"              : null,
+    "cursor_color"          : "grey",
+    "cursor_linestyle"      : ":",
+    "cursor_linewidth"      : 1.0,
+    
+
+    // ==================================================== //
+    // ===  カラーマップ 描画                           === //
+    // ==================================================== //
+    
+    // ------------------------------------------------- //
+    // --- カラーマップ                              --- //
+    // ------------------------------------------------- //
+    //  -- カラー / レベル         --  //
+    "cmp_ColorTable"        : "jet",    // [ jet / bwr / seismic etc. ]
+    "cmp_AutoLevel"         : true,
+    "cmp_nLevels"           : 255,
+    "cmp_MaxMin"            : [-10,+10],
+    //  -- 軸目盛 xticks / yticks  --  //
+    "cmp_xAutoTicks"        : true,
+    "cmp_yAutoTicks"        : true,
+    //  -- 描画位置 / x,y 範囲     --  //
+    "cmp_position"          : [0.12,0.12,0.92,0.90],
+    "cmp_xAutoRange"        : true,
+    "cmp_yAutoRange"        : true,
+    "cmp_xRange"            : [0.0,1.0],
+    "cmp_yRange"            : [0.0,1.0],
+    "cmp_autoAspect"        : false,
+    "cmp_aspectRatio"       : 1.0,
+    //  -- その他                  --  //
+    "cmp_xyTranspose"       : false,
+    "cmp_alpha"             : 1.0,
+
+    // ------------------------------------------------- //
+    // --- カラーマップ 用 追加描画機能              --- //
+    // ------------------------------------------------- //
+    //  -- 点 描画 追加            --  //
+    "cmp_pointSW"           : false,
+    "cmp_pointColor"        : "grey",
+    "cmp_pointMarker"       : "+",
+    "cmp_pointSize"         : 0.5,
+    "cmp_pointWidth"        : 0.3,
+    
+    // ------------------------------------------------- //
+    // --- コンター マップ                           --- //
+    // ------------------------------------------------- //
+    //  -- コンター / レベル       --  //
+    "cnt_nLevels"           : 15,
+    "cnt_AutoLevel"         : true,
+    "cnt_MaxMin"            : [-10.0,10.0],
+    //  -- コンター線 色 / 太さ    --  //
+    "cnt_color"             : "grey",
+    "cnt_linewidth"         : 1.0,
+
+    // ------------------------------------------------- //
+    // --- コンター マップ 用 追加描画機能           --- //
+    // ------------------------------------------------- //
+    //  -- セパラトリクス描画      --  //
+    "cnt_Separatrix"        : false,
+    "cnt_sepLevel"          : 0.00001,
+    "cnt_sepColor"          : "blue",
+    "cnt_sepLineWidth"      : 1.0,
+    //    cnt.clabel.sw"    : true,
+    "cnt.clabel.sw"         : true, 
+    "cnt.clabel.fontsize"   : 8.0,
+    
+    // ------------------------------------------------- //
+    // --- カラーバー                                --- //
+    // ------------------------------------------------- //
+    //  -- カラーバー 一般設定     --  //
+    "clb_sw"                : true,
+    "clb_position"          : [0.50,0.92,0.88,0.94],
+    "clb_orientation"       : "horizontal",
+    //  -- カラーバー 目盛         --  //
+    "clb_nLabel"            : 2,
+    "clb_FontSize"          : 12,
+    //  -- カラーバー タイトル     --  //
+    "clb_title"             : null,
+    "clb_title_pos"         : [0.65,0.92],
+    "clb_title_size"        : 20,
+
+    "clb.xMajor.nTicks"     : 2,
+    "clb.xMajor.length"     : 2.0,
+    "clb.xMajor.width"      : 1.0,
+    
+    "clb.yMajor.nTicks"     : 2,
+    "clb.yMajor.length"     : 2.0,
+    "clb.yMajor.width"      : 1.0,
+
+    "clb.xMinor.nTicks"     : 1,
+    "clb.yMinor.nTicks"     : 1,
+    
+
+    // ------------------------------------------------- //
+    // --- ベクトル                                  --- //
+    // ------------------------------------------------- //
+    //  -- ベクトル数設定          --  //
+    "vec_nvec_x"            : 12,
+    "vec_nvec_y"            : 12,
+    //  -- ベクトル 色             --  //
+    "vec_color"             : "springgreen",
+    //  -- ベクトル サイズ         --  //
+    "vec_AutoScale"         : true,
+    "vec_AutoRange"         : true,
+    "vec_scale"             : 0.03,
+    "vec_width"             : 0.01,
+    "vec_headwidth"         : 2.5,
+    "vec_headlength"        : 4.5,
+    "vec_pivot"             : "mid",
+    "vec_interpolation"     : "linear",
+    "vec_AutoScaleRef"      : 8.0,
+    
+
+    
+    // ==================================================== //
+    // ===  グラフ プロット                             === //
+    // ==================================================== //
+
+    // ------------------------------------------------- //
+    // --- 1次元プロット 一般設定                    --- //
+    // ------------------------------------------------- //
+    "plot.colorStack"       : null,
+    
+    // ------------------------------------------------- //
+    // --- プロット データ描画 設定                  --- //
+    // ------------------------------------------------- //
+    "plot.color"            : null,
+    "plot.alpha"            : 1.0,
+    "plot.linestyle"        : null,
+    "plot.linewidth"        : 1.2,
+    "plot.marker"           : null,
+    "plot.markersize"       : 4.0,
+    "plot.markerwidth"      : 1.0,
+
+    // ------------------------------------------------- //
+    // --- レンジ設定                                --- //
+    // ------------------------------------------------- //
+    "ax1.x.range.auto"      : true,
+    "ax1.y.range.auto"      : true,
+    "ax1.x.range"           : [0.0,1.0],
+    "ax1.y.range"           : [0.0,1.0],
+    
+    // ------------------------------------------------- //
+    // --- 目盛設定 / 対数目盛                       --- //
+    // ------------------------------------------------- //
+    "plot.xlog"             : false,
+    "plot.ylog"             : false,
+
+    // ------------------------------------------------- //
+    // --- y=0 線 表示設定                           --- //
+    // ------------------------------------------------- //
+    "plot.y=0_sw"           : false,
+    "plot.y=0_color"        : "grey",
+    "plot.y=0_linestyle"    : "-",
+    "plot.y=0_linewidth"    : 1.0,
+    
+    // ------------------------------------------------- //
+    // --- エラーバー設定                            --- //
+    // ------------------------------------------------- //
+    "plot.error_capsize"    : 3.0,
+    "plot.error_capthick"   : 1.2,
+
+    // ------------------------------------------------- //
+    // --- 2nd Axis Settings                         --- //
+    // ------------------------------------------------- //
+    "ax2.y.label"           : "dy/dx",
+    "ax2.y.label.fontsize"  : 16,
+    "ax2.y.range.auto"      : false,
+    "ax2.y.range"           : [0.0,1.0],
+
+    "ax2.y.major.nticks"    : 5,
+    "ax2.y.major.integer"   : false,
+    "ax2.y.major.auto"      : true,
+    "ax2.y.major.ticks"     : [-10,-5,0,5.0,10],
+    "ax2.y.major.fontsize"  : 12,
+    "ax2.y.major.length"    : 6.0,
+    "ax2.y.major.width"     : 2.0,
+    
+    "ax2.y.minor.sw"        : false,
+    "ax2.y.minor.nticks"    : 2,
+
+    "ax2.ylog"              : false,
+    "ax2.y.major.noLabel"   : false,
+    "ax2.legend.position"   : [0.65,0.75],
+    
+
+    // ------------------------------------------------- //
+    // --- bar graph 設定                            --- //
+    // ------------------------------------------------- //
+    "bar_width"             : 0.8,
+    
+
+    // ------------------------------------------------- //
+    // --- histogram graph 設定                      --- //
+    // ------------------------------------------------- //
+    "histo_bins"            : 100,
+
+    // ------------------------------------------------- //
+    // --- 凡例 設定                                 --- //
+    // ------------------------------------------------- //
+    "legend.sw"             : false,
+    "legend.location"       : "best",    //  -- best upper right left lower center --  //
+    "legend.fontsize"       : 12,
+    "legend.nColumn"        : 1,
+    "legend.frameOn"        : true,
+    "legend.labelGap"       : 0.2,
+    "legend.columnGap"      : 0.5,
+    "legend.labelLength"    : 8,
+    "legend.handleLength"   : 2.0,
+
+    "ax1.legend.position"   : null,
+    
+    // ------------------------------------------------- //
+    // --- プロット用 フィルタ 設定                  --- //
+    // ------------------------------------------------- //
+    "filter.median"         : 0,
+    "filter.fourier"        : 0.0,
+    "filter.gaussian"       : 0.0,
+    "filter.spline"         : 0,
+    "filter.linear"         : 0.0,
+    "filter.ntimes"         : 0,
+    
+    // ------------------------------------------------- //
+    // --- colorbar generator settings               --- //
+    // ------------------------------------------------- //
+    "colorbar.orientation"  : "vertical",      // [ horizontal, vertical ],
+    "colorbar.nlevels"      : 10,
+    "colorbar.cmap"         : "jet",
+    "colorbar.pngFile"      : "colorbar.png",
+
+    // ------------------------------------------------- //
+    // --- colorbar generator settings               --- //
+    // ------------------------------------------------- //
+    // obsolete //
+    "yTitle_off"            : false,
+    "yTitle_off"            : false,
+    
+}

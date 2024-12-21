@@ -1,15 +1,14 @@
 import os, sys, math
 import matplotlib.pyplot            as plt
 import nkUtilities.load__config     as lcf
-import numpy                        as np
+import numpy                        as np 
 import matplotlib.ticker            as tic
-
 
 # ========================================================= #
 # === 1次元プロット描画用クラス                         === #
 # ========================================================= #
 
-class plot1D:
+class gplot1D:
     
     # ------------------------------------------------- #
     # --- クラス初期化用ルーチン                    --- #
@@ -90,7 +89,7 @@ class plot1D:
         # ------------------------------------------------- #
         if ( yAxis       is None ): yAxis       = self.yAxis
         if ( xAxis       is None ): xAxis       = self.xAxis
-        if ( yAxis       is None ): sys.exit( " [plot1D.py] yAxis == ?? " )
+        if ( yAxis       is None ): sys.exit( " [gplot1D.py] yAxis == ?? " )
         if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用-#
         if ( label       is None ): label       = ' '*self.config["legend.labelLength"]
         if ( color       is None ): color       = self.config["plot.color"]
@@ -131,7 +130,7 @@ class plot1D:
         # ------------------------------------------------- #
         if ( yAxis       is None ): yAxis       = self.yAxis
         if ( xAxis       is None ): xAxis       = self.xAxis
-        if ( yAxis       is None ): sys.exit( " [plot1D.py] yAxis == ?? " )
+        if ( yAxis       is None ): sys.exit( " [gplot1D.py] yAxis == ?? " )
         if ( xAxis       is None ): xAxis       = np.arange( yAxis.size )
         # - インデックス代用 - #
         if ( color       is None ): color       = self.config["plot.color"]
@@ -163,28 +162,41 @@ class plot1D:
     # ===  軸 レンジ 自動調整用 ルーチン                    === #
     # ========================================================= #
     def set__axis( self, xRange=None, yRange=None ):
+
+        if ( len( self.config["ax1.x.range"] ) == 2 ):
+            self.config["ax1.x.range"] += [ self.config["ax1.x.major.nticks"] ]
+        if ( len( self.config["ax1.y.range"] ) == 2 ):
+            self.config["ax1.y.range"] += [ self.config["ax1.y.major.nticks"] ]
         
         # ------------------------------------------------- #
         # --- 自動レンジ調整   ( 優先順位 2 )           --- #
         # ------------------------------------------------- #
         #  -- オートレンジ (x)                          --  #
-        if ( ( self.config["ax1.x.range.auto"] ) and ( self.DataRange is not None ) ):
-            ret = self.auto__griding( vMin=self.DataRange[0], vMax=self.DataRange[1], \
-                                      nGrid=self.config["ax1.x.major.nticks"] )
-            self.config["ax1.x.range"] = [ ret[0], ret[1] ]
+        if ( ( self.config["ax1.x.range"]["auto"] ) and ( self.DataRange is not None ) ):
+            ret = self.auto__griding( vMin =self.DataRange[0], vMax=self.DataRange[1], \
+                                      nGrid=self.config["ax1.x.range"]["num"] )
+            self.config["ax1.x.range"]["min"] = ret[0]
+            self.config["ax1.x.range"]["max"] = ret[1]
         #  -- オートレンジ (y)                          --  #
-        if ( ( self.config["ax1.y.range.auto"] ) and ( self.DataRange is not None ) ):
+        if ( ( self.config["ax1.y.range"]["auto"] ) and ( self.DataRange is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange[2], vMax=self.DataRange[3], \
-                                      nGrid=self.config["ax1.y.major.nticks"] )
-            self.config["ax1.y.range"] = [ ret[0], ret[1] ]
+                                      nGrid=self.config["ax1.y.range"]["num"] )
+            self.config["ax1.y.range"]["min"] = ret[0]
+            self.config["ax1.y.range"]["max"] = ret[1]
             
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
-        if ( xRange is not None ): self.config["ax1.x.range"] = xRange
-        if ( yRange is not None ): self.config["ax1.y.range"] = yRange
-        self.ax1.set_xlim( self.config["ax1.x.range"][0], self.config["ax1.x.range"][1] )
-        self.ax1.set_ylim( self.config["ax1.y.range"][0], self.config["ax1.y.range"][1] )
+        if ( xRange is not None ):
+            self.config["ax1.x.range"]["min"] = xRange[0]
+            self.config["ax1.x.range"]["max"] = xRange[1]
+        if ( yRange is not None ):
+            self.config["ax1.y.range"]["min"] = yRange[0]
+            self.config["ax1.y.range"]["max"] = yRange[1]
+        self.ax1.set_xlim( self.config["ax1.x.range"]["min"],
+                           self.config["ax1.x.range"]["max"] )
+        self.ax1.set_ylim( self.config["ax1.y.range"]["min"],
+                           self.config["ax1.y.range"]["max"] )
         
         # ------------------------------------------------- #
         # --- 軸タイトル 設定                           --- #
@@ -204,19 +216,23 @@ class plot1D:
     # ===  軸 レンジ 自動調整用 ルーチン for axis2          === #
     # ========================================================= #
     def set__axis2( self, xRange=None, yRange=None ):
+
         # ------------------------------------------------- #
         # --- 自動レンジ調整   ( 優先順位 2 )           --- #
         # ------------------------------------------------- #
         #  -- オートレンジ (y)                          --  #
-        if ( ( self.config["ax2.y.range.auto"] ) and ( self.DataRange_ax2 is not None ) ):
+        if ( ( self.config["ax2.y.range"]["auto"] ) and ( self.DataRange_ax2 is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange_ax2[2], vMax=self.DataRange_ax2[3], \
-                                      nGrid=self.config["ax2.y.major.nticks"] )
-            self.config["ax2.y.range"] = [ ret[0], ret[1] ]
+                                      nGrid=self.config["ax2.y.range"]["num"] )
+            self.config["ax2.y.range"] = [ ret[0], ret[1], ret[2] ]
+            
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
         if ( yRange is not None ): self.config["ax2.y.range"] = yRange
-        self.ax2.set_ylim( self.config["ax2.y.range"][0], self.config["ax2.y.range"][1] )
+        self.ax2.set_ylim( self.config["ax2.y.range"]["min"], \
+                           self.config["ax2.y.range"]["max"], )
+        
         # ------------------------------------------------- #
         # --- 軸タイトル 設定                           --- #
         # ------------------------------------------------- #
@@ -232,6 +248,7 @@ class plot1D:
     # ===  軸目盛 設定 ルーチン for axis2                   === #
     # ========================================================= #
     def set__ticks2( self ):
+
         # ------------------------------------------------- #
         # --- 軸目盛 自動調整                           --- #
         # ------------------------------------------------- #
@@ -240,7 +257,7 @@ class plot1D:
         #  -- 軸目盛 自動調整 (y)                       --  #
         if ( self.config["ax2.y.major.auto"] ):
             yMin, yMax   = self.ax2.get_ylim()
-            self.yticks2 = np.linspace( yMin, yMax, self.config["ax2.y.major.nticks"], dtype=ytick_dtype  )
+            self.yticks2 = np.linspace( yMin, yMax, self.config["ax2.y.range"]["num"], dtype=ytick_dtype  )
         else:
             self.yticks2 = np.array( self.config["ax2.y.major.ticks"], dtype=ytick_dtype )
         #  -- Minor 軸目盛                              --  #
@@ -307,14 +324,13 @@ class plot1D:
             grid_size =  1 * magnitude
         tick_below   = grid_size * math.floor( vMin / grid_size ) 
         tick_above   = grid_size * math.ceil ( vMax / grid_size )
-        
-        return( [tick_below,tick_above] )
-        
+        return( [ tick_below, tick_above, nGrid ] )
         
     # ========================================================= #
     # ===  軸目盛 設定 ルーチン                             === #
     # ========================================================= #
     def set__ticks( self ):
+
         # ------------------------------------------------- #
         # --- 軸目盛 自動調整                           --- #
         # ------------------------------------------------- #
@@ -324,14 +340,14 @@ class plot1D:
         #  -- 軸目盛 自動調整 (x)                       --  #
         if ( self.config["ax1.x.major.auto"] ):
             xMin, xMax  = self.ax1.get_xlim()
-            self.xticks = np.linspace( xMin, xMax, self.config["ax1.x.major.nticks"], \
+            self.xticks = np.linspace( xMin, xMax, self.config["ax1.x.range"]["num"], \
                                        dtype=xtick_dtype  )
         else:
             self.xticks = np.array( self.config["ax1.x.major.ticks"], dtype=xtick_dtype )
         #  -- 軸目盛 自動調整 (y)                       --  #
         if ( self.config["ax1.y.major.auto"] ):
             yMin, yMax  = self.ax1.get_ylim()
-            self.yticks = np.linspace( yMin, yMax, self.config["ax1.y.major.nticks"], \
+            self.yticks = np.linspace( yMin, yMax, self.config["ax1.y.range"]["num"], \
                                        dtype=ytick_dtype  )
         else:
             self.yticks = np.array( self.config["ax1.y.major.ticks"], dtype=ytick_dtype )
@@ -668,7 +684,7 @@ class plot1D:
         if ( not( hasattr( color, "__iter__" ) ) ):
             color  = np.array( [ color ] )
         if ( ( np.min( color ) < 0.0 ) or ( np.max( color ) > 1.0 ) ):
-            print( "[add__colorline @ plot1D.py] color range exceeds [0,1] :: Normalize.... " )
+            print( "[add__colorline @ gplot1D.py] color range exceeds [0,1] :: Normalize.... " )
             color  = ( color - np.min( color ) ) / ( np.max( color ) - np.min( color ) )
             
         # ------------------------------------------------- #
@@ -770,7 +786,7 @@ class plot1D:
         else:
             # -- 通常プロット -- #
             self.fig.savefig( pngFile, dpi=dpi, pad_inches=0, transparent=transparent )
-        print( "[ save__figure() @plot1D ] output :: {0}".format( pngFile ) )
+        print( "[ save__figure() @gplot1D ] output :: {0}".format( pngFile ) )
         # plt.close()
         return()
    
@@ -783,7 +799,7 @@ class plot1D:
         # ------------------------------------------------- #
         # --- Window へ出力                             --- #
         # ------------------------------------------------- #
-        print( "\n" + "[ display__window @plot1D ]" + "\n" )
+        print( "\n" + "[ display__window @gplot1D ]" + "\n" )
         self.fig.show()
                
 
@@ -869,7 +885,7 @@ if ( __name__=="__main__" ):
 
     import numpy as np
     xAxis  = np.linspace( 0.0, 2.0*np.pi, 101 )
-    yAxis1 = np.sin( xAxis )
+    yAxis1 = np.sin( xAxis ) * 0.06
     yAxis2 = np.cos( xAxis ) * 100.0
     
     import nkUtilities.load__config   as lcf
@@ -880,17 +896,14 @@ if ( __name__=="__main__" ):
     config  = cfs.configSettings( configType="plot.def"   , config=config)
     config  = cfs.configSettings( configType="plot.marker", config=config )
     config  = cfs.configSettings( configType="plot.ax2"   , config=config )
-    config["ax1.x.range.auto"]    = True
-    config["ax1.x.range"]         = [0.0,6.0]
-    config["ax1.y.range.auto"]    = True
-    config["ax1.y.range"]         = [-1.2,1.2]
-    config["ax2.y.major.nticks"]  = 11
-    config["ax2.y.range.auto"]    = True
-    config["ax2.y.range"]         = [-120.0,+120.0]
-    fig     = plot1D( config=config, pngFile=pngFile )
+    # config["ax1.x.range"]         = [0.0,6.0, 7]
+    # config["ax1.y.range"]         = [-1.2,1.2, 5]
+    # config["ax2.y.range.auto"]    = True
+    # config["ax2.y.range"]         = [-120.0,+120.0]
+    fig     = gplot1D( config=config, pngFile=pngFile )
     fig.add__plot ( xAxis=xAxis, yAxis=yAxis1, label="sin(x)", color="Orange" )
     fig.add__plot2( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue" )
-    fig.add__legend()
+    fig.set__legend()
     fig.set__axis()
     fig.save__figure()
 

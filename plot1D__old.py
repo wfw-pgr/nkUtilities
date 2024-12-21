@@ -1,114 +1,114 @@
-import os, sys, math
-import matplotlib.pyplot            as plt
+import sys, math
+import nkUtilities.mpl_baseSettings
 import nkUtilities.load__config     as lcf
 import numpy                        as np
+import matplotlib.pyplot            as plt
 import matplotlib.ticker            as tic
 
 
 # ========================================================= #
 # === 1次元プロット描画用クラス                         === #
 # ========================================================= #
-
 class plot1D:
     
     # ------------------------------------------------- #
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
-    def __init__( self, xAxis=None, yAxis=None, label=None, \
-                  pngFile=None, config=None, window=False ):
-
+    def __init__( self, xAxis=None, yAxis=None, label=None, pngFile=None, config=None, window=False ):
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
-        self.config                 = config
-        self.xAxis , self.yAxis     = xAxis, yAxis
-        self.xticks, self.yticks    = None, None
-        self.DataRange              = None
-        self.DataRange_ax2          = None
-        
+        self.xAxis     = xAxis
+        self.yAxis     = yAxis
+        self.label     = []
+        self.DataRange = None
+        self.xticks    = None
+        self.yticks    = None
+        self.config    = config
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
-        if ( self.config is     None ): self.config                   = lcf.load__config()
-        if ( pngFile     is not None ): self.config["figure.pngFile"] = pngFile
-        import nkUtilities.synonymize__keywords as syn
-        synonym = os.path.join( os.path.dirname( os.path.abspath( __file__ ) ), "synonym.json" )
-        self.config = syn.synonymize__keywords( dictionary=self.config, synonym=synonym )
-        self.configure__rcParams()
-        
+        if ( self.config is     None ): self.config                = lcf.load__config()
+        if ( label       is not None ): self.label.append( label )
+        if ( pngFile     is not None ): self.config["pngFile"]     = pngFile
         # ------------------------------------------------- #
         # --- 描画領域の作成                            --- #
         # ------------------------------------------------- #
         #  -- 描画領域                                  --  #
-        pos      = self.config["figure.position"]
-        self.fig = plt.figure( figsize=self.config["figure.size"]  )
+        pos      = self.config["plt_position"]
+        self.fig = plt.figure( figsize=self.config["FigSize"]  )
         self.ax1 = self.fig.add_axes( [ pos[0], pos[1], pos[2]-pos[0], pos[3]-pos[1] ] )
-        self.ax2 = None
         self.set__axis()
         self.set__grid()
-        
         # ------------------------------------------------- #
-        # --- class 定義時に画像ファイル出力            --- #
+        # --- 2nd Axis settings                         --- #
+        # ------------------------------------------------- #
+        self.ax2           = None
+        self.DataRange_ax2 = None
+        # ------------------------------------------------- #
+        # --- 速攻描画                                  --- #
         # ------------------------------------------------- #
         instantOut = False
-        #  -- yAxis あり -> 即，描く  --  #
+        #  -- もし yAxis が渡されていたら，即，描く      --  #
         if ( self.yAxis is not None ):
-            instantOut = True
-            if ( self.xAxis is None ): # -- xAxis なし、インデックスで代用 -- #
+            #   - xAxis がなければインデックスで代用    -   #
+            if ( self.xAxis is None ):       
                 self.xAxis = np.arange( float( self.yAxis.size ) )
-            # -- ploting -- #
+            instantOut = True
+            #   - プロット描きだし                      -   #
             self.add__plot( self.xAxis, self.yAxis, label=label )
             self.set__axis()
-            self.set__legend()
-
-        # ------------------------------------------------- #
-        # --- カーソルの追加                            --- #
-        # ------------------------------------------------- #
-        if ( self.config["cursor.x"] is not None ):
-            self.add__cursor( xAxis=self.config["cursor.x"] )
-        if ( self.config["cursor.y"] is not None ):
-            self.add__cursor( yAxis=self.config["cursor.y"] )
-
-        # ------------------------------------------------- #
-        # --- 出力 / ディスプレイ                       --- #
-        # ------------------------------------------------- #
+            if ( self.config["leg_sw"] ): self.add__legend()
+        #  -- カーソル (x) がある時．                   --  #
+        if ( self.config["cursor_x"] is not None ):
+            self.add__cursor( xAxis=self.config["cursor_x"] )
+            instantOut = True
+        #  -- カーソル (y) がある時．                   --  #
+        if ( self.config["cursor_y"] is not None ):
+            self.add__cursor( yAxis=self.config["cursor_y"] )
+            instantOut = True
         #  -- もし 何かを描いてたら，出力する．         --  #
-        if ( instantOut ): self.save__figure( pngFile=self.config["figure.pngFile"] )
+        if ( instantOut ):
+            self.save__figure( pngFile=self.config["pngFile"] )
+        # -- それ以外の場合は，外部から直接関数を読んでもらう． -- #
         #  -- window に表示する．                       --  #
-        if ( window     ): self.display__window()
-
+        if ( window ):
+            self.display__window()
         
     # ========================================================= #
     # ===  プロット 追加                                    === #
     # ========================================================= #
     def add__plot( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
                    linestyle=None, linewidth=None, \
-                   marker=None, markersize=None, markerwidth=None, kw={} ):
-        
+                   marker=None, markersize=None, markerwidth=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( yAxis       is None ): yAxis       = self.yAxis
         if ( xAxis       is None ): xAxis       = self.xAxis
-        if ( yAxis       is None ): sys.exit( " [plot1D.py] yAxis == ?? " )
-        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用-#
-        if ( label       is None ): label       = ' '*self.config["legend.labelLength"]
-        if ( color       is None ): color       = self.config["plot.color"]
-        if ( alpha       is None ): alpha       = self.config["plot.alpha"]
-        if ( linestyle   is None ): linestyle   = self.config["plot.linestyle"]
-        if ( linewidth   is None ): linewidth   = self.config["plot.linewidth"]
-        if ( marker      is None ): marker      = self.config["plot.marker"]
-        if ( markersize  is None ): markersize  = self.config["plot.markersize"]
-        if ( markerwidth is None ): markerwidth = self.config["plot.markerwidth"]
-
+        if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( markerwidth is None ): markerwidth = self.config["plt_markerwidth"]
+        # ------------------------------------------------- #
+        # --- フィルタリング                            --- #
+        # ------------------------------------------------- #
+        # xAxis, yAxis = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
-        self.xAxis, self.yAxis = xAxis, yAxis
+        self.xAxis   = xAxis
+        self.yAxis   = yAxis
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
-        if ( self.config["plot.colorStack"] is not None ):
-            color    = ( self.config["plot.colorStack"] ).pop(0)
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
@@ -116,7 +116,7 @@ class plot1D:
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
-                       markeredgewidth=markerwidth, alpha =alpha, **kw )
+                       markeredgewidth=markerwidth, alpha =alpha   )
         
 
     # ========================================================= #
@@ -131,21 +131,20 @@ class plot1D:
         # ------------------------------------------------- #
         if ( yAxis       is None ): yAxis       = self.yAxis
         if ( xAxis       is None ): xAxis       = self.xAxis
-        if ( yAxis       is None ): sys.exit( " [plot1D.py] yAxis == ?? " )
-        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size )
-        # - インデックス代用 - #
-        if ( color       is None ): color       = self.config["plot.color"]
-        if ( alpha       is None ): alpha       = self.config["plot.alpha"]
-        if ( linewidth   is None ): linewidth   = self.config["plot.linewidth"] * 0.8
-        if ( linestyle   is None ): linestyle   = self.config["plot.linestyle"]
-        if ( marker      is None ): marker      = self.config["plot.marker"]
-        if ( markersize  is None ): markersize  = self.config["plot.markersize"]
-        if ( capthick    is None ): capthick    = self.config["plot.error_capthick"]
-        if ( capsize     is None ): capsize     = self.config["plot.error_capsize"]
+        if ( yAxis       is None ): sys.exit( " [add__errorbar] yAxis == ?? " )
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"] * 0.8
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( capthick    is None ): capthick    = self.config["plt_error_capthick"]
+        if ( capsize     is None ): capsize     = self.config["plt_error_capsize"]
         if ( ( xerr is None ) and ( yerr is None ) ):
             sys.exit("[add__errorbar] xerr=None & yerr=None ")
-        if ( self.config["plot.colorStack"] is not None ):
-            color    = ( self.config["plot.colorStack"] ).pop(0)
+        if ( self.config["plt_colorStack"] is not None ):
+            color    = ( self.config["plt_colorStack"] ).pop(0)
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
         # ------------------------------------------------- #
@@ -156,48 +155,44 @@ class plot1D:
         self.ax1.errorbar( xAxis, yAxis, xerr=xerr, yerr=yerr, \
                            fmt=fmt, capsize=capsize, capthick=capthick, \
                            ecolor=color , elinestyle=linestyle, elinewidth=linewidth , \
-                           marker=marker, markersize=markersize, alpha=alpha )
+                           marker=marker, markersize=markersize,  \
+                           alpha=alpha )
 
 
     # ========================================================= #
     # ===  軸 レンジ 自動調整用 ルーチン                    === #
     # ========================================================= #
     def set__axis( self, xRange=None, yRange=None ):
-        
         # ------------------------------------------------- #
         # --- 自動レンジ調整   ( 優先順位 2 )           --- #
         # ------------------------------------------------- #
         #  -- オートレンジ (x)                          --  #
-        if ( ( self.config["ax1.x.range.auto"] ) and ( self.DataRange is not None ) ):
+        if ( ( self.config["plt_xAutoRange"] ) and ( self.DataRange is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange[0], vMax=self.DataRange[1], \
-                                      nGrid=self.config["ax1.x.major.nticks"] )
-            self.config["ax1.x.range"] = [ ret[0], ret[1] ]
+                                      nGrid=self.config["xMajor_Nticks"] )
+            self.config["plt_xRange"] = [ ret[0], ret[1] ]
         #  -- オートレンジ (y)                          --  #
-        if ( ( self.config["ax1.y.range.auto"] ) and ( self.DataRange is not None ) ):
+        if ( ( self.config["plt_yAutoRange"] ) and ( self.DataRange is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange[2], vMax=self.DataRange[3], \
-                                      nGrid=self.config["ax1.y.major.nticks"] )
-            self.config["ax1.y.range"] = [ ret[0], ret[1] ]
-            
+                                      nGrid=self.config["yMajor_Nticks"] )
+            self.config["plt_yRange"] = [ ret[0], ret[1] ]
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
-        if ( xRange is not None ): self.config["ax1.x.range"] = xRange
-        if ( yRange is not None ): self.config["ax1.y.range"] = yRange
-        self.ax1.set_xlim( self.config["ax1.x.range"][0], self.config["ax1.x.range"][1] )
-        self.ax1.set_ylim( self.config["ax1.y.range"][0], self.config["ax1.y.range"][1] )
-        
+        if ( xRange is not None ): self.config["plt_xRange"] = xRange
+        if ( yRange is not None ): self.config["plt_yRange"] = yRange
+        self.ax1.set_xlim( self.config["plt_xRange"][0], self.config["plt_xRange"][1] )
+        self.ax1.set_ylim( self.config["plt_yRange"][0], self.config["plt_yRange"][1] )
         # ------------------------------------------------- #
         # --- 軸タイトル 設定                           --- #
         # ------------------------------------------------- #
-        self.ax1.set_xlabel( self.config["ax1.x.label"], \
-                             fontsize=self.config["ax1.x.label.fontsize"] )
-        self.ax1.set_ylabel( self.config["ax1.y.label"], \
-                             fontsize=self.config["ax1.y.label.fontsize"] )
-        
+        self.ax1.set_xlabel( self.config["xTitle"], fontsize=self.config["xTitle_FontSize"] )
+        self.ax1.set_ylabel( self.config["yTitle"], fontsize=self.config["yTitle_FontSize"] )
         # ------------------------------------------------- #
         # --- 目盛を調整する                            --- #
         # ------------------------------------------------- #
         self.set__ticks()
+
 
         
     # ========================================================= #
@@ -208,26 +203,24 @@ class plot1D:
         # --- 自動レンジ調整   ( 優先順位 2 )           --- #
         # ------------------------------------------------- #
         #  -- オートレンジ (y)                          --  #
-        if ( ( self.config["ax2.y.range.auto"] ) and ( self.DataRange_ax2 is not None ) ):
+        if ( ( self.config["ax2.yAutoRange"] ) and ( self.DataRange_ax2 is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange_ax2[2], vMax=self.DataRange_ax2[3], \
-                                      nGrid=self.config["ax2.y.major.nticks"] )
-            self.config["ax2.y.range"] = [ ret[0], ret[1] ]
+                                      nGrid=self.config["ax2.yMajor.nticks"] )
+            self.config["ax2.yRange"] = [ ret[0], ret[1] ]
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
-        if ( yRange is not None ): self.config["ax2.y.range"] = yRange
-        self.ax2.set_ylim( self.config["ax2.y.range"][0], self.config["ax2.y.range"][1] )
+        if ( yRange is not None ): self.config["ax2.yRange"] = yRange
+        self.ax2.set_ylim( self.config["ax2.yRange"][0], self.config["ax2.yRange"][1] )
         # ------------------------------------------------- #
         # --- 軸タイトル 設定                           --- #
         # ------------------------------------------------- #
-        self.ax2.set_ylabel( self.config["ax2.y.label"], \
-                             fontsize=self.config["ax2.y.label.fontsize"] )
+        self.ax2.set_ylabel( self.config["ax2.yTitle"], fontsize=self.config["ax2.yTitle.fontsize"] )
         # ------------------------------------------------- #
         # --- 目盛を調整する                            --- #
         # ------------------------------------------------- #
         self.set__ticks2()
 
-        
     # ========================================================= #
     # ===  軸目盛 設定 ルーチン for axis2                   === #
     # ========================================================= #
@@ -236,17 +229,17 @@ class plot1D:
         # --- 軸目盛 自動調整                           --- #
         # ------------------------------------------------- #
         #  -- 軸目盛 整数設定                           --  #
-        ytick_dtype      = np.int32 if ( self.config["ax2.y.major.integer"] ) else np.float64
+        ytick_dtype      = np.int32 if ( self.config["ax2.yMajor.integer"] ) else np.float64
         #  -- 軸目盛 自動調整 (y)                       --  #
-        if ( self.config["ax2.y.major.auto"] ):
+        if ( self.config["ax2.yMajor.auto"] ):
             yMin, yMax   = self.ax2.get_ylim()
-            self.yticks2 = np.linspace( yMin, yMax, self.config["ax2.y.major.nticks"], dtype=ytick_dtype  )
+            self.yticks2 = np.linspace( yMin, yMax, self.config["ax2.yMajor.nticks"], dtype=ytick_dtype  )
         else:
-            self.yticks2 = np.array( self.config["ax2.y.major.ticks"], dtype=ytick_dtype )
+            self.yticks2 = np.array( self.config["ax2.yMajor.ticks"], dtype=ytick_dtype )
         #  -- Minor 軸目盛                              --  #
-        if ( self.config["ax2.y.minor.sw"] is False ):
-            self.config["ax2.y.minor.nticks"] = 1
-        self.ax2.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax2.y.minor.nticks"] ) )
+        if ( self.config["ax2.yMinor.sw"] is False ):
+            self.config["ax2.yMinor.nticks"] = 1
+        self.ax2.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax2.yMinor.nticks"] ) )
         #  -- 軸目盛 調整結果 反映                      --  #
         self.ax2.set_yticks( self.yticks2 )
         # ------------------------------------------------- #
@@ -255,21 +248,20 @@ class plot1D:
         #  -- 対数表示 ( x,y )                          --  #
         if ( self.config["ax2.ylog"] ):
             self.ax2.set_yscale("log")
-            if ( self.config["ax2.y.major.auto"] ):
+            if ( self.config["ax2.yMajor.auto"] ):
                 pass
             else:
-                self.ax2.set_yticks( self.config["ax2.y.major.ticks"] )
+                self.ax2.set_yticks( self.config["ax2.yMajor.ticks"] )
 
         #  -- 軸スタイル (y)                            --  #
         self.ax2.tick_params( axis     ="y", \
-                              labelsize=self.config["ax2.y.major.fontsize"], \
-                              length   =self.config["ax2.y.major.length"  ], \
-                              width    =self.config["ax2.y.major.width"   ]  )
-
+                              labelsize=self.config["ax2.yMajor.fontsize"], \
+                              length   =self.config["ax2.yMajor.length"  ], \
+                              width    =self.config["ax2.yMajor.width"   ]  )
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #
-        if ( self.config["ax2.y.major.noLabel"] ):
+        if ( self.config["ax2.yMajor.noLabel"] ):
             self.ax2.set_yticklabels( [ "" for i in self.ax2.get_yaxis().get_ticklocs() ] )
 
         
@@ -319,27 +311,27 @@ class plot1D:
         # --- 軸目盛 自動調整                           --- #
         # ------------------------------------------------- #
         #  -- 軸目盛 整数設定                           --  #
-        xtick_dtype     = np.int32 if ( self.config["ax1.x.major.integer"] ) else np.float64
-        ytick_dtype     = np.int32 if ( self.config["ax1.y.major.integer"] ) else np.float64
+        xtick_dtype     = np.int32 if ( self.config["xMajor_integer"] ) else np.float64
+        ytick_dtype     = np.int32 if ( self.config["yMajor_integer"] ) else np.float64
         #  -- 軸目盛 自動調整 (x)                       --  #
-        if ( self.config["ax1.x.major.auto"] ):
+        if ( self.config["xMajor_auto"] ):
             xMin, xMax  = self.ax1.get_xlim()
-            self.xticks = np.linspace( xMin, xMax, self.config["ax1.x.major.nticks"], \
+            self.xticks = np.linspace( xMin, xMax, self.config["xMajor_Nticks"], \
                                        dtype=xtick_dtype  )
         else:
-            self.xticks = np.array( self.config["ax1.x.major.ticks"], dtype=xtick_dtype )
+            self.xticks = np.array( self.config["xMajor_ticks"], dtype=xtick_dtype )
         #  -- 軸目盛 自動調整 (y)                       --  #
-        if ( self.config["ax1.y.major.auto"] ):
+        if ( self.config["yMajor_auto"] ):
             yMin, yMax  = self.ax1.get_ylim()
-            self.yticks = np.linspace( yMin, yMax, self.config["ax1.y.major.nticks"], \
+            self.yticks = np.linspace( yMin, yMax, self.config["yMajor_Nticks"], \
                                        dtype=ytick_dtype  )
         else:
-            self.yticks = np.array( self.config["ax1.y.major.ticks"], dtype=ytick_dtype )
+            self.yticks = np.array( self.config["yMajor_ticks"], dtype=ytick_dtype )
         #  -- Minor 軸目盛                              --  #
-        if ( self.config["ax1.x.minor.sw"] is False ): self.config["ax1.x.minor.nticks"] = 1
-        if ( self.config["ax1.y.minor.sw"] is False ): self.config["ax1.y.minor.nticks"] = 1
-        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.x.minor.nticks"] ) )
-        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.y.minor.nticks"] ) )
+        if ( self.config["xMinor_sw"] is False ): self.config["xMinor_nticks"] = 1
+        if ( self.config["yMinor_sw"] is False ): self.config["yMinor_nticks"] = 1
+        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["xMinor_nticks"] ) )
+        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["yMinor_nticks"] ) )
         #  -- 軸目盛 調整結果 反映                      --  #
         self.ax1.set_xticks( self.xticks )
         self.ax1.set_yticks( self.yticks )
@@ -347,32 +339,32 @@ class plot1D:
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
         #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["plot.xlog"] ):
+        if ( self.config["plt_xlog"] ):
             self.ax1.set_xscale("log")
-            if ( self.config["ax1.x.major.auto"] ):
+            if ( self.config["xMajor_auto"] ):
                 pass
             else:
-                self.ax1.set_xticks( self.config["ax1.x.major.ticks"] )
-        if ( self.config["plot.ylog"] ):
+                self.ax1.set_xticks( self.config["xMajor_ticks"] )
+        if ( self.config["plt_ylog"] ):
             self.ax1.set_yscale("log")
-            if ( self.config["ax1.y.major.auto"] ):
+            if ( self.config["yMajor_auto"] ):
                 pass
             else:
-                self.ax1.set_yticks( self.config["ax1.y.major.ticks"] )
+                self.ax1.set_yticks( self.config["yMajor_ticks"] )
         #  -- 軸スタイル (x)                            --  #
-        self.ax1.tick_params( axis  ="x", labelsize=self.config["ax1.x.major.fontsize"], \
-                              length=self.config["ax1.x.major.length"], \
-                              width =self.config["ax1.x.major.width"])
+        self.ax1.tick_params( axis  ="x", labelsize=self.config["xMajor_FontSize"], \
+                              length=self.config["xMajor_length"], \
+                              width =self.config["xMajor_width"])
         #  -- 軸スタイル (y)                            --  #
-        self.ax1.tick_params( axis  ="y", labelsize=self.config["ax1.y.major.fontsize"], \
-                              length=self.config["ax1.y.major.length"], \
-                              width =self.config["ax1.y.major.width"])
+        self.ax1.tick_params( axis  ="y", labelsize=self.config["yMajor_FontSize"], \
+                              length=self.config["yMajor_length"], \
+                              width =self.config["yMajor_width"])
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #
-        if ( self.config["ax1.x.major.noLabel"] ):
+        if ( self.config["xMajor_NoLabel"] ):
             self.ax1.set_xticklabels( ['' for i in self.ax1.get_xaxis().get_ticklocs()])
-        if ( self.config["ax1.y.major.noLabel"] ):
+        if ( self.config["yMajor_NoLabel"] ):
             self.ax1.set_yticklabels( ['' for i in self.ax1.get_yaxis().get_ticklocs()])
 
 
@@ -420,108 +412,96 @@ class plot1D:
     # ===  グリッド / y=0 軸線 追加                         === #
     # ========================================================= #
     def set__grid( self ):
-        
         # ------------------------------------------------- #
         # --- y=0 軸線 描画                             --- #
         # ------------------------------------------------- #
-        if ( self.config["plot.y=0_sw"] ):
+        if ( self.config["plt_y=0_sw"] ):
             self.ax1.axhline( y        = 0.0, \
-                              linestyle=self.config["plot.y=0_linestyle"], \
-                              color    =self.config["plot.y=0_color"]    , \
-                              linewidth=self.config["plot.y=0_linewidth"] )
-            
+                              linestyle=self.config["plt_y=0_linestyle"], \
+                              color    =self.config["plt_y=0_color"]    , \
+                              linewidth=self.config["plt_y=0_linewidth"] )
         # ------------------------------------------------- #
         # --- グリッド ( 主グリッド :: Major )          --- #
         # ------------------------------------------------- #
-        if ( self.config["grid.major.sw"]      ):
-            self.ax1.grid( visible  =self.config["grid.major.sw"]       , \
+        if ( self.config["grid_sw"]      ):
+            self.ax1.grid( visible  =self.config["grid_sw"]       , \
                            which    ='major'                      , \
-                           color    =self.config["grid.major.color"]    , \
-                           alpha    =self.config["grid.major.alpha"]    , \
-                           linestyle=self.config["grid.major.linestyle"], \
-                           linewidth=self.config["grid.major.linewidth"]  )
-            
+                           color    =self.config["grid_color"]    , \
+                           alpha    =self.config["grid_alpha"]    , \
+                           linestyle=self.config["grid_linestyle"], \
+                           linewidth=self.config["grid_linewidth"]  )
         # ------------------------------------------------- #
         # --- グリッド ( 副グリッド :: Minor )          --- #
         # ------------------------------------------------- #
-        if ( self.config["grid.minor.sw"] ):
-            self.ax1.grid( visible  =self.config["grid.minor.sw"]   , \
+        if ( self.config["grid_minor_sw"] ):
+            self.ax1.grid( visible  =self.config["grid_minor_sw"]   , \
                            which    ='minor'                        , \
-                           color    =self.config["grid.minor.color"], \
-                           alpha    =self.config["grid.minor.alpha"], \
-                           linestyle=self.config["grid.minor.linestyle"], \
-                           linewidth=self.config["grid.minor.linewidth"]  )
+                           color    =self.config["grid_minor_color"], \
+                           linestyle=self.config["grid_minor_style"], \
+                           alpha    =self.config["grid_minor_alpha"], \
+                           linewidth=self.config["grid_minor_width"]  )
 
             
     # ========================================================= #
     # ===  凡例を表示                                       === #
     # ========================================================= #
-    def set__legend( self, loc=None, fontsize=None ):
-
+    def add__legend( self, loc=None, FontSize=None ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( self.config["legend.sw"] is False ): return()
-        if ( loc      is not None ): self.config["legend.location"] = loc
-        if ( fontsize is not None ): self.config["legend.fontsize"] = fontsize
-        
+        if ( loc      is not None ): self.config["leg_location"] = loc
+        if ( FontSize is not None ): self.config["leg_FontSize"] = FontSize
+        loc_interpretted = self.config["leg_location"].replace( "=", " " )
         # ------------------------------------------------- #
-        # --- 凡例 ( 第２軸 )                           --- #
+        # --- 凡例 描画                                 --- #
         # ------------------------------------------------- #
+        if ( self.config["ax1.legend.position"] is not None ):
+            bbox_to_anchor   = tuple( self.config["ax1.legend.position"] )
+            loc_interpretted = "lower left"
+        else:
+            bbox_to_anchor = None
         h1, l1 = self.ax1.get_legend_handles_labels()
         if ( self.ax2 is not None ):
             h2, l2 = self.ax2.get_legend_handles_labels()
             h1, l1 = h1+h2, l1+l2
+        self.ax1.legend( h1, l1, loc   =loc_interpretted, \
+                         fontsize      =self.config["leg_FontSize"]     , \
+                         ncol          =self.config["leg_nColumn" ]     , \
+                         frameon       =self.config["leg_FrameOn" ]     , \
+                         labelspacing  =self.config["leg_labelGap"]     , \
+                         columnspacing =self.config["leg_columnGap"]    , \
+                         handlelength  =self.config["leg_handleLength" ], \
+                         bbox_to_anchor=bbox_to_anchor )
         
-        # ------------------------------------------------- #
-        # --- 凡例 描画                                 --- #
-        # ------------------------------------------------- #
-        self.ax1.legend( h1, l1, loc   =self.config["legend.location"]    , \
-                         fontsize      =self.config["legend.fontsize"]    , \
-                         ncol          =self.config["legend.nColumn" ]    , \
-                         frameon       =self.config["legend.frameOn" ]    , \
-                         labelspacing  =self.config["legend.labelGap"]    , \
-                         columnspacing =self.config["legend.columnGap"]   , \
-                         handlelength  =self.config["legend.handleLength"], \
-                         bbox_to_anchor=tuple( self.config["ax1.legend.position"] ) )
-
-    # ========================================================= #
-    # ===  alias ( set__legend )                            === #
-    # ========================================================= #
-    def add__legend( self, loc=None, fontsize=None ):
-        self.set__legend( loc=loc, fontsize=fontsize )
 
     # ========================================================= #
     # ===  カーソル 描画                                    === #
     # ========================================================= #
     def add__cursor( self, xAxis=None, yAxis=None, color=None, linestyle=None, linewidth=None ):
-        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( color     is not None ): self.config["cursor.color"] = color
-        if ( linestyle is not None ): self.config["cursor.linestyle"] = linestyle
-        if ( linewidth is not None ): self.config["cursor.linewidth"] = linewidth
-        
+        if ( color     is not None ): self.config["cursor_color"] = color
+        if ( linestyle is not None ): self.config["cursor_linestyle"] = linestyle
+        if ( linewidth is not None ): self.config["cursor_linewidth"] = linewidth
         # ------------------------------------------------- #
         # --- カーソル ( x ) 追加                       --- #
         # ------------------------------------------------- #
         if ( xAxis is not None ):
             MinMax = self.ax1.get_ylim()
             self.ax1.vlines( xAxis, MinMax[0], MinMax[1], \
-                             colors    =self.config["cursor.color"], \
-                             linestyles=self.config["cursor.linestyle"],
-                             linewidth =self.config["cursor.linewidth"] )
-            
+                             colors    =self.config["cursor_color"], \
+                             linestyles=self.config["cursor_linestyle"],
+                             linewidth =self.config["cursor_linewidth"] )
         # ------------------------------------------------- #
         # --- カーソル ( y ) 追加                       --- #
         # ------------------------------------------------- #
         if ( yAxis is not None ):
             MinMax = self.ax1.get_xlim()
             self.ax1.hlines( yAxis, MinMax[0], MinMax[1], \
-                             colors    =self.config["cursor.color"], \
-                             linestyles=self.config["cursor.linestyle"], \
-                             linewidth =self.config["cursor.linewidth"] )
+                             colors    =self.config["cursor_color"], \
+                             linestyles=self.config["cursor_linestyle"], \
+                             linewidth =self.config["cursor_linewidth"] )
 
             
     # =================================================== #
@@ -530,28 +510,25 @@ class plot1D:
     def add__plot2( self, xAxis=None, yAxis=None, label=None, color=None, alpha=None, \
                     linestyle=None, linewidth=None, \
                     marker=None, markersize=None, markerwidth=None ):
-
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( yAxis       is None ): sys.exit( " [add__plot2] yAxis for axis 2 == ?? " )
-        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # -インデックス代用- #
-        if ( label       is None ): label       = self.config["legend.labelLength"]*' '
-        if ( color       is None ): color       = self.config["plot.color"]
-        if ( alpha       is None ): alpha       = self.config["plot.alpha"]
-        if ( linestyle   is None ): linestyle   = self.config["plot.linestyle"]
-        if ( linewidth   is None ): linewidth   = self.config["plot.linewidth"]
-        if ( marker      is None ): marker      = self.config["plot.marker"]
-        if ( markersize  is None ): markersize  = self.config["plot.markersize"]
-        if ( markerwidth is None ): markerwidth = self.config["plot.markerwidth"]
-        
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( linestyle   is None ): linestyle   = self.config["plt_linestyle"]
+        if ( linewidth   is None ): linewidth   = self.config["plt_linewidth"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
+        if ( markersize  is None ): markersize  = self.config["plt_markersize"]
+        if ( markerwidth is None ): markerwidth = self.config["plt_markerwidth"]
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
         if ( self.ax2    is None ): self.ax2 = self.ax1.twinx()
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis, ax2=True )
         self.set__axis2()
-        
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
@@ -559,15 +536,14 @@ class plot1D:
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
-                       markeredgewidth=markerwidth, alpha =alpha )
-        
+                       markeredgewidth=markerwidth, alpha =alpha   )
+
 
     # ========================================================= #
     # ===  bar 追加                                         === #
     # ========================================================= #
     def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None, \
                   label=None, align="center", bottom=None ):
-        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
@@ -575,11 +551,10 @@ class plot1D:
         if ( xAxis is None ): xAxis      = self.xAxis
         if ( yAxis is None ): sys.exit( " [add__plot] yAxis == ?? " )
         if ( xAxis is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( label is None ): label      = ' '*self.config["legend.labelLength"]
+        if ( label is None ): label      = ' '*self.config["leg_labelLength"]
         if ( width is None ): width      = self.config["bar_width"]
-        if ( color is None ): color      = self.config["plot.color"]
-        if ( alpha is None ): alpha      = self.config["plot.alpha"]
-        
+        if ( color is None ): color      = self.config["plt_color"]
+        if ( alpha is None ): alpha      = self.config["plt_alpha"]
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
@@ -588,7 +563,6 @@ class plot1D:
         self.yAxis   = yAxis
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
-        
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
@@ -648,12 +622,12 @@ class plot1D:
         if ( xAxis      is None ): xAxis      = self.xAxis
         if ( yAxis      is None ): sys.exit( " [add__colorline] yAxis == ?? " )
         if ( xAxis      is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
-        if ( label      is None ): label      = " "*self.config["legend.labelLength"]
-        if ( alpha      is None ): alpha      = self.config["plot.alpha"]
-        if ( linestyle  is None ): linestyle  = self.config["plot.linestyle"]
-        if ( linewidth  is None ): linewidth  = self.config["plot.linewidth"]
-        if ( marker     is None ): marker     = self.config["plot.marker"]
-        if ( markersize is None ): markersize = self.config["plot.markersize"]
+        if ( label      is None ): label      = " "*self.config["leg_labelLength"]
+        if ( alpha      is None ): alpha      = self.config["plt_alpha"]
+        if ( linestyle  is None ): linestyle  = self.config["plt_linestyle"]
+        if ( linewidth  is None ): linewidth  = self.config["plt_linewidth"]
+        if ( marker     is None ): marker     = self.config["plt_marker"]
+        if ( markersize is None ): markersize = self.config["plt_markersize"]
         
         # ------------------------------------------------- #
         # --- フィルタリング                            --- #
@@ -695,19 +669,17 @@ class plot1D:
     # ========================================================= #
     def add__scatter( self, xAxis=None, yAxis=None, cAxis=None, color=None, cmap=None, \
                       label=None, alpha=None, marker=None, markersize=None, markerwidth=None ):
-        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( yAxis       is None ): yAxis       = self.yAxis
         if ( xAxis       is None ): xAxis       = self.xAxis
         if ( yAxis       is None ): sys.exit( " [add__plot] yAxis == ?? " )
-        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) #-インデックス代用-#
-        if ( color       is None ): color       = self.config["plot.color"]
-        if ( label       is None ): label       = ' '*self.config["legend.labelLength"]
-        if ( alpha       is None ): alpha       = self.config["plot.alpha"]
-        if ( marker      is None ): marker      = self.config["plot.marker"]
-        
+        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size ) # - インデックス代用 - #
+        if ( color       is None ): color       = self.config["plt_color"]
+        if ( label       is None ): label       = ' '*self.config["leg_labelLength"]
+        if ( alpha       is None ): alpha       = self.config["plt_alpha"]
+        if ( marker      is None ): marker      = self.config["plt_marker"]
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
@@ -750,30 +722,27 @@ class plot1D:
     # ========================================================= #
     # ===  ファイル 保存                                    === #
     # ========================================================= #
-    def save__figure( self, pngFile=None, dpi=None, transparent=None, minimal=None ):
-
+    def save__figure( self, pngFile=None, dpi=None ):
         # ------------------------------------------------- #
         # --- 引数設定                                  --- #
         # ------------------------------------------------- #
-        if ( pngFile     is None ): pngFile     = self.config["figure.pngFile"]
-        if ( dpi         is None ): dpi         = self.config["figure.dpi"]
-        if ( transparent is None ): transparent = self.config["figure.transparent"]
-        if ( minimal     is None ): minimal     = self.config["figure.minimal"]
-        
+        if ( pngFile is None ): pngFile = self.config["pngFile"]
+        if ( dpi     is None ): dpi     = self.config["densityPNG"]
         # ------------------------------------------------- #
         # --- ファイル ( png ) 出力                     --- #
         # ------------------------------------------------- #
-        if ( minimal ):
-            # -- 最小プロット -- #
-            self.fig.savefig( pngFile, dpi=dpi, bbox_inches='tight', \
-                              pad_inches=0, transparent=transparent )
+        if ( self.config["MinimalOut"] ):
+            # -- 最小プロット (透明) -- #
+            self.fig.savefig( pngFile, dpi=dpi, bbox_inches='tight', pad_inches=0, transparent=True )
+        elif ( self.config["MinimalWhite"] ):
+            # -- 最小プロット (白地) -- #
+            self.fig.savefig( pngFile, dpi=dpi, bbox_inches="tight", pad_inches=0.0 )
         else:
-            # -- 通常プロット -- #
-            self.fig.savefig( pngFile, dpi=dpi, pad_inches=0, transparent=transparent )
-        print( "[ save__figure() @plot1D ] output :: {0}".format( pngFile ) )
+            # -- 通常プロット        -- #
+            self.fig.savefig( pngFile, dpi=dpi, pad_inches=0 )
         # plt.close()
-        return()
-   
+        print( "[ save__figure -@plot1d- ] out :: {0}".format( pngFile ) )
+        
 
     # ========================================================= #
     # ===  Display window                                   === #
@@ -783,85 +752,11 @@ class plot1D:
         # ------------------------------------------------- #
         # --- Window へ出力                             --- #
         # ------------------------------------------------- #
-        print( "\n" + "[ display__window @plot1D ]" + "\n" )
+        print( "\n" + "[ display__window -@plot1d- ]" + "\n" )
         self.fig.show()
                
+        
 
-        
-    # ========================================================= #
-    # ===  configure__rcParams                              === #
-    # ========================================================= #
-    def configure__rcParams( self ):
-        
-        # ------------------------------------------------- #
-        # --- 全体設定                                  --- #
-        # ------------------------------------------------- #
-        # plt.style.use('seaborn-white')
-        plt.rcParams['figure.dpi']             = self.config["figure.dpi"]
-
-        # ------------------------------------------------- #
-        # --- 画像 サイズ / 余白 設定                   --- #
-        # ------------------------------------------------- #
-        # -- 相対座標  --  #
-        plt.rcParams['figure.subplot.left']    = 0.0
-        plt.rcParams['figure.subplot.bottom']  = 0.0
-        plt.rcParams['figure.subplot.right']   = 1.0
-        plt.rcParams['figure.subplot.top']     = 1.0
-        plt.rcParams['figure.subplot.wspace']  = 0.0
-        plt.rcParams['figure.subplot.hspace']  = 0.0
-        # -- 余白設定  --  #
-        plt.rcParams['axes.xmargin']           = 0
-        plt.rcParams['axes.ymargin']           = 0
-        
-        # ------------------------------------------------- #
-        # --- フォント 設定                             --- #
-        # ------------------------------------------------- #
-        # -- フォント 種類                              --  #
-        plt.rcParams['font.family']            = self.config["figure.fontname"]
-        plt.rcParams['font.serif']             = self.config["figure.fontname"]
-        plt.rcParams['mathtext.fontset']       = self.config["figure.mathfont"]
-        # -- other settings                         --  #
-        #     :: 'dejavusans', 'cm', 'custom'       ::  #
-        #     :: 'stix', 'stixsans', 'dejavuserif'  ::  #
-        # --                                        --  #
-        # -- 通常 フォント                          --  #
-        plt.rcParams['font.size']              = self.config["figure.font.size"]
-        # -- 軸タイトル                             --  #
-        plt.rcParams['axes.labelsize']         = self.config["figure.font.size"]
-        plt.rcParams['axes.labelweight']       = 'regular'
-        
-        # ------------------------------------------------- #
-        # --- 目盛 設定 ( xticks, yticks )              --- #
-        # ------------------------------------------------- #
-        # -- 目盛線向き :: 内向き('in'), 外向き('out')   -- #
-        # --            :: 双方向か('inout')             -- #
-        # -- xTicks -- #
-        plt.rcParams['xtick.direction']        = 'in'
-        plt.rcParams['xtick.bottom']           = True
-        plt.rcParams['xtick.top']              = True
-        plt.rcParams['xtick.major.size']       = self.config["ax1.x.major.size"]
-        plt.rcParams['xtick.major.width']      = self.config["ax1.x.major.width"]
-        plt.rcParams['xtick.minor.size']       = self.config["ax1.x.minor.size"]
-        plt.rcParams['xtick.minor.width']      = self.config["ax1.x.minor.width"]
-        plt.rcParams['xtick.minor.visible']    = self.config["ax1.x.minor.sw"]
-        # -- yTicks -- #
-        plt.rcParams['ytick.direction']        = 'in'
-        plt.rcParams['ytick.left']             = True
-        plt.rcParams['ytick.right']            = True
-        plt.rcParams['ytick.major.size']       = self.config["ax1.y.major.size"]
-        plt.rcParams['ytick.major.width']      = self.config["ax1.y.major.width"]
-        plt.rcParams['ytick.minor.visible']    = self.config["ax1.y.minor.sw"]
-        plt.rcParams['ytick.minor.size']       = self.config["ax1.y.minor.size"]
-        plt.rcParams['ytick.minor.width']      = self.config["ax1.y.minor.width"]
-        
-        # ------------------------------------------------- #
-        # --- プロット線 / 軸 の線の太さ                --- #
-        # ------------------------------------------------- #
-        plt.rcParams['lines.linewidth']        = self.config["plot.linewidth"]
-        plt.rcParams['axes.linewidth']         = self.config["figure.axes.linewidth"]
-        return()
-
-        
 # ======================================== #
 # ===  実行部                          === #
 # ======================================== #
@@ -880,23 +775,17 @@ if ( __name__=="__main__" ):
     config  = cfs.configSettings( configType="plot.def"   , config=config)
     config  = cfs.configSettings( configType="plot.marker", config=config )
     config  = cfs.configSettings( configType="plot.ax2"   , config=config )
-    config["ax1.x.range.auto"]    = True
-    config["ax1.x.range"]         = [0.0,6.0]
-    config["ax1.y.range.auto"]    = True
-    config["ax1.y.range"]         = [-1.2,1.2]
-    config["ax2.y.major.nticks"]  = 11
-    config["ax2.y.range.auto"]    = True
-    config["ax2.y.range"]         = [-120.0,+120.0]
+    config["plt_xAutoRange"]    = False
+    config["plt_xRange"]        = [0.0,6.0]
+    config["ax2.yMajor.nticks"] = 7
+    config["ax2.yAutoRange"]    = False
+    config["ax2.yRange"]        = [-120.0,+120.0]
     fig     = plot1D( config=config, pngFile=pngFile )
     fig.add__plot ( xAxis=xAxis, yAxis=yAxis1, label="sin(x)", color="Orange" )
     fig.add__plot2( xAxis=xAxis, yAxis=yAxis2, label="cos(x)", color="RoyalBlue" )
     fig.add__legend()
     fig.set__axis()
     fig.save__figure()
-
-
-    
-
 
 
     
