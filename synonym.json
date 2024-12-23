@@ -105,11 +105,11 @@
     "grid_minor_style"    : "grid.minor.linestyle"  ,
     "grid_minor_width"    : "grid.minor.linewidth"  ,
 
-    "cursor_x"            : "cursor.x"              ,
-    "cursor_y"            : "cursor.y"              ,
-    "cursor_color"        : "cursor.color"          ,
-    "cursor_linestyle"    : "cursor.linestyle"      ,
-    "cursor_linewidth"    : "cursor.linewidth"      ,
+    "cursor_x"            : "ax1.cursor.x"              ,
+    "cursor_y"            : "ax1.cursor.y"              ,
+    "cursor_color"        : "ax1.cursor.color"          ,
+    "cursor_linestyle"    : "ax1.cursor.linestyle"      ,
+    "cursor_linewidth"    : "ax1.cursor.linewidth"      ,
 
     "leg_sw"              : "legend.sw"             , 
     "leg_location"        : "legend.location"       , 

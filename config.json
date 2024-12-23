@@ -94,11 +94,18 @@
     // ------------------------------------------------- //
     // --- カーソル                                  --- //
     // ------------------------------------------------- //
-    "cursor_x"              : null,           // null or float or array //
-    "cursor_y"              : null,
-    "cursor_color"          : "grey",
-    "cursor_linestyle"      : ":",
-    "cursor_linewidth"      : 1.0,
+    "ax1.cursor.x"          : null,           // null or float or array //
+    "ax1.cursor.y"          : null,
+    "ax1.cursor.color"      : "grey",
+    "ax1.cursor.linestyle"  : ":",
+    "ax1.cursor.linewidth"  : 1.0,
+    
+    "ax2.cursor.x"          : null, 
+    "ax2.cursor.y"          : null, 
+    "ax2.cursor.color"      : "grey",
+    "ax2.cursor.linestyle"  : ":",
+    "ax2.cursor.linewidth"  : 1.0,
+    
     
 
     // ==================================================== //
@@ -232,10 +239,15 @@
     // ------------------------------------------------- //
     // --- レンジ設定                                --- //
     // ------------------------------------------------- //
-    "ax1.x.range.auto"      : true,
-    "ax1.y.range.auto"      : true,
-    "ax1.x.range"           : [0.0,1.0],
-    "ax1.y.range"           : [0.0,1.0],
+    // "ax1.x.range.auto"      : true,
+    // "ax1.y.range.auto"      : true,
+    // "ax1.x.range"           : [0.0,1.0],
+    // "ax1.y.range"           : [0.0,1.0],
+    "ax1.x.range"           : { "auto":true, "min": 0.0, "max":1.0, "num":11 }, 
+    "ax1.y.range"           : { "auto":true, "min": 0.0, "max":1.0, "num":11 },
+    "ax1.x.normalize"       : null,
+    "ax1.y.normalize"       : null,
+    "ax2.y.normalize"       : null,
     
     // ------------------------------------------------- //
     // --- 目盛設定 / 対数目盛                       --- //

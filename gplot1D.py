@@ -58,15 +58,17 @@ class gplot1D:
             # -- ploting -- #
             self.add__plot( self.xAxis, self.yAxis, label=label )
             self.set__axis()
-            self.set__legend()
+            if ( self.config["legend.sw"] ): self.set__legend()
 
         # ------------------------------------------------- #
         # --- カーソルの追加                            --- #
         # ------------------------------------------------- #
-        if ( self.config["cursor.x"] is not None ):
-            self.add__cursor( xAxis=self.config["cursor.x"] )
-        if ( self.config["cursor.y"] is not None ):
-            self.add__cursor( yAxis=self.config["cursor.y"] )
+        if ( self.config["ax1.cursor.x"] is not None ):
+            self.add__cursor( xAxis=self.config["ax1.cursor.x"], axis="ax1" )
+        if ( self.config["ax1.cursor.y"] is not None ):
+            self.add__cursor( yAxis=self.config["ax1.cursor.y"], axis="ax1" )
+        if ( self.config["ax2.cursor.y"] is not None ):
+            self.add__cursor( yAxis=self.config["ax2.cursor.y"], axis="ax2" )
 
         # ------------------------------------------------- #
         # --- 出力 / ディスプレイ                       --- #
@@ -106,12 +108,18 @@ class gplot1D:
         self.xAxis, self.yAxis = xAxis, yAxis
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
+        xAxis_, yAxis_ = np.copy(xAxis), np.copy( yAxis )
+        if ( self.config["ax1.x.normalize"] is not None ):
+            xAxis_   = xAxis / self.config["ax1.x.normalize"]
+        if ( self.config["ax1.y.normalize"] is not None ):
+            yAxis_   = yAxis / self.config["ax1.y.normalize"]
         if ( self.config["plot.colorStack"] is not None ):
             color    = ( self.config["plot.colorStack"] ).pop(0)
+            
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax1.plot( xAxis, yAxis , \
+        self.ax1.plot( xAxis_, yAxis_, \
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
@@ -477,7 +485,6 @@ class gplot1D:
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( self.config["legend.sw"] is False ): return()
         if ( loc      is not None ): self.config["legend.location"] = loc
         if ( fontsize is not None ): self.config["legend.fontsize"] = fontsize
         
@@ -488,6 +495,10 @@ class gplot1D:
         if ( self.ax2 is not None ):
             h2, l2 = self.ax2.get_legend_handles_labels()
             h1, l1 = h1+h2, l1+l2
+
+        bbox_to_anchor = None
+        if ( self.config["ax1.legend.position"] is not None ):
+            bbox_to_anchor = tuple( self.config["ax1.legend.position"] )
         
         # ------------------------------------------------- #
         # --- 凡例 描画                                 --- #
@@ -499,8 +510,8 @@ class gplot1D:
                          labelspacing  =self.config["legend.labelGap"]    , \
                          columnspacing =self.config["legend.columnGap"]   , \
                          handlelength  =self.config["legend.handleLength"], \
-                         bbox_to_anchor=tuple( self.config["ax1.legend.position"] ) )
-
+                         bbox_to_anchor=bbox_to_anchor )
+        
     # ========================================================= #
     # ===  alias ( set__legend )                            === #
     # ========================================================= #
@@ -510,34 +521,45 @@ class gplot1D:
     # ========================================================= #
     # ===  カーソル 描画                                    === #
     # ========================================================= #
-    def add__cursor( self, xAxis=None, yAxis=None, color=None, linestyle=None, linewidth=None ):
+    def add__cursor( self, xAxis=None, yAxis=None, axis="ax1", \
+                     color=None, linestyle=None, linewidth=None ):
+
+        confname = axis + ".cursor." + "{}"
         
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( color     is not None ): self.config["cursor.color"] = color
-        if ( linestyle is not None ): self.config["cursor.linestyle"] = linestyle
-        if ( linewidth is not None ): self.config["cursor.linewidth"] = linewidth
-        
+        if ( color     is not None ): self.config[confname.format("color")]     = color
+        if ( linestyle is not None ): self.config[confname.format("linewidth")] = linestyle
+        if ( linewidth is not None ): self.config[confname.format("linewidth")] = linewidth
+        if   ( axis == "ax1" ):
+            theAxis = self.ax1
+        elif ( axis == "ax2" ):
+            if ( self.ax2  is None ):
+                self.ax2 = self.ax1.twinx()
+            theAxis = self.ax2
+        else:
+            print( "[gplot1D.py] illegal axis name ??  -> [ ax1 or ax2 ] " )
+            sys.exit()
+            
         # ------------------------------------------------- #
         # --- カーソル ( x ) 追加                       --- #
         # ------------------------------------------------- #
+        plot_settings = { "colors"   : self.config[confname.format( "color"     )], \
+                          "linestyle": self.config[confname.format( "linestyle" )], \
+                          "linewidth": self.config[confname.format( "linewidth" )]  }
         if ( xAxis is not None ):
-            MinMax = self.ax1.get_ylim()
-            self.ax1.vlines( xAxis, MinMax[0], MinMax[1], \
-                             colors    =self.config["cursor.color"], \
-                             linestyles=self.config["cursor.linestyle"],
-                             linewidth =self.config["cursor.linewidth"] )
-            
+            MinMax = theAxis.get_ylim()
+            theAxis.vlines( xAxis, MinMax[0], MinMax[1], \
+                            **plot_settings )
+             
         # ------------------------------------------------- #
         # --- カーソル ( y ) 追加                       --- #
         # ------------------------------------------------- #
         if ( yAxis is not None ):
-            MinMax = self.ax1.get_xlim()
-            self.ax1.hlines( yAxis, MinMax[0], MinMax[1], \
-                             colors    =self.config["cursor.color"], \
-                             linestyles=self.config["cursor.linestyle"], \
-                             linewidth =self.config["cursor.linewidth"] )
+            MinMax = theAxis.get_xlim()
+            theAxis.hlines( yAxis, MinMax[0], MinMax[1], \
+                            **plot_settings )
 
             
     # =================================================== #
@@ -567,11 +589,16 @@ class gplot1D:
         if ( self.ax2    is None ): self.ax2 = self.ax1.twinx()
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis, ax2=True )
         self.set__axis2()
+        xAxis_, yAxis_ = np.copy(xAxis), np.copy( yAxis )
+        if ( self.config["ax1.x.normalize"] is not None ):
+            xAxis_   = xAxis / self.config["ax1.x.normalize"]
+        if ( self.config["ax2.y.normalize"] is not None ):
+            yAxis_   = yAxis / self.config["ax2.y.normalize"]
         
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax2.plot( xAxis, yAxis , \
+        self.ax2.plot( xAxis_, yAxis_, \
                        color =color , linestyle =linestyle , \
                        label =label , linewidth =linewidth , \
                        marker=marker, markersize=markersize, \
