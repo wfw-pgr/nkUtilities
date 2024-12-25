@@ -1,8 +1,8 @@
 import os, sys, math
-import matplotlib.pyplot            as plt
-import nkUtilities.load__config     as lcf
-import numpy                        as np 
-import matplotlib.ticker            as tic
+import matplotlib.pyplot        as plt
+import nkUtilities.load__config as lcf
+import numpy                    as np 
+import matplotlib.ticker        as tic
 
 # ========================================================= #
 # === 1次元プロット描画用クラス                         === #
@@ -511,6 +511,7 @@ class gplot1D:
                          columnspacing =self.config["legend.columnGap"]   , \
                          handlelength  =self.config["legend.handleLength"], \
                          bbox_to_anchor=bbox_to_anchor )
+        self.ax1.legend.set_zorder(1000)
         
     # ========================================================= #
     # ===  alias ( set__legend )                            === #
