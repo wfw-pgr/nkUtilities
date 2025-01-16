@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+
 import os, sys, json5, argparse, shutil
 import nkUtilities.json__formulaParser as jso
 import pandas as pd
+
 # ========================================================= #
 # ===  translate__json2html                             === #
 # ========================================================= #
@@ -22,7 +24,9 @@ def translate__json2html( data ):
         if ( len(data) == 0):
             return( '<span class="string empty">(Empty Text)</span>\n' )
         else:
-            return( f'<span class="string">{data}</span>\n' )
+            # -- for return -- #
+            data_ = data.replace( "\n", "<br>" )
+            return( f'<span class="string">{data_}</span>\n' )
         
     elif isinstance(data, (int, float)):
         # INT or FLOAT
@@ -73,8 +77,16 @@ def generate__html( html_lines=[],  html_config=None, silent=False ):
     if ( html_config is None ): sys.exit( "[generate__html.py] html_config == ???" )
     title, paramsFile   = None, None
     cssFile, htmlFile   = None, None
+    csvFile             = None
     config              = jso.json__formulaParser( inpFile=html_config )
-    settings, images    = config["settings"], config["images"]
+    if ( "settings" in config ):
+        settings = config["settings"]
+    else:
+        sys.exit( "settings cannot be found in {}".format( html_config ) )
+    if ( "images" in config ):
+        images = config["images"]
+    else:
+        images = {}
     if ( "cssFile"    in settings ): cssFile    = settings[ "cssFile"    ]
     if ( "title"      in settings ): title      = settings[ "title"      ]
     if ( "paramsFile" in settings ): paramsFile = settings[ "paramsFile" ]

@@ -511,7 +511,6 @@ class gplot1D:
                          columnspacing =self.config["legend.columnGap"]   , \
                          handlelength  =self.config["legend.handleLength"], \
                          bbox_to_anchor=bbox_to_anchor )
-        self.ax1.legend.set_zorder(1000)
         
     # ========================================================= #
     # ===  alias ( set__legend )                            === #
