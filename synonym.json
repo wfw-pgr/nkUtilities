@@ -40,8 +40,8 @@
     "plt_xAutoRange"      : "ax1.x.range.auto"      ,
     "plt_yAutoRange"      : "ax1.y.range.auto"      ,
     
-    "plt_xlog"            : "plot.xlog"             ,
-    "plt_ylog"            : "plot.ylog"             ,
+    "plt_xlog"            : "ax1.x.log"             ,
+    "plt_ylog"            : "ax1.y.log"             ,
     "plt_y=0_sw"          : "plot.y=0_sw"           ,
     "plt_y=0_color"       : "plot.y=0_color"        ,
     "plt_y=0_linestyle"   : "plot.y=0_linestyle"    ,

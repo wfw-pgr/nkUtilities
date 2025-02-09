@@ -252,8 +252,8 @@
     // ------------------------------------------------- //
     // --- 目盛設定 / 対数目盛                       --- //
     // ------------------------------------------------- //
-    "plot.xlog"             : false,
-    "plot.ylog"             : false,
+    "ax1.x.log"             : false,
+    "ax1.y.log"             : false,
 
     // ------------------------------------------------- //
     // --- y=0 線 表示設定                           --- //
@@ -288,7 +288,7 @@
     "ax2.y.minor.sw"        : false,
     "ax2.y.minor.nticks"    : 2,
 
-    "ax2.ylog"              : false,
+    "ax2.y.log"             : false,
     "ax2.y.major.noLabel"   : false,
     "ax2.legend.position"   : [0.65,0.75],
     

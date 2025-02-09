@@ -278,7 +278,7 @@ class gplot1D:
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
         #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["ax2.ylog"] ):
+        if ( self.config["ax2.y.log"] ):
             self.ax2.set_yscale("log")
             if ( self.config["ax2.y.major.auto"] ):
                 pass
@@ -371,13 +371,13 @@ class gplot1D:
         # --- 軸目盛 スタイル                           --- #
         # ------------------------------------------------- #
         #  -- 対数表示 ( x,y )                          --  #
-        if ( self.config["plot.xlog"] ):
+        if ( self.config["ax1.x.log"] ):
             self.ax1.set_xscale("log")
             if ( self.config["ax1.x.major.auto"] ):
                 pass
             else:
                 self.ax1.set_xticks( self.config["ax1.x.major.ticks"] )
-        if ( self.config["plot.ylog"] ):
+        if ( self.config["ax1.y.log"] ):
             self.ax1.set_yscale("log")
             if ( self.config["ax1.y.major.auto"] ):
                 pass
