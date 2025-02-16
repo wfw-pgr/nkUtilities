@@ -1,7 +1,7 @@
 import os, sys
 import numpy                        as np
 import matplotlib.pyplot            as plt
-import matplotlib.tri               as tri
+import matplotlib.tri               as mtr
 import matplotlib.ticker            as tic
 import nkUtilities.load__config     as lcf
 import scipy.interpolate            as itp
@@ -19,7 +19,7 @@ class gplot2D:
                   xAxis      = None, yAxis      = None, \
                   cMap       = None, Cntr       = None, \
                   xvec       = None, yvec       = None, \
-                  pngFile    = None, config     = None ):
+                  pngFile    = None, config     = None, tri=True ):
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
@@ -72,7 +72,7 @@ class gplot2D:
         #  -- もし cMap が渡されていたら，即，描く      --  #
         if ( self.cMap is not None ):
             self.add__cMap( xAxis   = self.xAxis, yAxis   = self.yAxis,     \
-                            cMap    = self.cMap,  levels  = self.cmpLevels  )
+                            cMap    = self.cMap,  levels  = self.cmpLevels, tri=tri  )
             if ( self.config["clb_sw"]      ):
                 self.set__colorBar()
             if ( self.config["cmp_pointSW"] ):
@@ -96,7 +96,7 @@ class gplot2D:
     # ========================================================= #
     # === カラーマップ 追加 ルーチン  ( add__cMap )         === #
     # ========================================================= #
-    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None ):
+    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None, tri=True ):
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
@@ -120,9 +120,18 @@ class gplot2D:
         eps = 1.e-10 * abs( self.cmpLevels[-1] - self.cmpLevels[0] )
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0] + eps
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1] - eps
-        triangulated = tri.Triangulation( xAxis_, yAxis_ )
-        self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, alpha=alpha, \
-                                            cmap = self.config["cmp_ColorTable"], zorder=0, extend="both" )
+        if ( tri ):
+            triangulated = mtr.Triangulation( xAxis_, yAxis_ )
+            self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
+                                                alpha=alpha, \
+                                                cmap=self.config["cmp_ColorTable"], \
+                                                zorder=0, extend="both" )
+        else:
+            self.cImage = self.ax1.contourf( xAxis_, yAxis_, self.cMap, self.cmpLevels, \
+                                             alpha=alpha, \
+                                             cmap=self.config["cmp_ColorTable"], \
+                                             zorder=0, extend="both" )
+            
         # ------------------------------------------------- #
         # --- 軸調整 / 最大 / 最小 表示                 --- #
         # ------------------------------------------------- #
@@ -168,7 +177,7 @@ class gplot2D:
         eps = 1.e-10 * abs( self.cntLevels[-1] - self.cntLevels[0] )
         self.Cntr[ np.where( self.Cntr < float( self.cntLevels[ 0] ) ) ] = self.cntLevels[ 0] + eps
         self.Cntr[ np.where( self.Cntr > float( self.cntLevels[-1] ) ) ] = self.cntLevels[-1] - eps
-        triangulated = tri.Triangulation( xAxis_, yAxis_ )
+        triangulated = mtr.Triangulation( xAxis_, yAxis_ )
         # ------------------------------------------------- #
         # --- 等高線をプロット                          --- #
         # ------------------------------------------------- #
@@ -554,5 +563,5 @@ if ( __name__=="__main__" ):
                                      x3MinMaxNum=x3MinMaxNum, returnType = "point" )
     coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
     gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
-             config=config, pngFile="png/gplot2D.png" )
+             config=config, pngFile="png/gplot2D.png", tri=True )
 
