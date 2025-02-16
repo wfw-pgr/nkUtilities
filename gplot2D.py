@@ -19,7 +19,8 @@ class gplot2D:
                   xAxis      = None, yAxis      = None, \
                   cMap       = None, Cntr       = None, \
                   xvec       = None, yvec       = None, \
-                  pngFile    = None, config     = None, tri=True ):
+                  pngFile    = None, config     = None, \
+                  tricontour = True, pcolor     = False ):
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
@@ -71,8 +72,9 @@ class gplot2D:
         instantOut = False
         #  -- もし cMap が渡されていたら，即，描く      --  #
         if ( self.cMap is not None ):
-            self.add__cMap( xAxis   = self.xAxis, yAxis   = self.yAxis,     \
-                            cMap    = self.cMap,  levels  = self.cmpLevels, tri=tri  )
+            self.add__cMap( xAxis     = self.xAxis, yAxis   = self.yAxis,     \
+                            cMap      = self.cMap , levels  = self.cmpLevels, \
+                            tricontour=tricontour , pcolor  = pcolor )
             if ( self.config["clb_sw"]      ):
                 self.set__colorBar()
             if ( self.config["cmp_pointSW"] ):
@@ -96,7 +98,8 @@ class gplot2D:
     # ========================================================= #
     # === カラーマップ 追加 ルーチン  ( add__cMap )         === #
     # ========================================================= #
-    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None, tri=True ):
+    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None, \
+                   tricontour=True, pcolor=False ):
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
@@ -120,7 +123,12 @@ class gplot2D:
         eps = 1.e-10 * abs( self.cmpLevels[-1] - self.cmpLevels[0] )
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0] + eps
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1] - eps
-        if ( tri ):
+        if   ( pcolor ):
+            self.cImage = self.ax1.pcolormesh( xAxis_, yAxis_, self.cMap, \
+                                               alpha=alpha, \
+                                               cmap=self.config["cmp_ColorTable"], \
+                                               zorder=0 )
+        elif ( tricontour ):
             triangulated = mtr.Triangulation( xAxis_, yAxis_ )
             self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
                                                 alpha=alpha, \
@@ -561,13 +569,13 @@ if ( __name__=="__main__" ):
     x2MinMaxNum = [ -1.0, 1.0, 21 ]
     x3MinMaxNum = [  0.0, 0.0,  1 ]
     coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
-                                     x3MinMaxNum=x3MinMaxNum, returnType = "structured" )
-    coord       = np.reshape( coord[0,:,:,:], ( 21, 21, 3 ) )
-    print( coord.shape )
-    coord[:,:,z_] = np.sqrt( coord[:,:,x_]**2 + coord[:,:,y_]**2 )
+                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
+    # coord       = np.reshape( coord[0,:,:,:], ( 21, 21, 3 ) )
+    # print( coord.shape )
+    coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
     
     print( coord.shape )
-    gplot2D( xAxis=coord[:,:,x_], yAxis=coord[:,:,y_], cMap=coord[:,:,z_], \
-             config=config, pngFile="test/gplot2D.png", tri=False )
+    gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
+             config=config, pngFile="test/gplot2D.png", pcolor=False )
 
 
