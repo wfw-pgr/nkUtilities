@@ -80,16 +80,17 @@
     // --- グリッド                                  --- //
     // ------------------------------------------------- //
     //  -- 主グリッド ( ax1.y.major. )  --  //
-    "grid_sw"               : true,
-    "grid_color"            : "gray",
-    "grid_alpha"            : 0.8,
-    "grid_linestyle"        : ":",
-    "grid_linewidth"        : 0.3,
-    "grid_minor_sw"         : true,
-    "grid_minor_color"      : "grey",
-    "grid_minor_style"      : ":",
-    "grid_minor_width"      : 0.2,
-    "grid_minor_alpha"      : 0.8,
+    "grid.major.sw"         : true,
+    "grid.major.color"      : "gray",
+    "grid.major.alpha"      : 0.8,
+    "grid.major.linestyle"  : ":",
+    "grid.major.linewidth"  : 0.3,
+    //  -- サブグリッド ( ax1.y.minor )  --  //
+    "grid.minor.sw"         : true,
+    "grid.minor.color"      : "grey",
+    "grid.minor.linestyle"  : ":",
+    "grid.minor.linewidth"  : 0.2,
+    "grid.minor.alpha"      : 0.8,
 
     // ------------------------------------------------- //
     // --- カーソル                                  --- //
@@ -337,11 +338,4 @@
     "colorbar.cmap"         : "jet",
     "colorbar.pngFile"      : "colorbar.png",
 
-    // ------------------------------------------------- //
-    // --- colorbar generator settings               --- //
-    // ------------------------------------------------- //
-    // obsolete //
-    "yTitle_off"            : false,
-    "yTitle_off"            : false,
-    
 }
