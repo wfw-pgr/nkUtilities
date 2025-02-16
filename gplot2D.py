@@ -127,6 +127,7 @@ class gplot2D:
                                                 cmap=self.config["cmp_ColorTable"], \
                                                 zorder=0, extend="both" )
         else:
+            xAxis_, yAxis_ = np.reshape( xAxis_, cMap.shape ), np.reshape( yAxis_, cMap.shape )
             self.cImage = self.ax1.contourf( xAxis_, yAxis_, self.cMap, self.cmpLevels, \
                                              alpha=alpha, \
                                              cmap=self.config["cmp_ColorTable"], \
@@ -560,8 +561,13 @@ if ( __name__=="__main__" ):
     x2MinMaxNum = [ -1.0, 1.0, 21 ]
     x3MinMaxNum = [  0.0, 0.0,  1 ]
     coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
-                                     x3MinMaxNum=x3MinMaxNum, returnType = "point" )
-    coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
-    gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
-             config=config, pngFile="png/gplot2D.png", tri=True )
+                                     x3MinMaxNum=x3MinMaxNum, returnType = "structured" )
+    coord       = np.reshape( coord[0,:,:,:], ( 21, 21, 3 ) )
+    print( coord.shape )
+    coord[:,:,z_] = np.sqrt( coord[:,:,x_]**2 + coord[:,:,y_]**2 )
+    
+    print( coord.shape )
+    gplot2D( xAxis=coord[:,:,x_], yAxis=coord[:,:,y_], cMap=coord[:,:,z_], \
+             config=config, pngFile="test/gplot2D.png", tri=False )
+
 
