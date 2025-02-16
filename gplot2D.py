@@ -33,8 +33,8 @@ class gplot2D:
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
-        if ( self.config  is     None ): self.config            = lcf.load__config()
-        if ( pngFile      is not None ): self.config["pngFile"] = pngFile
+        if ( self.config  is     None ): self.config = lcf.load__config()
+        if ( pngFile      is not None ): self.config["figure.pngFile"] = pngFile
         # ------------------------------------------------- #
         # --- レベルの設定  ( カラー / コンター )       --- #
         # ------------------------------------------------- #
@@ -90,7 +90,7 @@ class gplot2D:
                               uvec  = self.xvec,  vvec  = self.yvec,  )
         # -- もし 何かを描いてたら，出力する．          --  #
         if ( instantOut ):
-            self.save__figure( pngFile=self.config["pngFile"] )
+            self.save__figure( pngFile=self.config["figure.pngFile"] )
 
             
     # ========================================================= #
