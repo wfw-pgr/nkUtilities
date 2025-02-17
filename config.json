@@ -117,57 +117,42 @@
     // --- カラーマップ                              --- //
     // ------------------------------------------------- //
     //  -- カラー / レベル         --  //
-    "cmp_ColorTable"        : "jet",    // [ jet / bwr / seismic etc. ]
-    "cmp_AutoLevel"         : true,
-    "cmp_nLevels"           : 255,
-    "cmp_MaxMin"            : [-10,+10],
-    //  -- 軸目盛 xticks / yticks  --  //
-    "cmp_xAutoTicks"        : true,
-    "cmp_yAutoTicks"        : true,
-    //  -- 描画位置 / x,y 範囲     --  //
-    "cmp_position"          : [0.12,0.12,0.92,0.90],
-    "cmp_xAutoRange"        : true,
-    "cmp_yAutoRange"        : true,
-    "cmp_xRange"            : [0.0,1.0],
-    "cmp_yRange"            : [0.0,1.0],
-    "cmp_autoAspect"        : false,
-    "cmp_aspectRatio"       : 1.0,
-    //  -- その他                  --  //
-    "cmp_xyTranspose"       : false,
-    "cmp_alpha"             : 1.0,
-
+    "cmp.colortable"        : "jet", 
+    "cmp.level"             : { "auto":true, "min": 0.0, "max":1.0, "num":11 },        
+    "cmp.alpha"             : 1.0,
+    "cmp.cmpmode"           : "tricontourf",         // [ tricontourf, pcolormesh, contourf ]
+    
+    
     // ------------------------------------------------- //
     // --- カラーマップ 用 追加描画機能              --- //
     // ------------------------------------------------- //
     //  -- 点 描画 追加            --  //
-    "cmp_pointSW"           : false,
-    "cmp_pointColor"        : "grey",
-    "cmp_pointMarker"       : "+",
-    "cmp_pointSize"         : 0.5,
-    "cmp_pointWidth"        : 0.3,
+    "cmp.point.sw"           : false,
+    "cmp.point.color"        : "grey",
+    "cmp.point.marker"       : "+",
+    "cmp.point.size"         : 0.5,
+    "cmp.point.width"        : 0.3,
     
     // ------------------------------------------------- //
     // --- コンター マップ                           --- //
     // ------------------------------------------------- //
     //  -- コンター / レベル       --  //
-    "cnt_nLevels"           : 15,
-    "cnt_AutoLevel"         : true,
-    "cnt_MaxMin"            : [-10.0,10.0],
-    //  -- コンター線 色 / 太さ    --  //
-    "cnt_color"             : "grey",
-    "cnt_linewidth"         : 1.0,
+    "cnt.level"             : { "auto":true, "min": 0.0, "max":1.0, "num":11 },
+    "cnt.color"             : "grey",
+    "cnt.linewidth"         : 1.0,
+
+    //  -- contour label           --  //
+    "cnt.label.sw"             : true, 
+    "cnt.label.fontsize"       : 8.0,
 
     // ------------------------------------------------- //
     // --- コンター マップ 用 追加描画機能           --- //
     // ------------------------------------------------- //
     //  -- セパラトリクス描画      --  //
-    "cnt_Separatrix"        : false,
-    "cnt_sepLevel"          : 0.00001,
-    "cnt_sepColor"          : "blue",
-    "cnt_sepLineWidth"      : 1.0,
-    //    cnt.clabel.sw"    : true,
-    "cnt.clabel.sw"         : true, 
-    "cnt.clabel.fontsize"   : 8.0,
+    "cnt.separatrix.sw"        : false,
+    "cnt.separatrix.value"     : 0.00001,
+    "cnt.separatrix.color"     : "blue",
+    "cnt.separatrix.lineWidth" : 1.0,
     
     // ------------------------------------------------- //
     // --- カラーバー                                --- //
@@ -200,20 +185,20 @@
     // --- ベクトル                                  --- //
     // ------------------------------------------------- //
     //  -- ベクトル数設定          --  //
-    "vec_nvec_x"            : 12,
-    "vec_nvec_y"            : 12,
+    "vec.nx"            : 12,
+    "vec.ny"            : 12,
     //  -- ベクトル 色             --  //
-    "vec_color"             : "springgreen",
+    "vec.color"         : "springgreen",
     //  -- ベクトル サイズ         --  //
-    "vec_AutoScale"         : true,
-    "vec_AutoRange"         : true,
-    "vec_scale"             : 0.03,
-    "vec_width"             : 0.01,
-    "vec_headwidth"         : 2.5,
-    "vec_headlength"        : 4.5,
-    "vec_pivot"             : "mid",
-    "vec_interpolation"     : "linear",
-    "vec_AutoScaleRef"      : 8.0,
+    "vec.scale"         : 0.03,
+    "vec.scale.auto"    : true,
+    "vec.scale.ref"     : 8.0,
+    "vec.remap.sw"      : true, 
+    "vec.width"         : 0.01,
+    "vec.head.width"    : 2.5,
+    "vec.head.length"   : 4.5,
+    "vec.pivot"         : "mid",
+    "vec.interpolation" : "linear",
     
 
     

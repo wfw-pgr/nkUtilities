@@ -1,10 +1,11 @@
-import os, sys
-import numpy                        as np
-import matplotlib.pyplot            as plt
-import matplotlib.tri               as mtr
-import matplotlib.ticker            as tic
-import nkUtilities.load__config     as lcf
-import scipy.interpolate            as itp
+import os, sys, math
+import numpy                            as np
+import matplotlib.pyplot                as plt
+import matplotlib.tri                   as mtr
+import matplotlib.ticker                as tic
+import nkUtilities.load__config         as lcf
+import scipy.interpolate                as itp
+import nkUtilities.synonymize__keywords as syn
 
 # ========================================================= #
 # ===  2次元 カラーマップ描画用クラス                   === #
@@ -16,42 +17,30 @@ class gplot2D:
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
     def __init__( self, \
-                  xAxis      = None, yAxis      = None, \
-                  cMap       = None, Cntr       = None, \
-                  xvec       = None, yvec       = None, \
-                  pngFile    = None, config     = None, \
-                  tricontour = True, pcolor     = False ):
+                  xAxis      = None, yAxis  = None, \
+                  cMap       = None, Cntr   = None, \
+                  xvec       = None, yvec   = None, \
+                  pngFile    = None, config = None, \
+                  cmpmode    = None ):
+        
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
-        self.xAxis   = xAxis
-        self.yAxis   = yAxis
-        self.cMap    = cMap
-        self.Cntr    = Cntr
-        self.xvec    = xvec
-        self.yvec    = yvec
-        self.config  = config
+        self.xAxis, self.yAxis = xAxis, yAxis
+        self.cMap , self.Cntr  =  cMap, Cntr
+        self.xvec , self.yvec  =  xvec, yvec
+        self.config            = config
+        
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
         # ------------------------------------------------- #
         if ( self.config  is     None ): self.config = lcf.load__config()
+        synonym = os.path.join( os.path.dirname( os.path.abspath( __file__ ) ), "synonym.json" )
+        self.config = syn.synonymize__keywords( dictionary=self.config, synonym=synonym )
         if ( pngFile      is not None ): self.config["figure.pngFile"] = pngFile
-        # ------------------------------------------------- #
-        # --- レベルの設定  ( カラー / コンター )       --- #
-        # ------------------------------------------------- #
-        self.cmpLevels = np.linspace( self.config["cmp_MaxMin"][0], self.config["cmp_MaxMin"][1],
-                                      self.config["cmp_nLevels"] )
-        self.cntLevels = np.linspace( self.config["cnt_MaxMin"][0], self.config["cnt_MaxMin"][1],
-                                      self.config["cnt_nLevels"] )
-        # ------------------------------------------------- #
-        # --- 描画領域の作成                            --- #
-        # ------------------------------------------------- #
-        #  -- 描画領域                                  --  #
-        cmppos     = self.config["cmp_position"]
-        self.fig   = plt.figure( figsize=self.config["figure.size"] )
-        self.ax1   = self.fig.add_axes( [ cmppos[0], cmppos[1], cmppos[2]-cmppos[0], cmppos[3]-cmppos[1] ] )
-        #  -- 格子の描画 on/off                         --  #
-        if ( self.config["grid.major.sw"] ): self.set__grid()
+        if ( cmpmode      is not None ): self.config["cmp.cmpmode"]    = cmpmode
+        self.configure__rcParams()
+
         # ------------------------------------------------- #
         # --- x軸 - y軸の作成                           --- #
         # ------------------------------------------------- #
@@ -60,12 +49,28 @@ class gplot2D:
             self.xAxis = np.arange( ( self.cMap.shape[0] ) )
         if ( ( self.yAxis is None ) and ( self.cMap is not None ) ):
             self.yAxis = np.arange( ( self.cMap.shape[1] ) )
-        #  -- AutoRange (x)  --  #
-        if ( ( self.config["cmp_xAutoRange"] ) and ( self.xAxis is not None ) ):
-            self.config["cmp_xRange"] = [ np.min( self.xAxis ), np.max( self.xAxis ) ]
-        #  -- AutoRange (y)  --  #
-        if ( ( self.config["cmp_yAutoRange"] ) and ( self.yAxis is not None ) ):
-            self.config["cmp_yRange"] = [ np.min( self.yAxis ), np.max( self.yAxis ) ]
+
+        # ------------------------------------------------- #
+        # --- レベルの設定  ( カラー / コンター )       --- #
+        # ------------------------------------------------- #
+        self.cmpLevels = np.linspace( self.config["cmp.level"]["min"], \
+                                      self.config["cmp.level"]["max"], \
+                                      self.config["cmp.level"]["num"]  )
+        self.cntLevels = np.linspace( self.config["cnt.level"]["min"], \
+                                      self.config["cnt.level"]["max"], \
+                                      self.config["cnt.level"]["num"]  )
+        
+        # ------------------------------------------------- #
+        # --- 描画領域の作成                            --- #
+        # ------------------------------------------------- #
+        #  -- 描画領域                                  --  #
+        cmppos     = self.config["figure.position"]
+        self.fig   = plt.figure( figsize=self.config["figure.size"] )
+        self.ax1   = self.fig.add_axes( [ cmppos[0], cmppos[1], \
+                                          cmppos[2]-cmppos[0], cmppos[3]-cmppos[1] ] )
+        self.set__axis()
+        self.set__grid()
+        
         # ------------------------------------------------- #
         # --- 速攻描画                                  --- #
         # ------------------------------------------------- #
@@ -73,23 +78,23 @@ class gplot2D:
         #  -- もし cMap が渡されていたら，即，描く      --  #
         if ( self.cMap is not None ):
             self.add__cMap( xAxis     = self.xAxis, yAxis   = self.yAxis,     \
-                            cMap      = self.cMap , levels  = self.cmpLevels, \
-                            tricontour=tricontour , pcolor  = pcolor )
+                            cMap      = self.cMap , levels  = self.cmpLevels  )
             if ( self.config["clb_sw"]      ):
                 self.set__colorBar()
-            if ( self.config["cmp_pointSW"] ):
+            if ( self.config["cmp.point.sw"] ):
                 self.add__point( xAxis=self.xAxis, yAxis=self.yAxis )
             instantOut = True
         #  -- もし Cntrが渡されていたら，即，描く       --  #
         if ( self.Cntr is not None ):
             self.add__contour( xAxis   = self.xAxis, yAxis   = self.yAxis,     \
                                Cntr    = self.Cntr,  levels  = self.cntLevels  )
-            if ( self.config["cnt_Separatrix"] ): self.add__separatrix()
+            if ( self.config["cnt.separatrix.sw"] ): self.add__separatrix()
             instantOut = True
         # -- もし xvec, yvec が渡されていたら，即，描く --  #
-        if ( ( self.xvec is not None ) and ( self.yvec is not None ) ):
-            self.add__vector( xAxis = self.xAxis, yAxis = self.yAxis, \
-                              uvec  = self.xvec,  vvec  = self.yvec,  )
+        #  -- revision need -- #
+        # if ( ( self.xvec is not None ) and ( self.yvec is not None ) ):
+        #     self.add__vector( xAxis = self.xAxis, yAxis = self.yAxis, \
+        #                       uvec  = self.xvec,  vvec  = self.yvec,  )
         # -- もし 何かを描いてたら，出力する．          --  #
         if ( instantOut ):
             self.save__figure( pngFile=self.config["figure.pngFile"] )
@@ -98,48 +103,55 @@ class gplot2D:
     # ========================================================= #
     # === カラーマップ 追加 ルーチン  ( add__cMap )         === #
     # ========================================================= #
-    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, levels=None, alpha=None, \
-                   tricontour=True, pcolor=False ):
+    def add__cMap( self, xAxis=None, yAxis=None, cMap=None, \
+                   levels=None, alpha=None, cmpmode=None ):
+        
         # ------------------------------------------------- #
         # --- 引数情報 更新                             --- #
         # ------------------------------------------------- #
         self.xAxis, self.yAxis, self.cMap = xAxis, yAxis, cMap
-        if ( levels is not None ): self.cmpLevels = levels
-        if ( alpha  is     None ): alpha = self.config["cmp_alpha"]
+        if ( levels  is not None ): self.cmpLevels             = levels
+        if ( alpha   is not None ): self.config["cmp.alpha"]   = alpha
+        if ( cmpmode is not None ): self.config["cmp.cmpmode"] = cmpmode
+        
         # ------------------------------------------------- #
         # --- コンター情報を設定する                    --- #
         # ------------------------------------------------- #
-        if ( self.config["cmp_AutoLevel"] ):
+        if ( self.config["cmp.level"]["auto"] ):
             self.set__cmpLevels()
         else:
             self.set__cmpLevels( levels=self.cmpLevels )
+            
         # ------------------------------------------------- #
         # --- 軸情報整形 : 1次元軸 を 各点情報へ変換    --- #
         # ------------------------------------------------- #
         xAxis_, yAxis_ = np.copy( xAxis ), np.copy( yAxis )
+        
         # ------------------------------------------------- #
         # --- カラーマップを作図                        --- #
         # ------------------------------------------------- #
         eps = 1.e-10 * abs( self.cmpLevels[-1] - self.cmpLevels[0] )
         self.cMap[ np.where( self.cMap < float( self.cmpLevels[ 0] ) ) ] = self.cmpLevels[ 0] + eps
         self.cMap[ np.where( self.cMap > float( self.cmpLevels[-1] ) ) ] = self.cmpLevels[-1] - eps
-        if   ( pcolor ):
+        if   ( self.config["cmp.cmpmode"].lower() in [ "pcolor", "pcolormesh" ] ):
             self.cImage = self.ax1.pcolormesh( xAxis_, yAxis_, self.cMap, \
-                                               alpha=alpha, \
-                                               cmap=self.config["cmp_ColorTable"], \
+                                               alpha =self.config["cmp.alpha"], \
+                                               cmap  =self.config["cmp.colortable"], \
                                                zorder=0 )
-        elif ( tricontour ):
+        elif ( self.config["cmp.cmpmode"].lower() in [ "tricontourf" ] ):
             triangulated = mtr.Triangulation( xAxis_, yAxis_ )
             self.cImage = self.ax1.tricontourf( triangulated, self.cMap, self.cmpLevels, \
-                                                alpha=alpha, \
-                                                cmap=self.config["cmp_ColorTable"], \
+                                                alpha =self.config["cmp.alpha"], \
+                                                cmap  =self.config["cmp.colortable"], \
                                                 zorder=0, extend="both" )
-        else:
+        elif ( self.config["cmp.cmpmode"].lower() in [ "contourf" ] ):
             xAxis_, yAxis_ = np.reshape( xAxis_, cMap.shape ), np.reshape( yAxis_, cMap.shape )
             self.cImage = self.ax1.contourf( xAxis_, yAxis_, self.cMap, self.cmpLevels, \
-                                             alpha=alpha, \
-                                             cmap=self.config["cmp_ColorTable"], \
+                                             alpha =self.config["cmp.alpha"], \
+                                             cmap  =self.config["cmp.colortable"], \
                                              zorder=0, extend="both" )
+        else:
+            sys.exit( "[add__cmap] cmp.cmpmode == ??? [tricontourf, pcolormesh, contourf]" )
             
         # ------------------------------------------------- #
         # --- 軸調整 / 最大 / 最小 表示                 --- #
@@ -172,7 +184,7 @@ class gplot2D:
         # ------------------------------------------------- #
         # --- コンター情報を設定する                    --- #
         # ------------------------------------------------- #
-        if ( self.config["cnt_AutoLevel"] ):
+        if ( self.config["cnt.level"]["auto"] ):
             self.set__cntLevels()
         else:
             self.set__cntLevels( levels=self.cntLevels )
@@ -191,8 +203,8 @@ class gplot2D:
         # --- 等高線をプロット                          --- #
         # ------------------------------------------------- #
         self.cImage = self.ax1.tricontour( triangulated, self.Cntr, self.cntLevels, \
-                                           colors     = self.config["cnt_color"], \
-                                           linewidths = self.config["cnt_linewidth"], \
+                                           colors     = self.config["cnt.color"], \
+                                           linewidths = self.config["cnt.linewidth"], \
                                            zorder=1 )
         if ( self.config["cnt.clabel.sw"] ):
             self.ax1.clabel( self.cImage, fontsize=self.config["cnt.clabel.fontsize"] )
@@ -202,41 +214,46 @@ class gplot2D:
     # ========================================================= #
     # ===   ベクトル 追加  ルーチン                         === #
     # ========================================================= #
-    def add__vector( self, xAxis=None, yAxis=None, uvec=None, vvec=None, color=None, order="ji" ):
+    def add__vector( self, xAxis=None, yAxis=None, uvec=None, vvec=None, order="ji" ):
+        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( uvec  is None ): sys.exit("[ERROR] No Information for uvec , vvec  --@add__vector [ERROR]")
-        if ( vvec  is None ): sys.exit("[ERROR] No Information for uvec , vvec  --@add__vector [ERROR]")
-        if ( xAxis is None ): sys.exit("[ERROR] No Information for xAxis, yAxis --@add__vector [ERROR]")
-        if ( yAxis is None ): sys.exit("[ERROR] No Information for yAxis, yAxis --@add__vector [ERROR]")
-        if ( color is None ): color = self.config["vec_color"]
+        if ( uvec  is None ): sys.exit("[add__vector] uvec  == ???")
+        if ( vvec  is None ): sys.exit("[add__vector] vvec  == ???")
+        if ( xAxis is None ): sys.exit("[add__vector] xAxis == ???")
+        if ( yAxis is None ): sys.exit("[add__vector] yAxis == ???")
         if ( order == "ji" ): uvec, vvec = np.transpose( uvec ), np.transpose( vvec )
-        if ( self.config["vec_AutoRange"] ):
-            self.config["vec_xRange"] = self.config["cmp_xRange"]
-            self.config["vec_yRange"] = self.config["cmp_yRange"]
-        # ------------------------------------------------- #
-        # -- 座標系 及びプロット点                       -- #
-        # ------------------------------------------------- #
-        xa     = np.linspace( self.config["vec_xRange"][0], self.config["vec_xRange"][-1], self.config["vec_nvec_x"] )
-        ya     = np.linspace( self.config["vec_yRange"][0], self.config["vec_yRange"][-1], self.config["vec_nvec_y"] )
-        xg,yg  = np.meshgrid( xa, ya )
-        pAxis  = np.concatenate( [ np.ravel( np.copy( xAxis ) )[:,None], np.ravel( np.copy( yAxis ) )[:,None] ], axis=1 )
-        uxIntp = itp.griddata( pAxis, uvec, (xg,yg), method=self.config["vec_interpolation"] )
-        vyIntp = itp.griddata( pAxis, vvec, (xg,yg), method=self.config["vec_interpolation"] )
-        # ------------------------------------------------- #
-        # --- プロット 設定                             --- #
-        # ------------------------------------------------- #
-        if ( self.config["vec_AutoScale"] ):
-            self.config["vec_scale"] = np.sqrt( np.max( uxIntp**2 + vyIntp**2 ) )*self.config["vec_AutoScaleRef"]
-        # ------------------------------------------------- #
-        # -- ベクトルプロット                            -- #
-        # ------------------------------------------------- #
-        self.ax1.quiver( xg, yg, uxIntp, vyIntp, angles='uv', scale_units='xy', \
-                         color     =color, \
-                         pivot     =self.config["vec_pivot"], scale     =self.config["vec_scale"],     \
-                         width     =self.config["vec_width"], headwidth =self.config["vec_headwidth"], \
-                         headlength=self.config["vec_headlength"] )
+
+        ##  -- NEED revision -- ##
+        # # ------------------------------------------------- #
+        # # ---  remap                                    --- #
+        # # ------------------------------------------------- #
+        # if ( self.config["vec.remap.sw"] ):
+        #     self.config["vec_xRange"] = self.config["ax1Range"]
+        #     self.config["vec_yRange"] = self.config["cmp_yRange"]
+        #     xa     = np.linspace( self.config["vec_xRange"][0], self.config["vec_xRange"][-1], self.config["vec_nvec_x"] )
+        #     ya     = np.linspace( self.config["vec_yRange"][0], self.config["vec_yRange"][-1], self.config["vec_nvec_y"] )
+        #     xg,yg  = np.meshgrid( xa, ya )
+        #     pAxis  = np.concatenate( [ np.ravel( np.copy( xAxis ) )[:,None], np.ravel( np.copy( yAxis ) )[:,None] ], axis=1 )
+        #     uxIntp = itp.griddata( pAxis, uvec, (xg,yg), method=self.config["vec.interpolation"] )
+        #     vyIntp = itp.griddata( pAxis, vvec, (xg,yg), method=self.config["vec.interpolation"] )
+
+        # # ------------------------------------------------- #
+        # # --- プロット 設定                             --- #
+        # # ------------------------------------------------- #
+        # if ( self.config["vec.scale.auto"] ):
+        #     self.config["vec.scale"] = np.sqrt( np.max( uxIntp**2 + vyIntp**2 ) ) \
+        #         * self.config["vec.scale.ref"]
+
+        # # ------------------------------------------------- #
+        # # -- ベクトルプロット                            -- #
+        # # ------------------------------------------------- #
+        # self.ax1.quiver( xg, yg, uxIntp, vyIntp, angles='uv', scale_units='xy', \
+        #                  color=self.config["vec.color"], scale=self.config["vec.scale"], \
+        #                  width=self.config["vec.width"], pivot=self.config["vec.pivot"], \
+        #                  headwidth =self.config["vec.headwidth"], \
+        #                  headlength=self.config["vec.headlength"] )
 
 
     # ========================================================= #
@@ -248,37 +265,39 @@ class gplot2D:
         # ------------------------------------------------- #
         if ( xAxis      is None ): xAxis      = 0
         if ( yAxis      is None ): yAxis      = 0
-        if ( color      is None ): color      = self.config["cmp_pointColor"]
-        if ( marker     is None ): marker     = self.config["cmp_pointMarker"]
+        if ( color      is None ): color      = self.config["cmp.point.color"]
+        if ( marker     is None ): marker     = self.config["cmp.point.marker"]
         # ------------------------------------------------- #
         # --- 点 描画                                   --- #
         # ------------------------------------------------- #
         self.ax1.plot( xAxis, yAxis, marker=marker, color=color, \
-                       markersize     =self.config["cmp_pointSize"], \
-                       markeredgewidth=self.config["cmp_pointWidth"], \
+                       markersize     =self.config["cmp.point.size"], \
+                       markeredgewidth=self.config["cmp.point.width"], \
                        linewidth      =0.0 )
 
 
     # ========================================================= #
     # ===  プロット 追加                                    === #
     # ========================================================= #
-    def add__plot( self, xAxis=None, yAxis=None, label=None, color=None, linestyle=None, linewidth=None, marker=None ):
+    def add__plot( self, xAxis=None, yAxis=None, label=None, color=None, \
+                   linestyle=None, linewidth=None, marker=None, alpha=0.95 ):
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
         if ( yAxis     is None ): yAxis     = self.yAxis
         if ( xAxis     is None ): xAxis     = self.xAxis
-        if ( yAxis     is None ): sys.exit( " [USAGE] add__plot( xAxis=xAxis, yAxis=yAxis ) [USAGE] " )
-        if ( xAxis     is None ): xAxis     = np.arange( yAxis.size )   # - x は y サイズで代用可 - #
+        if ( yAxis     is None ): sys.exit( " [USAGE] add__plot( xAxis=xAxis, yAxis=yAxis )")
+        if ( xAxis     is None ): xAxis     = np.arange( yAxis.size ) # - xはyサイズで代用 - #
         if ( label     is None ): label     = ' '
-        if ( linewidth is None ): linewidth = self.config["plt_linewidth"]
-        if ( marker    is None ): marker    = self.config["plt_marker"]
-        if ( color     is None ): color     = self.config["plt_color"]
+        if ( linewidth is None ): linewidth = self.config["plot.linewidth"]
+        if ( marker    is None ): marker    = self.config["plot.marker"]
+        if ( color     is None ): color     = self.config["plot.color"]
+        if ( alpha     is None ): alpha     = self.config["plot.alpha"]
         # ------------------------------------------------- #
         # --- プロット                                  --- #
         # ------------------------------------------------- #
         self.ax1.plot( xAxis, yAxis, \
-                       alpha =0.95,  marker=marker, \
+                       alpha =alpha,  marker=marker, \
                        label =label, linewidth=linewidth, \
                        color =color, linestyle=linestyle, )
     
@@ -293,11 +312,12 @@ class gplot2D:
         if ( xAxis      is None ): xAxis      = self.xAxis
         if ( yAxis      is None ): yAxis      = self.yAxis
         if ( mask       is None ): mask       = self.Cntr / np.max( self.Cntr )
-        if ( separatrix is None ): separatrix = self.config["cnt_sepLevel"]
+        if ( separatrix is None ): separatrix = self.config["cnt.separatrix.value"]
         # ------------------------------------------------- #
         #  -- レベル 作成                               --  #
         # ------------------------------------------------- #
-        sepLevels = [ separatrix ]
+        if ( type( separatrix ) is not list or type( separatrix ) is not np.ndarray ):
+            sepLevels = [ separatrix ]
         # ------------------------------------------------- #
         # --- 軸情報整形 : 1次元軸 を 各点情報へ変換    --- #
         # ------------------------------------------------- #
@@ -309,89 +329,176 @@ class gplot2D:
         # --- セパラトリクス 描画                       --- #
         # ------------------------------------------------- #
         self.ax1.contour( xAxis_, yAxis_, mask, sepLevels, \
-                          color     = self.config["cnt_sepColor"], \
-                          linewidth = self.config["cnt_sepLineWidth"]  )
+                          color     = self.config["cnt.separatrix.color"], \
+                          linewidth = self.config["cnt.separatrix.linewidth"]  )
 
         
     # ========================================================= #
     # === 軸設定用ルーチン                                  === #
     # ========================================================= #
-    def set__axis( self ):
-        # ------------------------------------------------- #
-        # --- AutoRange, AutoTicks モード (データ取得)  --- #
-        # ------------------------------------------------- #
-        if ( ( self.config["cmp_xAutoRange"] ) and ( self.xAxis is not None ) ):
-            self.config["cmp_xRange"] = [ np.min(self.xAxis ), np.max( self.xAxis ) ]
-        if ( ( self.config["cmp_yAutoRange"] ) and ( self.yAxis is not None ) ):
-            self.config["cmp_yRange"] = [ np.min(self.yAxis ), np.max( self.yAxis ) ]
-        # ------------------------------------------------- #
-        # --- プロット範囲の指定 ( xlim, ylim 設定 )    --- #
-        # ------------------------------------------------- #
-        self.ax1.set_xlim( self.config["cmp_xRange"][0], self.config["cmp_xRange"][1] )
-        self.ax1.set_ylim( self.config["cmp_yRange"][0], self.config["cmp_yRange"][1] )
-        # ------------------------------------------------- #
-        # ---  アスペクト比                             --- #
-        # ------------------------------------------------- #
-        if ( self.config["cmp_autoAspect"] ):
-            xleft, xright                  = self.ax1.get_xlim()
-            ybottom, ytop                  = self.ax1.get_ylim()
-            self.config["cmp_aspectRatio"] = abs( (ytop-ybottom) / (xright-xleft) )
-        self.ax1.set_aspect( self.config["cmp_aspectRatio"] )
+    def set__axis( self, xRange=None, yRange=None ):
 
         # ------------------------------------------------- #
-        # --- 軸目盛 設定                               --- #
+        # --- 自動レンジ調整   ( 優先順位 2 )           --- #
         # ------------------------------------------------- #
-        #  -- 整数  軸目盛り                            --  #
-        xtick_dtype = np.int32 if ( self.config["ax1.x.major.integer"] ) else np.float64
-        ytick_dtype = np.int32 if ( self.config["ax1.y.major.integer"] ) else np.float64
-        #  -- 自動 / 手動 軸目盛り (x)                  --  #
-        if ( self.config["cmp_xAutoTicks"] ):
-            xMin, xMax = self.ax1.get_xlim()
-            self.ax1.set_xticks( np.linspace( xMin, xMax, self.config["ax1.x.major.nticks"], \
-                                              dtype=xtick_dtype ) )
-        else:
-            self.ax1.set_xticks( np.array(self.config["ax1.x.major.ticks"],dtype=xtick_dtype) )
-        #  -- 自動 / 手動 軸目盛り (y)                  --  #
-        if ( self.config["cmp_yAutoTicks"] ):
-            yMin, yMax            = self.ax1.get_ylim()
-            self.ax1.set_yticks( np.linspace( yMin, yMax, self.config["ax1.y.major.nticks"], \
-                                              dtype=ytick_dtype ) )
-        else:
-            self.ax1.set_yticks( np.array(self.config["ax1.y.major.nticks"],dtype=ytick_dtype) )
+        #  -- オートレンジ (x)                          --  #
+        if ( ( self.config["ax1.x.range"]["auto"] ) and ( self.xAxis is not None ) ):
+            vMin, vMax  = np.min( self.xAxis ), np.max( self.xAxis )
+            ret         = self.auto__griding( vMin =vMin, vMax=vMax, \
+                                              nGrid=self.config["ax1.x.range"]["num"] )
+            self.config["ax1.x.range"]["min"] = ret[0]
+            self.config["ax1.x.range"]["max"] = ret[1]
+        #  -- オートレンジ (y)                          --  #
+        if ( ( self.config["ax1.y.range"]["auto"] ) and ( self.yAxis is not None ) ):
+            vMin, vMax  = np.min( self.yAxis ), np.max( self.yAxis )
+            ret         = self.auto__griding( vMin =vMin, vMax=vMax, \
+                                              nGrid=self.config["ax1.y.range"]["num"] )
+            self.config["ax1.y.range"]["min"] = ret[0]
+            self.config["ax1.y.range"]["max"] = ret[1]
+
         # ------------------------------------------------- #
-        # --- 目盛 スタイル 設定                        --- #
+        # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
         # ------------------------------------------------- #
-        self.ax1.tick_params( axis  ="x", labelsize=self.config["ax1.x.major.fontsize"], \
-                              length=self.config["ax1.x.major.length"], \
-                              width =self.config["ax1.x.major.width" ]  )
-        self.ax1.tick_params( axis  ="y", labelsize=self.config["ax1.y.major.fontsize"], \
-                              length=self.config["ax1.y.major.length"], \
-                              width =self.config["ax1.y.major.width" ]  )
-        
-        #  -- Minor 軸目盛                              --  #
-        if ( self.config["ax1.x.minor.sw"] is False ): self.config["ax1.x.minor.nticks"] = 1
-        if ( self.config["ax1.y.minor.sw"] is False ): self.config["ax1.y.minor.nticks"] = 1
-        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.x.minor.nticks"] ) )
-        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.y.minor.nticks"] ) )
+        if ( xRange is not None ):
+            self.config["ax1.x.range"]["min"] = xRange[0]
+            self.config["ax1.x.range"]["max"] = xRange[1]
+        if ( yRange is not None ):
+            self.config["ax1.y.range"]["min"] = yRange[0]
+            self.config["ax1.y.range"]["max"] = yRange[1]
+        self.ax1.set_xlim( self.config["ax1.x.range"]["min"],
+                           self.config["ax1.x.range"]["max"] )
+        self.ax1.set_ylim( self.config["ax1.y.range"]["min"],
+                           self.config["ax1.y.range"]["max"] )
+
         # ------------------------------------------------- #
-        # --- 軸目盛 無し                               --- #
-        # ------------------------------------------------- #
-        if ( self.config["ax1.x.major.off"] ): self.ax1.get_xaxis().set_ticks([])
-        if ( self.config["ax1.y.major.off"] ): self.ax1.get_yaxis().set_ticks([])
-        # ------------------------------------------------- #
-        # --- 軸目盛 ラベル 無し                        --- #
-        # ------------------------------------------------- #
-        if ( self.config["ax1.x.major.noLabel"] ):
-            self.ax1.set_xticklabels( ['' for i in self.ax1.get_xaxis().get_ticklocs()])
-        if ( self.config["ax1.y.major.noLabel"] ):
-            self.ax1.set_yticklabels( ['' for i in self.ax1.get_yaxis().get_ticklocs()])
-        # ------------------------------------------------- #
-        # --- 軸タイトル 設定 ( xlabel, ylabel )        --- #
+        # --- 軸タイトル 設定                           --- #
         # ------------------------------------------------- #
         self.ax1.set_xlabel( self.config["ax1.x.label"], \
                              fontsize=self.config["ax1.x.label.fontsize"] )
         self.ax1.set_ylabel( self.config["ax1.y.label"], \
                              fontsize=self.config["ax1.y.label.fontsize"] )
+
+        # ------------------------------------------------- #
+        # --- 目盛を調整する                            --- #
+        # ------------------------------------------------- #
+        self.set__ticks()
+
+
+    # ========================================================= #
+    # ===  軸目盛 設定 ルーチン                             === #
+    # ========================================================= #
+    def set__ticks( self ):
+
+        # ------------------------------------------------- #
+        # --- 軸目盛 自動調整                           --- #
+        # ------------------------------------------------- #
+        #  -- 軸目盛 整数設定                           --  #
+        xtick_dtype     = np.int32 if ( self.config["ax1.x.major.integer"] ) else np.float64
+        ytick_dtype     = np.int32 if ( self.config["ax1.y.major.integer"] ) else np.float64
+        #  -- 軸目盛 自動調整 (x)                       --  #
+        if ( self.config["ax1.x.major.auto"] ):
+            xMin, xMax  = self.ax1.get_xlim()
+            self.xticks = np.linspace( xMin, xMax, self.config["ax1.x.range"]["num"], \
+                                       dtype=xtick_dtype  )
+        else:
+            self.xticks = np.array( self.config["ax1.x.major.ticks"], dtype=xtick_dtype )
+        #  -- 軸目盛 自動調整 (y)                       --  #
+        if ( self.config["ax1.y.major.auto"] ):
+            yMin, yMax  = self.ax1.get_ylim()
+            self.yticks = np.linspace( yMin, yMax, self.config["ax1.y.range"]["num"], \
+                                       dtype=ytick_dtype  )
+        else:
+            self.yticks = np.array( self.config["ax1.y.major.ticks"], dtype=ytick_dtype )
+        #  -- Minor 軸目盛                              --  #
+        if ( self.config["ax1.x.minor.sw"] is False ): self.config["ax1.x.minor.nticks"] = 1
+        if ( self.config["ax1.y.minor.sw"] is False ): self.config["ax1.y.minor.nticks"] = 1
+        self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.x.minor.nticks"] ) )
+        self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.y.minor.nticks"] ) )
+        #  -- 軸目盛 調整結果 反映                      --  #
+        self.ax1.set_xticks( self.xticks )
+        self.ax1.set_yticks( self.yticks )
+        # ------------------------------------------------- #
+        # --- 軸目盛 スタイル                           --- #
+        # ------------------------------------------------- #
+        #  -- 対数表示 ( x,y )                          --  #
+        if ( self.config["ax1.x.log"] ):
+            self.ax1.set_xscale("log")
+            if ( self.config["ax1.x.major.auto"] ):
+                pass
+            else:
+                self.ax1.set_xticks( self.config["ax1.x.major.ticks"] )
+        if ( self.config["ax1.y.log"] ):
+            self.ax1.set_yscale("log")
+            if ( self.config["ax1.y.major.auto"] ):
+                pass
+            else:
+                self.ax1.set_yticks( self.config["ax1.y.major.ticks"] )
+        #  -- 軸スタイル (x)                            --  #
+        self.ax1.tick_params( axis  ="x", labelsize=self.config["ax1.x.major.fontsize"], \
+                              length=self.config["ax1.x.major.length"], \
+                              width =self.config["ax1.x.major.width"])
+        #  -- 軸スタイル (y)                            --  #
+        self.ax1.tick_params( axis  ="y", labelsize=self.config["ax1.y.major.fontsize"], \
+                              length=self.config["ax1.y.major.length"], \
+                              width =self.config["ax1.y.major.width"])
+        # ------------------------------------------------- #
+        # --- 軸目盛  オフ                              --- #
+        # ------------------------------------------------- #
+        if ( self.config["ax1.x.major.noLabel"] ):
+            self.ax1.set_xticklabels( ['' for i in self.ax1.get_xaxis().get_ticklocs()])
+        if ( self.config["ax1.y.major.noLabel"] ):
+            self.ax1.set_yticklabels( ['' for i in self.ax1.get_yaxis().get_ticklocs()])
+
+
+
+        # # ------------------------------------------------- #
+        # # --- 軸目盛 設定                               --- #
+        # # ------------------------------------------------- #
+        # #  -- 整数  軸目盛り                            --  #
+        # xtick_dtype = np.int32 if ( self.config["ax1.x.major.integer"] ) else np.float64
+        # ytick_dtype = np.int32 if ( self.config["ax1.y.major.integer"] ) else np.float64
+        # #  -- 自動 / 手動 軸目盛り (x)                  --  #
+        # if ( self.config["cmp_xAutoTicks"] ):
+        #     xMin, xMax = self.ax1.get_xlim()
+        #     self.ax1.set_xticks( np.linspace( xMin, xMax, self.config["ax1.x.major.nticks"], \
+        #                                       dtype=xtick_dtype ) )
+        # else:
+        #     self.ax1.set_xticks( np.array(self.config["ax1.x.major.ticks"],dtype=xtick_dtype) )
+        # #  -- 自動 / 手動 軸目盛り (y)                  --  #
+        # if ( self.config["cmp_yAutoTicks"] ):
+        #     yMin, yMax            = self.ax1.get_ylim()
+        #     self.ax1.set_yticks( np.linspace( yMin, yMax, self.config["ax1.y.major.nticks"], \
+        #                                       dtype=ytick_dtype ) )
+        # else:
+        #     self.ax1.set_yticks( np.array(self.config["ax1.y.major.nticks"],dtype=ytick_dtype) )
+            
+        # # ------------------------------------------------- #
+        # # --- 目盛 スタイル 設定                        --- #
+        # # ------------------------------------------------- #
+        # self.ax1.tick_params( axis  ="x", labelsize=self.config["ax1.x.major.fontsize"], \
+        #                       length=self.config["ax1.x.major.length"], \
+        #                       width =self.config["ax1.x.major.width" ]  )
+        # self.ax1.tick_params( axis  ="y", labelsize=self.config["ax1.y.major.fontsize"], \
+        #                       length=self.config["ax1.y.major.length"], \
+        #                       width =self.config["ax1.y.major.width" ]  )
+        
+        # #  -- Minor 軸目盛                              --  #
+        # if ( self.config["ax1.x.minor.sw"] is False ): self.config["ax1.x.minor.nticks"] = 1
+        # if ( self.config["ax1.y.minor.sw"] is False ): self.config["ax1.y.minor.nticks"] = 1
+        # self.ax1.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.x.minor.nticks"] ) )
+        # self.ax1.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["ax1.y.minor.nticks"] ) )
+        # # ------------------------------------------------- #
+        # # --- 軸目盛 無し                               --- #
+        # # ------------------------------------------------- #
+        # if ( self.config["ax1.x.major.off"] ): self.ax1.get_xaxis().set_ticks([])
+        # if ( self.config["ax1.y.major.off"] ): self.ax1.get_yaxis().set_ticks([])
+        # # ------------------------------------------------- #
+        # # --- 軸目盛 ラベル 無し                        --- #
+        # # ------------------------------------------------- #
+        # if ( self.config["ax1.x.major.noLabel"] ):
+        #     self.ax1.set_xticklabels( ['' for i in self.ax1.get_xaxis().get_ticklocs()])
+        # if ( self.config["ax1.y.major.noLabel"] ):
+        #     self.ax1.set_yticklabels( ['' for i in self.ax1.get_yaxis().get_ticklocs()])
 
         
     # ========================================================= #
@@ -401,7 +508,7 @@ class gplot2D:
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( nLevels is None ): nLevels = self.config["cmp_nLevels"]
+        if ( nLevels is None ): nLevels = self.config["cmp.level"]["num"]
         if (  levels is None ):
             minVal, maxVal  = np.min( self.cMap ), np.max( self.cMap )
             eps             = 1.0e-12
@@ -425,7 +532,7 @@ class gplot2D:
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( nLevels is None ): nLevels = self.config["cnt_nLevels"]
+        if ( nLevels is None ): nLevels = self.config["cnt.level"]["num"]
         if (  levels is None ):
             minVal, maxVal  = np.min( self.Cntr ), np.max( self.Cntr )
             levels          = np.linspace( minVal, maxVal, nLevels )
@@ -465,7 +572,7 @@ class gplot2D:
             clbax.get_yaxis().set_ticks([])
             self.myCbl  = clbax.contourf( self.cmpLevels, [0.0,1.0], clbdata, \
                                           self.cmpLevels, zorder=0, \
-                                          cmap = self.config["cmp_ColorTable"] )
+                                          cmap = self.config["cmp.colortable"] )
         # ------------------------------------------------- #
         # --- 縦向き カラーバーの描画                   --- #
         # ------------------------------------------------- #        
@@ -483,7 +590,7 @@ class gplot2D:
             clbax.yaxis.tick_right()
             self.myCbl  = clbax.contourf( [0.0,1.0], self.cmpLevels, np.transpose( clbdata ), \
                                           self.cmpLevels, zorder=0, \
-                                          cmap = self.config["cmp_ColorTable"] )
+                                          cmap = self.config["cmp.colortable"] )
         # ------------------------------------------------- #
         # --- カラーバー タイトル 追加                  --- #
         # ------------------------------------------------- #        
@@ -494,6 +601,7 @@ class gplot2D:
                          ctitle, fontsize=self.config["clb_title_size"] )
             textax.set_axis_off()
 
+            
     # ========================================================= #
     # ===  グリッド / y=0 軸線 追加                         === #
     # ========================================================= #
@@ -521,6 +629,43 @@ class gplot2D:
                            linewidth=self.config["grid.minor.linewidth"]  )
 
     # ========================================================= #
+    # ===  軸の値 自動算出ルーチン                          === #
+    # ========================================================= #
+    def auto__griding( self, vMin=None, vMax=None, nGrid=5 ):
+
+        eps = 1.e-8
+
+        # ------------------------------------------------- #
+        # --- check Arguments                           --- #
+        # ------------------------------------------------- #
+        if ( vMax  <  vMin ):
+            sys.exit( "[auto__griding] ( vMin,vMax ) == ( {0},{1} ) ??? ".format( vMin, vMax ) )
+        if ( nGrid <= 0 ):
+            sys.exit( "[auto__griding] nGrid == {0} ??? ".format( nGrid ) )
+        if ( vMin == vMax  ):
+            return( [ vMin-eps, vMax+eps] )
+            
+        # ------------------------------------------------- #
+        # --- auto grid making                          --- #
+        # ------------------------------------------------- #
+        minimum_tick = ( vMax - vMin ) / float( nGrid )
+        magnitude    = 10**( math.floor( math.log( minimum_tick, 10 ) ) )
+        significand  = minimum_tick / magnitude
+        if   ( significand > 5    ):
+            grid_size = 10 * magnitude
+        elif ( significand > 2    ):
+            grid_size =  5 * magnitude
+        elif ( significand > 1    ):
+            grid_size =  2 * magnitude
+        else:
+            grid_size =  1 * magnitude
+        tick_below   = grid_size * math.floor( vMin / grid_size ) 
+        tick_above   = grid_size * math.ceil ( vMax / grid_size )
+        return( [ tick_below, tick_above, nGrid ] )
+        
+
+            
+    # ========================================================= #
     # ===  ファイル 保存                                    === #
     # ========================================================= #
     def save__figure( self, pngFile=None, dpi=None, transparent=None, minimal=None ):
@@ -547,6 +692,80 @@ class gplot2D:
         # plt.close()
         return()
 
+    # ========================================================= #
+    # ===  configure__rcParams                              === #
+    # ========================================================= #
+    def configure__rcParams( self ):
+        
+        # ------------------------------------------------- #
+        # --- 全体設定                                  --- #
+        # ------------------------------------------------- #
+        # plt.style.use('seaborn-white')
+        plt.rcParams['figure.dpi']             = self.config["figure.dpi"]
+
+        # ------------------------------------------------- #
+        # --- 画像 サイズ / 余白 設定                   --- #
+        # ------------------------------------------------- #
+        # -- 相対座標  --  #
+        plt.rcParams['figure.subplot.left']    = 0.0
+        plt.rcParams['figure.subplot.bottom']  = 0.0
+        plt.rcParams['figure.subplot.right']   = 1.0
+        plt.rcParams['figure.subplot.top']     = 1.0
+        plt.rcParams['figure.subplot.wspace']  = 0.0
+        plt.rcParams['figure.subplot.hspace']  = 0.0
+        # -- 余白設定  --  #
+        plt.rcParams['axes.xmargin']           = 0
+        plt.rcParams['axes.ymargin']           = 0
+        
+        # ------------------------------------------------- #
+        # --- フォント 設定                             --- #
+        # ------------------------------------------------- #
+        # -- フォント 種類                              --  #
+        plt.rcParams['font.family']            = self.config["figure.fontname"]
+        plt.rcParams['font.serif']             = self.config["figure.fontname"]
+        plt.rcParams['mathtext.fontset']       = self.config["figure.mathfont"]
+        # -- other settings                         --  #
+        #     :: 'dejavusans', 'cm', 'custom'       ::  #
+        #     :: 'stix', 'stixsans', 'dejavuserif'  ::  #
+        # --                                        --  #
+        # -- 通常 フォント                          --  #
+        plt.rcParams['font.size']              = self.config["figure.font.size"]
+        # -- 軸タイトル                             --  #
+        plt.rcParams['axes.labelsize']         = self.config["figure.font.size"]
+        plt.rcParams['axes.labelweight']       = 'regular'
+        
+        # ------------------------------------------------- #
+        # --- 目盛 設定 ( xticks, yticks )              --- #
+        # ------------------------------------------------- #
+        # -- 目盛線向き :: 内向き('in'), 外向き('out')   -- #
+        # --            :: 双方向か('inout')             -- #
+        # -- xTicks -- #
+        plt.rcParams['xtick.direction']        = 'in'
+        plt.rcParams['xtick.bottom']           = True
+        plt.rcParams['xtick.top']              = True
+        plt.rcParams['xtick.major.size']       = self.config["ax1.x.major.size"]
+        plt.rcParams['xtick.major.width']      = self.config["ax1.x.major.width"]
+        plt.rcParams['xtick.minor.size']       = self.config["ax1.x.minor.size"]
+        plt.rcParams['xtick.minor.width']      = self.config["ax1.x.minor.width"]
+        plt.rcParams['xtick.minor.visible']    = self.config["ax1.x.minor.sw"]
+        # -- yTicks -- #
+        plt.rcParams['ytick.direction']        = 'in'
+        plt.rcParams['ytick.left']             = True
+        plt.rcParams['ytick.right']            = True
+        plt.rcParams['ytick.major.size']       = self.config["ax1.y.major.size"]
+        plt.rcParams['ytick.major.width']      = self.config["ax1.y.major.width"]
+        plt.rcParams['ytick.minor.visible']    = self.config["ax1.y.minor.sw"]
+        plt.rcParams['ytick.minor.size']       = self.config["ax1.y.minor.size"]
+        plt.rcParams['ytick.minor.width']      = self.config["ax1.y.minor.width"]
+        
+        # ------------------------------------------------- #
+        # --- プロット線 / 軸 の線の太さ                --- #
+        # ------------------------------------------------- #
+        plt.rcParams['lines.linewidth']        = self.config["plot.linewidth"]
+        plt.rcParams['axes.linewidth']         = self.config["figure.axes.linewidth"]
+        return()
+
+    
 # ========================================================= #
 # ===   Execution of Pragram                            === #
 # ========================================================= #
@@ -570,12 +789,16 @@ if ( __name__=="__main__" ):
     x3MinMaxNum = [  0.0, 0.0,  1 ]
     coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
                                      x3MinMaxNum=x3MinMaxNum, returnType = "point" )
-    # coord       = np.reshape( coord[0,:,:,:], ( 21, 21, 3 ) )
-    # print( coord.shape )
     coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
     
     print( coord.shape )
     gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
-             config=config, pngFile="test/gplot2D.png", pcolor=False )
+             config=config, pngFile="test/gplot2D.png", cmpmode="tricontourf" )
 
-
+    # ------------------------------------------------- #
+    # --- [3] generate profile 2                    --- #
+    # ------------------------------------------------- #
+    shape = (21,21,3)
+    coord = np.reshape( coord, shape )
+    gplot2D( xAxis=coord[:,:,x_], yAxis=coord[:,:,y_], cMap=coord[:,:,z_], \
+             config=config, pngFile="test/pcolor.png", cmpmode="pcolormesh" )
