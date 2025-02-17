@@ -70,37 +70,6 @@ def make__colorbar( cmap    =None, nlevels=None, config     =None, \
     fig    = gp2.gplot2D( xAxis=xAxis, yAxis=yAxis, cMap=Data, config=config )
 
     
-    
-    # # ------------------------------------------------- #
-    # # --- [2] plot region                           --- #
-    # # ------------------------------------------------- #
-    # fig     = plt.figure( figsize=figsize )
-    # ax1     = fig.add_axes( [ position[0], position[1], \
-    #                           position[2]-position[0], position[3]-position[1] ] )
-    # if   ( orientation.lower() == "horizontal" ):
-    #     Data    = np.array( [ [ 0.0,1.0 ], [0.0,1.0] ]  )
-    # elif ( orientation.lower() == "vertical"   ):
-    #     Data    = np.array( [ [ 0.0,0.0 ], [1.0,1.0] ]  )
-    # levels  = np.linspace( 0.0, 1.0, nlevels )
-    
-    # # ------------------------------------------------- #
-    # # --- [3] axis settings                         --- #
-    # # ------------------------------------------------- #
-    # ax1.set_xlim( [ 0.0, 1.0] )
-    # ax1.set_ylim( [ 0.0, 1.0] )
-    # ax1.get_xaxis().set_ticks([])
-    # ax1.get_yaxis().set_ticks([])
-
-    # # ------------------------------------------------- #
-    # # --- [4] draw color bar                        --- #
-    # # ------------------------------------------------- #
-    # ax1.contourf( [ 0.0,1.0 ], [0.0,1.0], Data, levels, cmap=cmap )
-        
-    # # ------------------------------------------------- #
-    # # --- [6] output .png file                      --- #
-    # # ------------------------------------------------- #
-    # fig.savefig( pngFile, dpi=dpi, pad_inches=0 )
-    # return()
 
 # ========================================================= #
 # ===   Execution of Pragram                            === #
