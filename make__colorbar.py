@@ -10,7 +10,7 @@ import nkUtilities.gplot2D      as gp2
 
 def make__colorbar( cmap    =None, nlevels=None, config     =None, \
                     position=None, figsize=None, orientation=None, \
-                    pngFile =None ):
+                    pngFile =None, nticks_x=None, nticks_y=None ):
 
     # ------------------------------------------------- #
     # --- [1] arguments                             --- #
@@ -22,14 +22,16 @@ def make__colorbar( cmap    =None, nlevels=None, config     =None, \
         xAxis    = np.array( [ 0.0, 1.0, 0.0, 1.0 ] )
         yAxis    = np.array( [ 0.0, 0.0, 1.0, 1.0 ] )
         Data     = xAxis
-        nticks_x = config["clb.x.major.nticks"]
+        if ( nticks_x is None ):
+            nticks_x = config["clb.x.major.nticks"]
         nticks_y = 1
         if ( position is None ): position = [ 0.10, 0.10, 0.90, 0.90 ]
     elif ( orientation.lower() in [ "v", "vertical"   ] ):
         xAxis    = np.array( [ 0.0, 1.0, 0.0, 1.0 ] )
         yAxis    = np.array( [ 0.0, 0.0, 1.0, 1.0 ] )
         Data     = yAxis
-        nticks_y = config["clb.y.major.nticks"]
+        if ( nticks_y is None ):
+            nticks_y = config["clb.y.major.nticks"]
         nticks_x = 1
         if ( position is None ): position = [ 0.10, 0.10, 0.90, 0.90 ]
         
@@ -43,13 +45,14 @@ def make__colorbar( cmap    =None, nlevels=None, config     =None, \
     # ------------------------------------------------- #
     # --- [2] gplot2d                               --- #
     # ------------------------------------------------- #
-    config   = lcf.load__config()
     config_  = {
         "figure.size"        : figsize,
         "figure.pngFile"     : pngFile, 
         "figure.position"    : position,
         "ax1.x.range"        : { "auto":False, "min": 0.0, "max":1.0, "num":nticks_x },
         "ax1.y.range"        : { "auto":False, "min": 0.0, "max":1.0, "num":nticks_y },
+        "ax1.x.minor.nticks" : 1, 
+        "ax1.y.minor.nticks" : 1, 
         "ax1.x.label"        : "", 
         "ax1.y.label"        : "", 
         "ax1.x.major.noLabel": True, 
@@ -76,5 +79,11 @@ def make__colorbar( cmap    =None, nlevels=None, config     =None, \
 # ========================================================= #
 
 if ( __name__=="__main__" ):
-    make__colorbar( pngFile="test/colorbar.png" )
+    pngFile     = "test/colorbar.png"
+    nlevels     = 255
+    orientation = "v"
+    figsize     = [1,5]
+    nticks_y    = 7
+    make__colorbar( pngFile=pngFile, orientation=orientation, figsize=figsize, \
+                    nlevels=nlevels, nticks_y=nticks_y )
 
