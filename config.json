@@ -158,29 +158,28 @@
     // --- カラーバー                                --- //
     // ------------------------------------------------- //
     //  -- カラーバー 一般設定     --  //
-    "clb_sw"                : true,
-    "clb_position"          : [0.50,0.92,0.88,0.94],
-    "clb_orientation"       : "horizontal",
+    "clb.sw"                : true,
+    "clb.position"          : [0.50,0.92,0.88,0.94],
+    "clb.orientation"       : "horizontal",
     //  -- カラーバー 目盛         --  //
-    "clb_nLabel"            : 2,
-    "clb_FontSize"          : 12,
+    "clb.nLabel"            : 2,
+    "clb.fontsize"          : 12,
     //  -- カラーバー タイトル     --  //
-    "clb_title"             : null,
-    "clb_title_pos"         : [0.65,0.92],
-    "clb_title_size"        : 20,
+    "clb.title"             : null,
+    "clb.title.position"    : [0.65,0.92],
+    "clb.title.fontsize"    : 20,
 
-    "clb.xMajor.nTicks"     : 2,
-    "clb.xMajor.length"     : 2.0,
-    "clb.xMajor.width"      : 1.0,
+    "clb.x.major.nticks"     : 2,
+    "clb.x.major.length"     : 2.0,
+    "clb.x.major.width"      : 1.0,
     
-    "clb.yMajor.nTicks"     : 2,
-    "clb.yMajor.length"     : 2.0,
-    "clb.yMajor.width"      : 1.0,
+    "clb.y.major.nticks"     : 2,
+    "clb.y.major.length"     : 2.0,
+    "clb.y.major.width"      : 1.0,
 
-    "clb.xMinor.nTicks"     : 1,
-    "clb.yMinor.nTicks"     : 1,
+    "clb.x.minor.nticks"     : 1,
+    "clb.y.minor.nticks"     : 1,
     
-
     // ------------------------------------------------- //
     // --- ベクトル                                  --- //
     // ------------------------------------------------- //

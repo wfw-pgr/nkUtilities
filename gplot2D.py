@@ -79,7 +79,7 @@ class gplot2D:
         if ( self.cMap is not None ):
             self.add__cMap( xAxis     = self.xAxis, yAxis   = self.yAxis,     \
                             cMap      = self.cMap , levels  = self.cmpLevels  )
-            if ( self.config["clb_sw"]      ):
+            if ( self.config["clb.sw"]      ):
                 self.set__colorBar()
             if ( self.config["cmp.point.sw"] ):
                 self.add__point( xAxis=self.xAxis, yAxis=self.yAxis )
@@ -551,54 +551,55 @@ class gplot2D:
         # ------------------------------------------------- #
         #  -- color bar の 作成                         --  #
         clbdata         = np.array( [ np.copy( self.cmpLevels ), np.copy( self.cmpLevels ) ] )
-        #  -- color bar の プロット領域                 --  #
-        lbrt            = self.config["clb_position"]
-        clbax           = self.fig.add_axes( [ lbrt[0], lbrt[1], lbrt[2]-lbrt[0], lbrt[3]-lbrt[1] ] )
+        lbrt            = self.config["clb.position"]
+        clbax           = self.fig.add_axes( [lbrt[0],lbrt[1],lbrt[2]-lbrt[0],lbrt[3]-lbrt[1]] )
         
         # ------------------------------------------------- #
         # --- 横向き カラーバーの描画                   --- #
         # ------------------------------------------------- #        
-        if ( self.config["clb_orientation"] == "horizontal" ):
+        if ( self.config["clb.orientation"].lower() in [ "h", "horizontal" ] ):
             clbax.set_xlim( self.cmpLevels[0] , self.cmpLevels[-1] )
             clbax.set_ylim( [0.0, 1.0] )
             clb_tickLabel = np.linspace( self.cmpLevels[0], self.cmpLevels[-1], \
-                                         self.config["clb.xMajor.nTicks"] )
+                                         self.config["clb.x.major.nticks"] )
             #  -- color bar の 軸目盛  設定                 --  #
-            clbax.tick_params( labelsize=self.config["clb_FontSize"], \
-                               length=self.config["clb.xMajor.length"], \
-                               width=self.config["clb.xMajor.width" ]  )
-            clbax.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.xMinor.nTicks"] ) )
+            clbax.tick_params( labelsize=self.config["clb.fontsize"], \
+                               length=self.config["clb.x.major.length"], \
+                               width=self.config["clb.x.major.width" ]  )
+            clbax.xaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.x.minor.nticks"] ) )
             clbax.get_xaxis().set_ticks( clb_tickLabel )
             clbax.get_yaxis().set_ticks([])
             self.myCbl  = clbax.contourf( self.cmpLevels, [0.0,1.0], clbdata, \
                                           self.cmpLevels, zorder=0, \
                                           cmap = self.config["cmp.colortable"] )
+            
         # ------------------------------------------------- #
         # --- 縦向き カラーバーの描画                   --- #
         # ------------------------------------------------- #        
-        if ( self.config["clb_orientation"] == "vertical" ):
+        if ( self.config["clb.orientation"].lower() in [ "v", "vertical" ] ):
             clbax.set_xlim( [0.0, 1.0] )
             clbax.set_ylim( self.cmpLevels[0], self.cmpLevels[-1] )
             clbax.get_xaxis().set_ticks([])
             clb_tickLabel = np.linspace( self.cmpLevels[0], self.cmpLevels[-1], \
-                                         self.config["clb.yMajor.nTicks"] )
-            clbax.tick_params( labelsize=self.config["clb_FontSize"], \
-                               length=self.config["clb.yMajor.length"], \
-                               width=self.config["clb.yMajor.width" ]  )
-            clbax.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.yMinor.nTicks"] ) )
+                                         self.config["clb.y.major.nticks"] )
+            clbax.tick_params( labelsize=self.config["clb.fontsize"], \
+                               length=self.config["clb.y.major.length"], \
+                               width=self.config["clb.y.major.width" ]  )
+            clbax.yaxis.set_minor_locator( tic.AutoMinorLocator( self.config["clb.y.minor.nticks"] ) )
             clbax.get_yaxis().set_ticks( clb_tickLabel )
             clbax.yaxis.tick_right()
             self.myCbl  = clbax.contourf( [0.0,1.0], self.cmpLevels, np.transpose( clbdata ), \
                                           self.cmpLevels, zorder=0, \
                                           cmap = self.config["cmp.colortable"] )
+            
         # ------------------------------------------------- #
         # --- カラーバー タイトル 追加                  --- #
         # ------------------------------------------------- #        
-        if ( self.config["clb_title"] is not None ):
+        if ( self.config["clb.title"] is not None ):
             textax = self.fig.add_axes( [0,0,1,1] )
-            ctitle = r"{}".format( self.config["clb_title"] )
-            textax.text( self.config["clb_title_pos"][0], self.config["clb_title_pos"][1], \
-                         ctitle, fontsize=self.config["clb_title_size"] )
+            ctitle = r"{}".format( self.config["clb.title"] )
+            textax.text( *self.config["clb.title.position"], ctitle, \
+                         fontsize=self.config["clb.title.fontsize"] )
             textax.set_axis_off()
 
             
