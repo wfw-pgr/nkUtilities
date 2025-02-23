@@ -17,19 +17,16 @@ class gplot2D:
     # --- クラス初期化用ルーチン                    --- #
     # ------------------------------------------------- #
     def __init__( self, \
-                  xAxis      = None, yAxis  = None, \
-                  cMap       = None, Cntr   = None, \
-                  xvec       = None, yvec   = None, \
-                  pngFile    = None, config = None, \
-                  cmpmode    = None ):
+                  xAxis   = None, yAxis  = None, \
+                  cMap    = None, Cntr   = None, vect    = None, \
+                  pngFile = None, config = None, cmpmode = None ):
         
         # ------------------------------------------------- #
         # --- 引数の引き渡し                            --- #
         # ------------------------------------------------- #
-        self.xAxis, self.yAxis = xAxis, yAxis
-        self.cMap , self.Cntr  =  cMap, Cntr
-        self.xvec , self.yvec  =  xvec, yvec
-        self.config            = config
+        self.xAxis, self.yAxis  = xAxis, yAxis
+        self.cMap , self.Cntr   =  cMap, Cntr
+        self.vect , self.config =  vect, config
         
         # ------------------------------------------------- #
         # --- コンフィグの設定                          --- #
@@ -92,9 +89,9 @@ class gplot2D:
             instantOut = True
         # -- もし xvec, yvec が渡されていたら，即，描く --  #
         #  -- revision need -- #
-        # if ( ( self.xvec is not None ) and ( self.yvec is not None ) ):
-        #     self.add__vector( xAxis = self.xAxis, yAxis = self.yAxis, \
-        #                       uvec  = self.xvec,  vvec  = self.yvec,  )
+        if ( self.vect is not None ):
+            self.add__vector ( vect=self.vect )
+            instantOut = True
         # -- もし 何かを描いてたら，出力する．          --  #
         if ( instantOut ):
             self.save__figure( pngFile=self.config["figure.pngFile"] )
@@ -214,46 +211,55 @@ class gplot2D:
     # ========================================================= #
     # ===   ベクトル 追加  ルーチン                         === #
     # ========================================================= #
-    def add__vector( self, xAxis=None, yAxis=None, uvec=None, vvec=None, order="ji" ):
+    def add__vector( self, vect=None, ):
+
+        # -- vect :: [ nData, 4 ]   -- #
+        #         :: [ x, y, u, v ]
+        x_, y_, u_, v_ = 0, 1, 2, 3
+        # ------------------------------------------------- #
+        # --- [1] 引数チェック                          --- #
+        # ------------------------------------------------- #
+        if ( vect  is None ): sys.exit("[add__vector] vect  == ???")
+        print( vect.shape )
         
         # ------------------------------------------------- #
-        # --- 引数チェック                              --- #
+        # --- [2] set datarange / down sampling         --- #
         # ------------------------------------------------- #
-        if ( uvec  is None ): sys.exit("[add__vector] uvec  == ???")
-        if ( vvec  is None ): sys.exit("[add__vector] vvec  == ???")
-        if ( xAxis is None ): sys.exit("[add__vector] xAxis == ???")
-        if ( yAxis is None ): sys.exit("[add__vector] yAxis == ???")
-        if ( order == "ji" ): uvec, vvec = np.transpose( uvec ), np.transpose( vvec )
-
-        ##  -- NEED revision -- ##
-        # # ------------------------------------------------- #
-        # # ---  remap                                    --- #
-        # # ------------------------------------------------- #
-        # if ( self.config["vec.remap.sw"] ):
-        #     self.config["vec_xRange"] = self.config["ax1Range"]
-        #     self.config["vec_yRange"] = self.config["cmp_yRange"]
-        #     xa     = np.linspace( self.config["vec_xRange"][0], self.config["vec_xRange"][-1], self.config["vec_nvec_x"] )
-        #     ya     = np.linspace( self.config["vec_yRange"][0], self.config["vec_yRange"][-1], self.config["vec_nvec_y"] )
-        #     xg,yg  = np.meshgrid( xa, ya )
-        #     pAxis  = np.concatenate( [ np.ravel( np.copy( xAxis ) )[:,None], np.ravel( np.copy( yAxis ) )[:,None] ], axis=1 )
-        #     uxIntp = itp.griddata( pAxis, uvec, (xg,yg), method=self.config["vec.interpolation"] )
-        #     vyIntp = itp.griddata( pAxis, vvec, (xg,yg), method=self.config["vec.interpolation"] )
-
-        # # ------------------------------------------------- #
-        # # --- プロット 設定                             --- #
-        # # ------------------------------------------------- #
-        # if ( self.config["vec.scale.auto"] ):
-        #     self.config["vec.scale"] = np.sqrt( np.max( uxIntp**2 + vyIntp**2 ) ) \
-        #         * self.config["vec.scale.ref"]
-
-        # # ------------------------------------------------- #
-        # # -- ベクトルプロット                            -- #
-        # # ------------------------------------------------- #
-        # self.ax1.quiver( xg, yg, uxIntp, vyIntp, angles='uv', scale_units='xy', \
-        #                  color=self.config["vec.color"], scale=self.config["vec.scale"], \
-        #                  width=self.config["vec.width"], pivot=self.config["vec.pivot"], \
-        #                  headwidth =self.config["vec.headwidth"], \
-        #                  headlength=self.config["vec.headlength"] )
+        if ( self.config["vec.x.range"]["auto"] ):
+            config["vec.x.range"]["min"] = np.min( self.vect[:,x_] )
+            config["vec.x.range"]["max"] = np.max( self.vect[:,x_] )
+        if ( self.config["vec.y.range"]["auto"] ):
+            config["vec.y.range"]["min"] = np.min( self.vect[:,y_] )
+            config["vec.y.range"]["max"] = np.max( self.vect[:,y_] )
+        xa     = np.linspace( self.config["vec.x.range"]["min"], \
+                              self.config["vec.x.range"]["max"], \
+                              self.config["vec.x.range"]["num"]  )
+        ya     = np.linspace( self.config["vec.y.range"]["min"], \
+                              self.config["vec.y.range"]["max"], \
+                              self.config["vec.x.range"]["num"]  )
+        xg, yg = np.meshgrid( xa, ya )
+        pAxis  = np.copy( vect[:, x_:y_+1] )
+        uxIntp = itp.griddata( pAxis, vect[:,u_], (xg,yg), \
+                               method=self.config["vec.interpolation"] )
+        vyIntp = itp.griddata( pAxis, vect[:,v_], (xg,yg), \
+                               method=self.config["vec.interpolation"] )
+        
+        # ------------------------------------------------- #
+        # --- プロット 設定                             --- #
+        # ------------------------------------------------- #
+        if ( self.config["vec.scale.auto"] ):
+            maxLength = np.max( np.sqrt( uxIntp**2 + vyIntp**2 ) )
+            self.config["vec.scale"] = self.config["vec.scale.ref"] / maxLength
+            print( self.config["vec.scale"] )
+            
+        # ------------------------------------------------- #
+        # -- ベクトルプロット                            -- #
+        # ------------------------------------------------- #
+        self.ax1.quiver( xg, yg, uxIntp, vyIntp, angles='uv', scale_units='xy', \
+                         color=self.config["vec.color"], scale=self.config["vec.scale"], \
+                         width=self.config["vec.width"], pivot=self.config["vec.pivot"], \
+                         headwidth =self.config["vec.head.width"], \
+                         headlength=self.config["vec.head.length"] )
 
 
     # ========================================================= #
@@ -791,9 +797,14 @@ if ( __name__=="__main__" ):
     coord       = esg.equiSpaceGrid( x1MinMaxNum=x1MinMaxNum, x2MinMaxNum=x2MinMaxNum, \
                                      x3MinMaxNum=x3MinMaxNum, returnType = "point" )
     coord[:,z_] = np.sqrt( coord[:,x_]**2 + coord[:,y_]**2 )
-    
     print( coord.shape )
-    gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], \
+    xvec = coord[:,x_]
+    yvec = coord[:,y_]
+    uvec = coord[:,x_] / coord[:,z_]
+    vvec = coord[:,y_] / coord[:,z_]
+    vect = np.concatenate( [ xvec[:,np.newaxis], yvec[:,np.newaxis], \
+                             uvec[:,np.newaxis], vvec[:,np.newaxis] ], axis=1 )
+    gplot2D( xAxis=coord[:,x_], yAxis=coord[:,y_], cMap=coord[:,z_], vect=vect, \
              config=config, pngFile="test/gplot2D.png", cmpmode="tricontourf" )
 
     # ------------------------------------------------- #

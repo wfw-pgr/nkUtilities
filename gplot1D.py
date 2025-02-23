@@ -608,7 +608,8 @@ class gplot1D:
     # ========================================================= #
     # ===  bar 追加                                         === #
     # ========================================================= #
-    def add__bar( self, xAxis=None, yAxis=None, color=None, alpha=None, width=None, \
+    def add__bar( self, xAxis=None, yAxis=None, xMin=None, xMax=None, \
+                  color=None, alpha=None, width=None, \
                   label=None, align="center", bottom=None ):
         
         # ------------------------------------------------- #
@@ -616,19 +617,28 @@ class gplot1D:
         # ------------------------------------------------- #
         if ( yAxis is None ): yAxis      = self.yAxis
         if ( xAxis is None ): xAxis      = self.xAxis
-        if ( yAxis is None ): sys.exit( " [add__plot] yAxis == ?? " )
+        if ( yAxis is None ): sys.exit( " [add__bar] yAxis == ?? " )
         if ( xAxis is None ): xAxis      = np.arange( yAxis.size ) # - インデックス代用 - #
         if ( label is None ): label      = ' '*self.config["legend.labelLength"]
-        if ( width is None ): width      = self.config["bar_width"]
-        if ( color is None ): color      = self.config["plot.color"]
-        if ( alpha is None ): alpha      = self.config["plot.alpha"]
+        if ( width is None ): width      = self.config["bar.width"]
+        if ( color is None ): color      = self.config["bar.color"]
+        if ( alpha is None ): alpha      = self.config["bar.alpha"]
+        if ( ( xMin  is not None ) and ( xMax is not None ) ):
+            xAxis = 0.5*( xMin + xMax )
+            width = xMax - xMin
         
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
-        bar_width    = ( xAxis[1]-xAxis[0] ) * width
-        self.xAxis   = xAxis
-        self.yAxis   = yAxis
+        if   ( type(width) is float ): # --  relative value ( 0 - 1.0 )  -- #
+            bar_width  = ( xAxis[1]-xAxis[0] ) * width
+        elif ( type(width) in [ list, np.ndarray ] ):
+            bar_width  = width
+        else:
+            print( "[add__bar @ gplot1D.py] width == ??? ( float, list, np.ndarray ) " )
+            sys.exit()
+        self.xAxis = xAxis
+        self.yAxis = yAxis
         self.update__DataRange( xAxis=xAxis, yAxis=yAxis )
         self.set__axis()
         
@@ -637,7 +647,10 @@ class gplot1D:
         # ------------------------------------------------- #
         self.ax1.bar( xAxis, yAxis, label =label, \
                       color =color, alpha =alpha, width=bar_width, \
-                      align =align, bottom=bottom )
+                      align =align, bottom=bottom, \
+                      edgecolor=self.config["bar.line.color"], \
+                      linewidth=self.config["bar.line.width"], \
+        )
 
 
     # ========================================================= #

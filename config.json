@@ -187,14 +187,14 @@
     // --- ベクトル                                  --- //
     // ------------------------------------------------- //
     //  -- ベクトル数設定          --  //
-    "vec.nx"            : 12,
-    "vec.ny"            : 12,
+    "vec.x.range"       : { "auto":true, "min": 0.0, "max":1.0, "num":10 }, 
+    "vec.y.range"       : { "auto":true, "min": 0.0, "max":1.0, "num":10 }, 
     //  -- ベクトル 色             --  //
-    "vec.color"         : "springgreen",
+    "vec.color"         : "black",
     //  -- ベクトル サイズ         --  //
-    "vec.scale"         : 0.03,
+    "vec.scale"         : 1.0,
     "vec.scale.auto"    : true,
-    "vec.scale.ref"     : 8.0,
+    "vec.scale.ref"     : 1.0,
     "vec.remap.sw"      : true, 
     "vec.width"         : 0.01,
     "vec.head.width"    : 2.5,
@@ -284,8 +284,11 @@
     // ------------------------------------------------- //
     // --- bar graph 設定                            --- //
     // ------------------------------------------------- //
-    "bar_width"             : 0.8,
-    
+    "bar.width"             : 0.8,
+    "bar.color"             : "blue",
+    "bar.alpha"             : 0.4, 
+    "bar.line.color"        : "black", 
+    "bar.line.width"        : 0.6, 
 
     // ------------------------------------------------- //
     // --- histogram graph 設定                      --- //
