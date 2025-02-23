@@ -131,39 +131,29 @@ class gplot1D:
     # ========================================================= #
     def add__errorbar( self, xAxis=None, yAxis=None, xerr=None, yerr=None, \
                        capsize=None, capthick=None, fmt="none", \
-                       label=None, color=None, alpha=None, \
-                       linestyle=None, linewidth=None, marker=None, markersize=None ):
+                       color=None, alpha=None, linestyle=None, linewidth=None ):
+        
         # ------------------------------------------------- #
         # --- 引数チェック                              --- #
         # ------------------------------------------------- #
-        if ( yAxis       is None ): yAxis       = self.yAxis
-        if ( xAxis       is None ): xAxis       = self.xAxis
-        if ( yAxis       is None ): sys.exit( " [gplot1D.py] yAxis == ?? " )
-        if ( xAxis       is None ): xAxis       = np.arange( yAxis.size )
-        # - インデックス代用 - #
-        if ( color       is None ): color       = self.config["plot.color"]
-        if ( alpha       is None ): alpha       = self.config["plot.alpha"]
-        if ( linewidth   is None ): linewidth   = self.config["plot.linewidth"] * 0.8
-        if ( linestyle   is None ): linestyle   = self.config["plot.linestyle"]
-        if ( marker      is None ): marker      = self.config["plot.marker"]
-        if ( markersize  is None ): markersize  = self.config["plot.markersize"]
-        if ( capthick    is None ): capthick    = self.config["plot.error_capthick"]
-        if ( capsize     is None ): capsize     = self.config["plot.error_capsize"]
+        if ( yAxis     is None ): yAxis     = self.yAxis
+        if ( xAxis     is None ): xAxis     = self.xAxis
+        if ( yAxis     is None ): sys.exit( " [gplot1D.py] yAxis == ?? " )
+        if ( xAxis     is None ): xAxis     = np.arange( yAxis.size ) # インデックス代用
+        if ( color     is None ): color     = self.config["plot.error.color"]
+        if ( alpha     is None ): alpha     = self.config["plot.error.alpha"]
+        if ( linewidth is None ): linewidth = self.config["plot.error.linewidth"]
+        if ( capsize   is None ): capsize   = self.config["plot.error.cap.size"]
+        if ( capthick  is None ): capthick  = self.config["plot.error.cap.thick"]
         if ( ( xerr is None ) and ( yerr is None ) ):
             sys.exit("[add__errorbar] xerr=None & yerr=None ")
-        if ( self.config["plot.colorStack"] is not None ):
-            color    = ( self.config["plot.colorStack"] ).pop(0)
-        # ------------------------------------------------- #
-        # --- フィルタリング                            --- #
-        # ------------------------------------------------- #
-        # xAxis, yAxis = gfl.generalFilter( xAxis=xAxis, yAxis=yAxis, config=self.config )
+            
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
         self.ax1.errorbar( xAxis, yAxis, xerr=xerr, yerr=yerr, \
-                           fmt=fmt, capsize=capsize, capthick=capthick, \
-                           ecolor=color , elinestyle=linestyle, elinewidth=linewidth , \
-                           marker=marker, markersize=markersize, alpha=alpha )
+                           capsize=capsize, capthick=capthick, fmt=fmt, alpha=alpha, \
+                           ecolor=color, elinewidth=linewidth )
 
 
     # ========================================================= #
@@ -608,7 +598,7 @@ class gplot1D:
     # ========================================================= #
     # ===  bar 追加                                         === #
     # ========================================================= #
-    def add__bar( self, xAxis=None, yAxis=None, xMin=None, xMax=None, \
+    def add__bar( self, xAxis=None, yAxis=None, xMin=None, xMax=None, yerr=None, \
                   color=None, alpha=None, width=None, \
                   label=None, align="center", bottom=None ):
         
@@ -626,7 +616,7 @@ class gplot1D:
         if ( ( xMin  is not None ) and ( xMax is not None ) ):
             xAxis = 0.5*( xMin + xMax )
             width = xMax - xMin
-        
+            
         # ------------------------------------------------- #
         # --- 軸設定                                    --- #
         # ------------------------------------------------- #
@@ -645,8 +635,8 @@ class gplot1D:
         # ------------------------------------------------- #
         # --- プロット 追加                             --- #
         # ------------------------------------------------- #
-        self.ax1.bar( xAxis, yAxis, label =label, \
-                      color =color, alpha =alpha, width=bar_width, \
+        self.ax1.bar( xAxis, yAxis, label =label, width=bar_width, yerr =yerr, \
+                      color =color, alpha =alpha, \
                       align =align, bottom=bottom, \
                       edgecolor=self.config["bar.line.color"], \
                       linewidth=self.config["bar.line.width"], \

@@ -254,8 +254,12 @@
     // ------------------------------------------------- //
     // --- エラーバー設定                            --- //
     // ------------------------------------------------- //
-    "plot.error_capsize"    : 3.0,
-    "plot.error_capthick"   : 1.2,
+    "plot.error.color"      : "blue", 
+    "plot.error.alpha"      : 1.0, 
+    "plot.error.linewidth"  : 0.8, 
+    "plot.error.linestyle"  : "-", 
+    "plot.error.cap.size"   : 1.5,
+    "plot.error.cap.thick"  : 1.0,
 
     // ------------------------------------------------- //
     // --- 2nd Axis Settings                         --- //
