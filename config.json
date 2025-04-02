@@ -53,7 +53,9 @@
     "ax1.x.minor.sw"       : true,
     "ax1.x.minor.nticks"   : 2,
     "ax1.x.minor.size"     : 3.0,
-    "ax1.x.minor.width"    : 1.5,
+    "ax1.x.minor.width"    : 0.8,
+    "ax1.x.minor.length"   : 3.0,
+    "ax1.x.minor.fontsize" : 0,
 
     // ------------------------------------------------- //
     // --- 軸 目盛 設定  ( y )                       --- //
@@ -74,7 +76,9 @@
     "ax1.y.minor.sw"       : true,
     "ax1.y.minor.nticks"   : 2,
     "ax1.y.minor.size"     : 3.0,
-    "ax1.y.minor.width"    : 1.5,
+    "ax1.y.minor.width"    : 0.8,
+    "ax1.y.minor.length"   : 3.0,
+    "ax1.y.minor.fontsize" : 0,
     
     // ------------------------------------------------- //
     // --- グリッド                                  --- //
@@ -236,6 +240,9 @@
     "ax1.x.normalize"       : null,
     "ax1.y.normalize"       : null,
     "ax2.y.normalize"       : null,
+    "ax1.y.power.sw"        : true,
+    "ax1.y.power.range"     : [-5,5],
+    
     
     // ------------------------------------------------- //
     // --- 目盛設定 / 対数目盛                       --- //

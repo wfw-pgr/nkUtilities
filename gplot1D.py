@@ -222,7 +222,8 @@ class gplot1D:
         if ( ( self.config["ax2.y.range"]["auto"] ) and ( self.DataRange_ax2 is not None ) ):
             ret = self.auto__griding( vMin=self.DataRange_ax2[2], vMax=self.DataRange_ax2[3], \
                                       nGrid=self.config["ax2.y.range"]["num"] )
-            self.config["ax2.y.range"] = [ ret[0], ret[1], ret[2] ]
+            self.config["ax2.y.range"]["min"] = ret[0]
+            self.config["ax2.y.range"]["max"] = ret[1]
             
         # ------------------------------------------------- #
         # --- 軸範囲 直接設定  ( 優先順位 1 )           --- #
@@ -363,6 +364,10 @@ class gplot1D:
         #  -- 対数表示 ( x,y )                          --  #
         if ( self.config["ax1.x.log"] ):
             self.ax1.set_xscale("log")
+            self.ax1.xaxis.set_major_locator( tic.LogLocator( base=10.0, numticks=10 ) )
+            # self.ax1.xaxis.set_minor_locator( tic.LogLocator( base=10.0, numticks=10 ) )
+            self.ax1.xaxis.set_minor_locator(
+                tic.LogLocator( base=10.0, subs=np.arange(1.0, 10.0)*0.1, numticks=10 ) )
             if ( self.config["ax1.x.major.auto"] ):
                 pass
             else:
@@ -377,10 +382,27 @@ class gplot1D:
         self.ax1.tick_params( axis  ="x", labelsize=self.config["ax1.x.major.fontsize"], \
                               length=self.config["ax1.x.major.length"], \
                               width =self.config["ax1.x.major.width"])
+        self.ax1.tick_params( axis  ="x", which="minor", \
+                              labelsize=self.config["ax1.x.minor.fontsize"], \
+                              length=self.config["ax1.x.minor.length"], \
+                              width =self.config["ax1.x.minor.width"])
         #  -- 軸スタイル (y)                            --  #
         self.ax1.tick_params( axis  ="y", labelsize=self.config["ax1.y.major.fontsize"], \
                               length=self.config["ax1.y.major.length"], \
                               width =self.config["ax1.y.major.width"])
+        self.ax1.tick_params( axis  ="y", which="minor", \
+                              labelsize=self.config["ax1.y.minor.fontsize"], \
+                              length=self.config["ax1.y.minor.length"], \
+                              width =self.config["ax1.y.minor.width"])
+        # ------------------------------------------------- #
+        # --- 10^X notation                             --- #
+        # ------------------------------------------------- #
+        if ( self.config["ax1.y.power.sw"] ):
+            formatter = tic.ScalarFormatter( useMathText=True )
+            formatter.set_powerlimits( tuple(self.config["ax1.y.power.range"]) )
+            self.ax1.yaxis.set_major_formatter( formatter )
+            
+        
         # ------------------------------------------------- #
         # --- 軸目盛  オフ                              --- #
         # ------------------------------------------------- #

@@ -1,0 +1,18 @@
+{
+    // This a sample of json file
+    "val1"    : 30.0,
+    "val2"    : 2,
+    "val4"    : "@val0+@val3", 
+    "val3"    : "@val0+@val1", 
+    "val0"    : "@val1+@val2", 
+    "val5"    : "@val0+@val4", 
+    "arr1"    : [1.0,2.0,3.0,],
+    "exe.sw"  :true, 
+    "save.sw" :false,
+    "item"    :null,
+    "fml"     : "np.cos(@val1/180.0*np.pi)*@val2",
+    "fml2"    : "np.cos(@{val3}/180.0*np.pi)*@{val2}",
+    "val3"    : 60.0,
+    /* comment line */
+}
+
