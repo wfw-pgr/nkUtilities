@@ -1,7 +1,7 @@
 {
     // This a sample of json file
     "val1"    : 30.0,
-    "val2"    : 2,
+    "val2"    :  0.0,
     "val4"    : "@val0+@val3", 
     "val3"    : "@val0+@val1", 
     "val0"    : "@val1+@val2", 

@@ -92,15 +92,15 @@ def json__formulaParser( inpFile=None, stop__error=False, verbose=False, table=N
 def return__digitsAligned( value, maxDigit=8, precision=12 ):
 
     if ( type( value ) in [ int, float, np.float64, np.int32 ] ):
-        decimal.getcontext().prec = precision
+        decimal.getcontext().prec     = precision
+        decimal.getcontext().rounding = decimal.ROUND_HALF_UP
         exp = math.floor( math.log10( abs( value ) ) ) if ( value != 0 ) else 0.0
         if ( abs( exp ) >= maxDigit ):
             ret = ( "{:15." + str(maxDigit) + "e}" ).format( value )
         else:
-            lowest = exp - maxDigit
-            quant = decimal.Decimal( "1e{0}".format( lowest ) )
-            dval  = decimal.Decimal.from_float( value )\
-                                       .quantize( quant, rounding=decimal.ROUND_HALF_UP )
+            lowest = int( exp - maxDigit )
+            quant  = decimal.Decimal( "1e{0}".format( lowest ) )
+            dval   = decimal.Decimal.from_float( value ).quantize( quant )
             ret   = format(dval, "f").rstrip("0").rstrip(".")
         return( ret )
     else:
