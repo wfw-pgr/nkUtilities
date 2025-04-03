@@ -35,7 +35,7 @@ def precompile__parameterFile( inpFile=None, outFile=None, lines=None, table=Non
                                            comment_mark=comment_mark, escapeType=escapeType )
     
     # ------------------------------------------------- #
-    # --- [3] include divided Files                 --- #
+    # --- [3] replace__variableDefinition           --- #
     # ------------------------------------------------- #
     lines = rvd.replace__variableDefinition( outFile=outFile, lines=lines, table=table,
                                              replace_expression=replace_expression, \
@@ -55,7 +55,7 @@ if ( __name__=="__main__" ):
     mode = "normal"
     
     if ( mode == "test" ):
-        table   = { "title":"TEST01" }
+        table   = { "title":"TEST01" }        
         inpFile = "test/precompile__parameterFile/sample_parameter.inp"
         outFile = "test/precompile__parameterFile/sample_parameter.out"
         ret     = precompile__parameterFile( inpFile=inpFile, outFile=outFile, \
@@ -63,14 +63,14 @@ if ( __name__=="__main__" ):
         print()
         print( "".join( ret ) )
         print()
-        sys.exit()
 
     elif ( mode == "normal" ):
 
         parser = argparse.ArgumentParser()
-        parser.add_argument( "inpFile"       , help="input  file name." )
-        parser.add_argument( "--outFile"     , help="output file name." )
-        parser.add_argument( "--comment_mark", help="comment mark.", default="#" )
+        parser.add_argument( "inpFile"        , help="input  file name." )
+        parser.add_argument( "--outFile"      , help="output file name." )
+        parser.add_argument( "--comment_mark" , help="comment mark." , default="#" )
+        parser.add_argument( "--variable_mark", help="variable mark.", default="@" )
         args   = parser.parse_args()
         if ( args.inpFile is None ):
             print( "[precompile__parameterFile.py]  inpFile  must be given ..." )
